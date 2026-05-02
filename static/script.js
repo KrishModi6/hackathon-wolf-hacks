@@ -1,4 +1,4 @@
-// Frontend behaviour for TriageWolf.
+// Frontend behaviour for SwiftCare Brampton.
 // Most interactivity is form-based, but the dashboard polls /api/state for live updates.
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -22,11 +22,16 @@ function initCaregiverMode() {
 function initAccessibilityMode() {
   const btn = document.getElementById("a11y-toggle");
   if (!btn) return;
-  const key = "triagewolf_a11y_mode";
+  const key = "swiftcare_a11y_mode";
+  const label = btn.querySelector(".a11y-label");
 
   const apply = (on) => {
     document.body.classList.toggle("a11y-mode", on);
-    btn.textContent = on ? "A11y: ON" : "A11y";
+    if (label) {
+      label.textContent = on ? "Accessibility: ON" : "Accessibility";
+    } else {
+      btn.textContent = on ? "Accessibility: ON" : "Accessibility";
+    }
   };
 
   const remembered = window.localStorage.getItem(key) === "1";
@@ -127,7 +132,7 @@ async function sendToAssistant(text) {
   sendBtn.disabled = true;
   sendBtn.textContent = "Analyzing…";
   result.classList.remove("hidden");
-  result.innerHTML = `<div class="p-4 rounded-lg bg-white border border-gray-200 text-sm text-gray-600">🤖 Thinking…</div>`;
+  result.innerHTML = `<div class="p-4 rounded-lg bg-white border border-gray-200 text-sm text-gray-600">Thinking…</div>`;
 
   try {
     const res = await fetch("/api/assistant", {
@@ -190,14 +195,14 @@ function renderAssistantResult(data) {
   if (data.condition_x_auto_triggered) {
     html += `
       <div class="mt-3 p-3 rounded bg-red-700 text-white text-sm font-semibold">
-        🚨 CONDITION X AUTO-ACTIVATED — ${escapeHtml(data.outbreak_reason || 'outbreak pattern detected')}.
+        🦠 OUTBREAK ALERT AUTO-ACTIVATED — ${escapeHtml(data.outbreak_reason || 'outbreak pattern detected')}.
         Surge protocols are now live across Brampton.
       </div>`;
     // Show the surge banner immediately without a page reload.
     if (!document.querySelector(".surge-banner")) {
       const banner = document.createElement("div");
       banner.className = "surge-banner";
-      banner.textContent = "CONDITION X ALERT: Brampton hospitals at capacity. Non-emergency patients are being routed to virtual triage.";
+      banner.textContent = "OUTBREAK ALERT: Brampton hospitals at capacity. Non-emergency patients are being routed to virtual triage.";
       document.body.prepend(banner);
     }
   }
@@ -225,7 +230,7 @@ function speakReply(data) {
   window.speechSynthesis.cancel();
   const parts = [data.summary, data.next_steps];
   if (data.early_warning) parts.unshift("Important. " + data.early_warning);
-  if (data.condition_x_auto_triggered) parts.push("Condition X surge mode has been activated.");
+  if (data.condition_x_auto_triggered) parts.push("Outbreak surge mode has been activated.");
   const utterance = new SpeechSynthesisUtterance(parts.filter(Boolean).join(" "));
   utterance.rate = 1.0;
   utterance.pitch = 1.0;

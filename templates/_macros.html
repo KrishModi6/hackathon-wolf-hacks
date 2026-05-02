@@ -1,0 +1,156 @@
+{# =========================================================================
+   SwiftCare Brampton shared Jinja macros
+   - icon(name, size)  -> inline SVG icon (mirrors hacakthon0/icons.jsx)
+   - wordmark()        -> care SVG + name
+   - tw_header(active) -> page header with surge + predictive + nav
+   - tw_footer()       -> page footer
+   - ctas_chip(level)  -> CTAS severity pill
+   - wait_chip(minutes, large)
+   - pill(text, variant)
+   - live_dot()
+========================================================================= #}
+
+{# ---------- icon ---------- #}
+{% macro icon(name, size=18, stroke=1.5, klass='') -%}
+{%- set common -%}
+width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="{{ stroke }}" stroke-linecap="round" stroke-linejoin="round" class="{{ klass }}"
+{%- endset -%}
+{%- if name == 'wolf' -%}
+<svg {{ common|safe }}><path d="M3 7l3-3 2 2h8l2-2 3 3-1 4-2 1v3l-2 4h-3l-1-2h-4l-1 2H7l-2-4v-3l-2-1z"/><circle cx="9.5" cy="11" r="0.6" fill="currentColor" stroke="none"/><circle cx="14.5" cy="11" r="0.6" fill="currentColor" stroke="none"/><path d="M11 14h2"/></svg>
+{%- elif name == 'pulse' -%}<svg {{ common|safe }}><path d="M3 12h4l2-6 4 12 2-6h6"/></svg>
+{%- elif name == 'mic' -%}<svg {{ common|safe }}><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8"/></svg>
+{%- elif name == 'sparkles' -%}<svg {{ common|safe }}><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 15l.7 1.8L21.5 17l-1.8.7L19 19.5l-.7-1.8L16.5 17l1.8-.7z"/></svg>
+{%- elif name == 'send' -%}<svg {{ common|safe }}><path d="M4 12l16-8-6 16-2-7-8-1z"/></svg>
+{%- elif name == 'search' -%}<svg {{ common|safe }}><circle cx="11" cy="11" r="6"/><path d="m20 20-3.5-3.5"/></svg>
+{%- elif name == 'map-pin' -%}<svg {{ common|safe }}><path d="M12 21s7-6 7-11a7 7 0 1 0-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+{%- elif name == 'clock' -%}<svg {{ common|safe }}><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+{%- elif name == 'user' -%}<svg {{ common|safe }}><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>
+{%- elif name == 'users' -%}<svg {{ common|safe }}><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 19a6 6 0 0 1 12 0M15 19a5 5 0 0 1 6 0"/></svg>
+{%- elif name == 'hospital' -%}<svg {{ common|safe }}><path d="M4 21V8l8-4 8 4v13"/><path d="M4 21h16M10 21v-5h4v5M12 8v6M9 11h6"/></svg>
+{%- elif name == 'stethoscope' -%}<svg {{ common|safe }}><path d="M6 3v6a4 4 0 0 0 8 0V3"/><path d="M5 3h2M13 3h2"/><path d="M10 13v2a5 5 0 0 0 10 0v-1"/><circle cx="20" cy="13" r="2"/></svg>
+{%- elif name == 'video' -%}<svg {{ common|safe }}><rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3z"/></svg>
+{%- elif name == 'alert' -%}<svg {{ common|safe }}><path d="M12 4 2 20h20z"/><path d="M12 10v5M12 18v.01"/></svg>
+{%- elif name == 'shield' -%}<svg {{ common|safe }}><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="m9 12 2 2 4-4"/></svg>
+{%- elif name == 'chevron-right' -%}<svg {{ common|safe }}><path d="m9 6 6 6-6 6"/></svg>
+{%- elif name == 'chevron-down' -%}<svg {{ common|safe }}><path d="m6 9 6 6 6-6"/></svg>
+{%- elif name == 'chevron-left' -%}<svg {{ common|safe }}><path d="m15 6-6 6 6 6"/></svg>
+{%- elif name == 'arrow-right' -%}<svg {{ common|safe }}><path d="M5 12h14m-5-5 5 5-5 5"/></svg>
+{%- elif name == 'phone' -%}<svg {{ common|safe }}><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A15 15 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>
+{%- elif name == 'qr' -%}<svg {{ common|safe }}><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3M21 14v7M14 18v3M17 21h4"/></svg>
+{%- elif name == 'x' -%}<svg {{ common|safe }}><path d="M6 6l12 12M18 6 6 18"/></svg>
+{%- elif name == 'check' -%}<svg {{ common|safe }}><path d="m5 12 5 5 9-11"/></svg>
+{%- elif name == 'info' -%}<svg {{ common|safe }}><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg>
+{%- elif name == 'thermometer' -%}<svg {{ common|safe }}><path d="M14 14V5a2 2 0 1 0-4 0v9a4 4 0 1 0 4 0z"/></svg>
+{%- elif name == 'heart' -%}<svg {{ common|safe }}><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/></svg>
+{%- elif name == 'lung' -%}<svg {{ common|safe }}><path d="M12 4v10M8 8c-3 1-5 4-5 8 0 2 1 3 3 3s4-2 4-5V8zM16 8c3 1 5 4 5 8 0 2-1 3-3 3s-4-2-4-5V8z"/></svg>
+{%- elif name == 'activity' -%}<svg {{ common|safe }}><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>
+{%- elif name == 'filter' -%}<svg {{ common|safe }}><path d="M3 5h18l-7 8v6l-4 2v-8z"/></svg>
+{%- elif name == 'grid' -%}<svg {{ common|safe }}><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+{%- elif name == 'list' -%}<svg {{ common|safe }}><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+{%- elif name == 'trending-up' -%}<svg {{ common|safe }}><path d="m3 17 6-6 4 4 8-8M14 7h7v7"/></svg>
+{%- elif name == 'globe' -%}<svg {{ common|safe }}><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
+{%- elif name == 'chat' -%}<svg {{ common|safe }}><path d="M21 12a8 8 0 0 1-12.3 6.7L4 20l1.3-4.7A8 8 0 1 1 21 12z"/></svg>
+{%- else -%}<svg {{ common|safe }}><circle cx="12" cy="12" r="8"/></svg>
+{%- endif -%}
+{%- endmacro %}
+
+{# ---------- wordmark ---------- #}
+{% macro wordmark(subtitle=true) -%}
+<a href="{{ url_for('index') }}" class="wordmark">
+  <svg width="26" height="26" viewBox="0 0 32 32" fill="none">
+    <path d="M3 9l4-4 3 3h12l3-3 4 4-1 5-3 1.5v3l-3 5h-4l-1.5-2h-5L10 23H6l-3-5v-3L1 14z"
+          transform="translate(1 0)" fill="var(--tw-maroon)"/>
+    <circle cx="13" cy="14" r="1.1" fill="#fff"/>
+    <circle cx="20" cy="14" r="1.1" fill="#fff"/>
+    <path d="M15 18h3" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/>
+  </svg>
+  <span class="wordmark-text">
+    <span class="wordmark-name">Swift<em>Care</em></span>
+    {% if subtitle %}<span class="wordmark-sub">Brampton Care Navigator</span>{% endif %}
+  </span>
+</a>
+{%- endmacro %}
+
+{# ---------- live dot ---------- #}
+{% macro live_dot() -%}
+<span class="live-dot">Live</span>
+{%- endmacro %}
+
+{# ---------- pill ---------- #}
+{% macro pill(text, variant='neutral', icon_name=None) -%}
+<span class="pill pill--{{ variant }}">
+  {% if icon_name %}{{ icon(icon_name, size=11) }}{% endif %}
+  {{ text }}
+</span>
+{%- endmacro %}
+
+{# ---------- ctas chip ---------- #}
+{% macro ctas_chip(level, size='sm') -%}
+{% set labels = {1:'CTAS 1 · Resuscitation', 2:'CTAS 2 · Emergent', 3:'CTAS 3 · Urgent', 4:'CTAS 4 · Less urgent', 5:'CTAS 5 · Non-urgent'} %}
+<span class="ctas-chip{% if size == 'lg' %} is-lg{% endif %}" data-level="{{ level }}">{{ labels.get(level, 'CTAS ' ~ level) }}</span>
+{%- endmacro %}
+
+{# ---------- wait chip ---------- #}
+{% macro wait_chip(minutes, large=false) -%}
+{% set tone = 'ctas1' if minutes >= 180 else ('ctas3' if minutes >= 90 else ('ctas4' if minutes >= 30 else 'ctas5')) %}
+<span class="wait-chip{% if large %} is-large{% endif %}" data-tone="{{ tone }}">{{ minutes }}<span class="unit">min</span></span>
+{%- endmacro %}
+
+{# ---------- header (with surge + predictive banners) ---------- #}
+{% macro tw_header(active='triage', wide=true, scenario=None, active_scenario=None, predictive=None, profile=None) -%}
+{% if scenario %}
+<div class="surge-banner" data-scenario="{{ active_scenario }}">
+  {{ icon('alert', size=15) }}
+  <span>{{ scenario.banner }}</span>
+  <span class="surge-tag">Surge</span>
+</div>
+{% endif %}
+
+{% if predictive %}
+<div class="predictive-banner">
+  <strong>Heads up:</strong>
+  {% for a in predictive %}
+    {{ a.facility }} {{ a.wait_minutes }}m wait{% if not loop.last %} · {% endif %}
+  {% endfor %}
+  — auto-routing to faster options.
+</div>
+{% endif %}
+
+<header class="tw-header{% if not wide %} is-narrow{% endif %}">
+  <div class="tw-header-inner">
+    {{ wordmark() }}
+    <nav class="tw-nav">
+      <a href="{{ url_for('index') }}" {% if active == 'triage' %}class="is-active"{% endif %}>Triage</a>
+      <a href="{{ url_for('maps') }}" {% if active == 'maps' %}class="is-active"{% endif %}>Maps</a>
+      <a href="{{ url_for('dashboard') }}" {% if active == 'dashboard' %}class="is-active"{% endif %}>Operations</a>
+      <a href="{{ url_for('impact') }}" {% if active == 'impact' %}class="is-active"{% endif %}>Impact</a>
+      <a href="{{ url_for('pitch') }}" {% if active == 'pitch' %}class="is-active"{% endif %}>Pitch</a>
+      <a href="{{ url_for('constraints') }}" {% if active == 'constraints' %}class="is-active"{% endif %}>Constraints</a>
+      <a href="{{ url_for('sms_demo') }}" {% if active == 'sms' %}class="is-active"{% endif %}>SMS</a>
+    </nav>
+    <div class="tw-actions">
+      {{ live_dot() }}
+      <span class="vsep"></span>
+      <a href="tel:911" class="tw-pill-action">{{ icon('phone', size=13) }}<span class="mono">911 / 811</span></a>
+      {% if profile %}
+      <a href="{{ url_for('account') }}" class="tw-pill-action">{{ icon('user', size=13) }}{{ profile.name|default('Profile') }}</a>
+      {% endif %}
+      <button id="a11y-toggle" type="button" class="tw-pill-action" title="Toggle accessibility mode (dyslexia-friendly font, larger text, higher contrast)">{{ icon('info', size=13) }}<span class="a11y-label">Accessibility</span></button>
+    </div>
+  </div>
+</header>
+{%- endmacro %}
+
+{# ---------- footer ---------- #}
+{% macro tw_footer() -%}
+<footer style="margin-top: 60px; padding: 28px 28px 36px; border-top: 1px solid var(--tw-line); background: var(--tw-card);">
+  <div style="max-width: 1320px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; font-size: 12px; color: var(--tw-ink-4);">
+    <div>Built for WolfHacks 2026 · Aligned with Brampton 2040 Vision 6 — Health & Well-Being</div>
+    <div style="display: flex; gap: 16px;">
+      <a href="{{ url_for('impact') }}" style="color: var(--tw-ink-3);">Why Brampton</a>
+      <a href="{{ url_for('constraints') }}" style="color: var(--tw-ink-3);">PHIPA & Constraints</a>
+      <a href="{{ url_for('pitch') }}" style="color: var(--tw-ink-3);">Pitch deck</a>
+    </div>
+  </div>
+</footer>
+{%- endmacro %}

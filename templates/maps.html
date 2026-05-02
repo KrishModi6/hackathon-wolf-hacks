@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clinic Map — SwiftCare Brampton</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Lexend:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    .maps-container {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 0;
+      height: calc(100vh - 80px);
+    }
+
+    #facility-map {
+      height: 100%;
+      width: 100%;
+      background: var(--tw-paper);
+    }
+
+    .leaflet-container {
+      background: #f0f0f0;
+      font-family: 'Geist', sans-serif;
+    }
+
+    .facility-sidebar {
+      overflow-y: auto;
+      border-left: 1px solid var(--tw-line);
+      background: var(--tw-card);
+      padding: 16px;
+    }
+
+    .facility-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .facility-item {
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid var(--tw-line);
+      background: var(--tw-paper);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 13px;
+    }
+
+    .facility-item:hover {
+      background: var(--tw-card);
+      border-color: var(--tw-clay);
+    }
+
+    .facility-item.is-mobile {
+      border-left: 4px solid var(--tw-orange);
+    }
+
+    .facility-name {
+      font-weight: 600;
+      color: var(--tw-maroon);
+      margin-bottom: 4px;
+    }
+
+    .facility-type {
+      font-size: 11px;
+      color: var(--tw-ink-4);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+
+    .facility-wait {
+      font-weight: 600;
+      font-family: 'Geist Mono', monospace;
+      color: var(--tw-orange);
+    }
+
+    .facility-wait.is-long {
+      color: #c41e3a;
+    }
+
+    .facility-wait.is-short {
+      color: var(--tw-green);
+    }
+
+    .mobile-badge {
+      display: inline-block;
+      background: var(--tw-orange);
+      color: white;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    /* Marker styling */
+    .leaflet-marker-icon.hospital-marker {
+      filter: hue-rotate(0deg);
+    }
+
+    .leaflet-marker-icon.clinic-marker {
+      filter: hue-rotate(30deg);
+    }
+
+    .leaflet-marker-icon.mobile-marker {
+      filter: hue-rotate(180deg);
+    }
+
+    .facility-popup {
+      padding: 12px !important;
+      font-family: 'Geist', sans-serif;
+    }
+
+    .facility-popup .popup-name {
+      font-weight: 600;
+      color: var(--tw-maroon);
+      margin-bottom: 6px;
+    }
+
+    .facility-popup .popup-info {
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--tw-ink-3);
+    }
+
+    .facility-popup .popup-wait {
+      font-weight: 600;
+      color: var(--tw-orange);
+      font-family: 'Geist Mono', monospace;
+      margin-top: 6px;
+    }
+
+    .map-legend {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      background: white;
+      padding: 16px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      font-size: 12px;
+      z-index: 400;
+      max-width: 180px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .legend-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .dot-hospital { background: #e41a4c; }
+    .dot-urgent { background: #ff6b35; }
+    .dot-clinic { background: #f7a41d; }
+    .dot-mobile { background: #00a8e8; }
+
+    @media (max-width: 768px) {
+      .maps-container {
+        grid-template-columns: 1fr;
+      }
+
+      .facility-sidebar {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 80px;
+        width: 280px;
+        height: auto;
+        max-height: 50vh;
+        border: 1px solid var(--tw-line);
+        z-index: 500;
+      }
+
+      .facility-sidebar.is-open {
+        display: block;
+      }
+
+      .map-legend {
+        bottom: auto;
+        top: 100px;
+      }
+    }
+  </style>
+</head>
+<body>
+{% from '_macros.html' import icon, wordmark, tw_header, tw_footer, ctas_chip, wait_chip, pill, live_dot %}
+
+{{ tw_header(active='maps') }}
+
+<div class="maps-container">
+  <div id="facility-map"></div>
+  <div class="facility-sidebar">
+    <div style="margin-bottom: 16px;">
+      <div style="font-weight: 600; color: var(--tw-maroon); font-size: 14px; margin-bottom: 8px;">{{ facilities|length }} Facilities</div>
+      <div style="font-size: 11px; color: var(--tw-ink-4);">Live wait times · Tap to view details</div>
+    </div>
+    <div class="facility-list" id="facility-list"></div>
+  </div>
+
+  <div class="map-legend">
+    <div style="font-weight: 600; margin-bottom: 8px; color: var(--tw-maroon);">Facility Types</div>
+    <div class="legend-item">
+      <div class="legend-dot dot-hospital"></div>
+      <span>Hospital ER</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot dot-urgent"></div>
+      <span>Urgent Care</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot dot-clinic"></div>
+      <span>Walk-in Clinic</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot dot-mobile"></div>
+      <span>Mobile Clinic</span>
+    </div>
+  </div>
+</div>
+
+{{ tw_footer() }}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const map = L.map('facility-map').setView([43.73, -79.76], 12);
+  
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 19
+  }).addTo(map);
+
+  const facilityList = document.getElementById('facility-list');
+  const markers = {};
+  let facilities = [];
+
+  async function loadFacilities() {
+    try {
+      const res = await fetch('/api/facilities');
+      facilities = await res.json();
+      renderFacilities();
+      updateMarkers();
+    } catch (err) {
+      console.error('Failed to load facilities:', err);
+    }
+  }
+
+  function getMarkerColor(facility) {
+    if (facility.mobile_clinic) return '#00a8e8'; // Blue for mobile
+    if (facility.type === 'Hospital ER') return '#e41a4c'; // Red for ER
+    if (facility.type === 'Urgent Care') return '#ff6b35'; // Orange for urgent
+    if (facility.type === 'Walk-in Clinic') return '#f7a41d'; // Gold for walk-in
+    return '#999'; // Gray default
+  }
+
+  function createMarker(facility) {
+    if (!facility.lat || !facility.lng) return null;
+    
+    const color = getMarkerColor(facility);
+    const html = `
+      <div style="
+        width: 28px; height: 28px;
+        background: ${color};
+        border: 2px solid white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 12px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        cursor: pointer;
+      ">${facility.wait_minutes}</div>
+    `;
+
+    const popup = `
+      <div class="facility-popup">
+        <div class="popup-name">${facility.name}</div>
+        <div class="popup-info">
+          ${facility.type}<br/>
+          📍 ${facility.address}<br/>
+          📞 ${facility.phone}
+        </div>
+        <div class="popup-wait">Wait: ${facility.wait_minutes} min</div>
+        ${facility.queue_length ? `<div style="color: var(--tw-ink-4); font-size: 11px; margin-top: 6px;">Queue: ${facility.queue_length} patients</div>` : ''}
+      </div>
+    `;
+
+    const marker = L.marker([facility.lat, facility.lng], {
+      icon: L.divIcon({
+        html: html,
+        iconSize: [28, 28],
+        className: 'custom-marker'
+      })
+    }).bindPopup(popup).addTo(map);
+
+    marker.on('click', () => highlightFacility(facility.id));
+    return marker;
+  }
+
+  function renderFacilities() {
+    facilityList.innerHTML = '';
+    
+    facilities.forEach(f => {
+      const div = document.createElement('div');
+      div.className = `facility-item ${f.mobile_clinic ? 'is-mobile' : ''}`;
+      div.innerHTML = `
+        <div class="facility-name">${f.name}</div>
+        <div class="facility-type">${f.type}</div>
+        <div class="facility-wait ${f.wait_minutes > 120 ? 'is-long' : f.wait_minutes < 30 ? 'is-short' : ''}">
+          ${f.wait_minutes} min wait
+        </div>
+        ${f.mobile_clinic ? '<div class="mobile-badge">🚌 Mobile</div>' : ''}
+      `;
+      div.addEventListener('click', () => {
+        highlightFacility(f.id);
+        if (markers[f.id]) markers[f.id].openPopup();
+      });
+      facilityList.appendChild(div);
+    });
+  }
+
+  function updateMarkers() {
+    // Clear existing markers
+    Object.values(markers).forEach(m => map.removeLayer(m));
+    markers = {};
+
+    // Add new markers
+    facilities.forEach(f => {
+      const marker = createMarker(f);
+      if (marker) markers[f.id] = marker;
+    });
+  }
+
+  function highlightFacility(facilityId) {
+    document.querySelectorAll('.facility-item').forEach(el => {
+      el.style.opacity = '0.4';
+    });
+    const highlighted = document.querySelector(`[data-facility-id="${facilityId}"]`);
+    if (highlighted) highlighted.style.opacity = '1';
+  }
+
+  // Add data attribute to facility items
+  function addDataAttributes() {
+    facilities.forEach((f, idx) => {
+      const items = document.querySelectorAll('.facility-item');
+      if (items[idx]) {
+        items[idx].setAttribute('data-facility-id', f.id);
+      }
+    });
+  }
+
+  // Refresh facilities every 30 seconds
+  setInterval(loadFacilities, 30000);
+
+  // Initial load
+  loadFacilities();
+  
+  // Update data attributes after facilities load
+  setTimeout(addDataAttributes, 100);
+});
+</script>
+</body>
+</html>

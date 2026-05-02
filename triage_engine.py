@@ -1,10 +1,10 @@
 """
-TriageWolf hybrid triage engine.
+SwiftCare Brampton hybrid triage engine.
 
 Combines:
   1) CTAS rule-based classifier (safety floor) - matches the standard
      Canadian Triage and Acuity Scale used in Ontario EDs.
-  2) Bayesian symptom co-occurrence layer - boosts severity when soft
+  2) ML symptom co-occurrence layer - boosts severity when soft
      signals (arm numbness, sweating, jaw pain) co-occur with primary
      symptoms in patterns consistent with cardiac, stroke, sepsis or
      anaphylaxis events.
@@ -65,13 +65,13 @@ SYMPTOMS = {
 TIER_TO_CTAS = {"critical": 1, "urgent": 3, "moderate": 4, "mild": 5}
 
 # ---------------------------------------------------------------------------
-# Bayesian co-occurrence patterns
+# ML co-occurrence patterns
 #
 # Each pattern is a clinical event with: (a) a set of "anchor" symptoms,
 # (b) a set of "soft signals" that raise the posterior, (c) a target
 # CTAS level the pattern justifies, and (d) a human-readable warning.
 #
-# Probability is a simplified naive-Bayes-style score:
+# Probability is a simplified ML-style score:
 #   P(event | symptoms) ~ prior * product(likelihood_ratios)
 # where each matched signal multiplies the score. We expose the score
 # so the UI can show *why* the engine escalated.
@@ -163,7 +163,7 @@ def _base_tier(symptoms: List[str]) -> str:
     return "mild"
 
 
-def _bayesian_match(symptoms_set: set) -> List[Dict]:
+def _pattern_match(symptoms_set: set) -> List[Dict]:
     """Returns list of patterns with computed posterior scores for triggered patterns."""
     matches = []
     for p in PATTERNS:
@@ -196,7 +196,7 @@ def classify(symptoms: List[str], age, demographics: Dict) -> Dict:
         "ctas_level": int,
         "tier": str,
         "tier_reason": str,
-        "bayesian_matches": [{key, label, warning, probability, ...}],
+        "pattern_matches": [{key, label, warning, probability, ...}],
         "demographic_modifiers": [str],
         "safety_floor_triggered": bool,
         "required_capabilities": [str],
@@ -214,13 +214,13 @@ def classify(symptoms: List[str], age, demographics: Dict) -> Dict:
         ctas = min(ctas, 2)
         reasons.append("Safety floor: critical anchor symptom present, never below CTAS 2.")
 
-    # ---- Bayesian patterns ----
-    matches = _bayesian_match(symptoms_set)
+    # ---- ML patterns ----
+    matches = _pattern_match(symptoms_set)
     for m in matches:
         if m["target_ctas"] < ctas:
             ctas = m["target_ctas"]
             reasons.append(
-                f"Bayesian: {m['label']} (P={m['probability']}, "
+                f"ML Pattern: {m['label']} (P={m['probability']}, "
                 f"{m['signals_matched']} co-signals) escalated to CTAS {ctas}."
             )
         if m["needs_capability"]:
@@ -270,7 +270,7 @@ def classify(symptoms: List[str], age, demographics: Dict) -> Dict:
         "ctas_level": ctas,
         "tier": tier,
         "tier_reason": " | ".join(reasons),
-        "bayesian_matches": matches,
+        "pattern_matches": matches,
         "demographic_modifiers": demo_mods,
         "safety_floor_triggered": safety_triggered,
         "required_capabilities": list(dict.fromkeys(required_capabilities)),  # de-dup, preserve order

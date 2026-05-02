@@ -1,12 +1,12 @@
 """
-TriageWolf AI assistant.
+SwiftCare Brampton AI assistant.
 
 Wraps OpenAI to translate free-text or voice-transcribed symptom descriptions
 into structured CTAS-aligned triage data, plus an "early detection" flag for
 serious conditions the patient might not realize they're describing.
 
 Also detects "outbreak signals" (multiple people sick, unusual symptom clusters)
-which the app uses to auto-activate Condition X surge mode.
+which the app uses to auto-activate outbreak surge mode.
 """
 
 import json
@@ -36,7 +36,7 @@ def get_client():
     return _client
 
 
-SYSTEM_PROMPT = """You are TriageWolf, an AI medical triage assistant for Brampton, Ontario.
+SYSTEM_PROMPT = """You are SwiftCare Brampton, an AI medical triage assistant for Brampton, Ontario.
 You analyze a patient's free-text symptom description and return STRICT JSON only.
 
 Our symptom catalogue (match user descriptions to these EXACT strings):

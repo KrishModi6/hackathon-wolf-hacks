@@ -3,36 +3,69 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Dashboard - TriageWolf</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <title>Operations — SwiftCare Brampton</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Lexend:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body class="min-h-screen flex flex-col">
+<body>
+{% from '_macros.html' import icon, tw_header, tw_footer, wait_chip, pill %}
 
-  {% if scenario %}
-  <div class="surge-banner">
-    {{ scenario.icon }} {{ scenario.banner }}
-  </div>
-  {% endif %}
+{{ tw_header(active='dashboard', scenario=scenario, active_scenario=active_scenario) }}
 
-  <header class="tw-bg-maroon text-white">
-    <div class="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
-      <a href="{{ url_for('index') }}" class="flex items-center gap-3">
-        <span class="text-3xl">🐺</span>
-        <div>
-          <div class="text-xl font-bold tracking-tight">TriageWolf Admin</div>
-          <div class="text-xs text-orange-200">Live system load &middot; Brampton</div>
+{% set max_wait = facilities|map(attribute='wait')|max if facilities else 1 %}
+{% set total_severity = severity_data.values()|sum %}
+{% set ns = namespace(cum=0) %}
+
+<main style="min-height: calc(100vh - 80px); background: var(--tw-paper); padding: 24px 28px 60px;">
+  <div style="max-width: 1320px; margin: 0 auto;">
+
+    {# ---------- TOP BAR ---------- #}
+    <div style="display: flex; justify-content: space-between; align-items: end; margin-bottom: 22px; flex-wrap: wrap; gap: 16px;">
+      <div>
+        <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--tw-ink-3); margin-bottom: 4px;">
+          Operations
         </div>
+        <h1 class="display" style="font-size: 38px; font-weight: 400; margin: 0; letter-spacing: -0.025em;">
+          Brampton system load
+        </h1>
+        <div style="font-size: 13px; color: var(--tw-ink-3); margin-top: 4px; display: inline-flex; align-items: center; gap: 8px;">
+          <span class="mono">{{ now_label or 'Live monitoring' }}</span>
+          · {{ facilities|length }} facilities ·
+          <span class="live-dot">Live</span>
+        </div>
+<<<<<<< Updated upstream
       </a>
       <div class="flex items-center gap-4 text-sm">
         <a href="{{ url_for('constraints') }}" class="text-orange-200 hover:text-white">Deployment Constraints</a>
         <a href="{{ url_for('mental_health') }}" class="text-orange-200 hover:text-white">Mental Health</a>
         <a href="{{ url_for('index') }}" class="text-orange-200 hover:text-white">&larr; Patient view</a>
+=======
+>>>>>>> Stashed changes
       </div>
+
+      {# ---------- SCENARIO SWITCHER ---------- #}
+      <form method="POST" action="{{ url_for('set_scenario') }}" id="scenario-form" class="scenario-switcher">
+        <button type="submit" name="scenario" value="off"
+                class="scenario-btn {{ 'is-active' if not active_scenario }}">
+          {{ icon('shield', size=13) }} Normal ops
+        </button>
+        <button type="submit" name="scenario" value="condition_x"
+                class="scenario-btn {{ 'is-active' if active_scenario == 'condition_x' }}">
+          {{ icon('alert', size=13) }} Outbreak Alert
+        </button>
+        <button type="submit" name="scenario" value="heatwave"
+                class="scenario-btn {{ 'is-active' if active_scenario == 'heatwave' }}">
+          {{ icon('thermometer', size=13) }} Heatwave
+        </button>
+        <button type="submit" name="scenario" value="cyberattack"
+                class="scenario-btn {{ 'is-active' if active_scenario == 'cyberattack' }}">
+          {{ icon('globe', size=13) }} Cyber incident
+        </button>
+      </form>
     </div>
+<<<<<<< Updated upstream
   </header>
 
   <main class="flex-1 max-w-6xl w-full mx-auto px-6 py-8">
@@ -70,36 +103,61 @@
         </div>
       </div>
     </section>
+=======
+>>>>>>> Stashed changes
 
     {% if scenario %}
-    <section class="dash-card mb-8">
-      <h2 class="text-lg font-bold text-gray-800">Scenario Guidance</h2>
-      <p class="text-sm text-gray-600 mt-1">{{ scenario.description }}</p>
-      <p class="text-sm text-gray-700 mt-2"><span class="font-semibold">Patient advice:</span> {{ scenario.patient_advice }}</p>
-    </section>
+    <div class="surface" style="padding: 16px 18px; margin-bottom: 22px; display: flex; gap: 14px; align-items: start;">
+      <div style="font-size: 24px;">{{ scenario.icon }}</div>
+      <div style="flex: 1;">
+        <div style="font-size: 14px; font-weight: 600; color: var(--tw-ink); margin-bottom: 2px;">{{ scenario.label }} active</div>
+        <div style="font-size: 12.5px; color: var(--tw-ink-3); line-height: 1.5;">{{ scenario.description }}</div>
+        <div style="font-size: 12px; color: var(--tw-ink-2); margin-top: 6px;"><strong>Patient advice:</strong> {{ scenario.patient_advice }}</div>
+      </div>
+    </div>
     {% endif %}
 
-    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-      <div class="dash-card lg:col-span-2">
-        <h2 class="text-lg font-bold text-gray-800 mb-1">Current wait times</h2>
-        <p class="text-sm text-gray-500 mb-4">Live across all Brampton facilities with queueing formula breakdown.</p>
-        <div class="h-72"><canvas id="waitsChart"></canvas></div>
+    {# ---------- KPI STRIP ---------- #}
+    {% set avg_wait = ((facilities|sum(attribute='wait')) // facilities|length) if facilities else 0 %}
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 22px;">
+      <div class="kpi-card">
+        <div class="head">
+          <div class="icon-bubble">{{ icon('users', size=15) }}</div>
+          <span class="trend" id="kpi-triaged-trend">+{{ ((triaged_today / 100)|round(0)|int) if triaged_today > 0 else 0 }}/hr</span>
+        </div>
+        <div class="value" id="stat-triaged">{{ triaged_today }}</div>
+        <div class="caption">Patients triaged today</div>
       </div>
-      <div class="dash-card">
-        <h2 class="text-lg font-bold text-gray-800 mb-1">Severity distribution</h2>
-        <p class="text-sm text-gray-500 mb-4">CTAS levels of patients triaged today.</p>
-        <div class="h-72"><canvas id="severityChart"></canvas></div>
+      <div class="kpi-card">
+        <div class="head">
+          <div class="icon-bubble">{{ icon('video', size=15) }}</div>
+          <span class="trend">+{{ redirected }}</span>
+        </div>
+        <div class="value" id="stat-redirected">{{ redirected }}</div>
+        <div class="caption">Redirected to virtual</div>
       </div>
-    </section>
+      <div class="kpi-card">
+        <div class="head">
+          <div class="icon-bubble">{{ icon('clock', size=15) }}</div>
+          <span class="trend {{ 'is-warn' if active_scenario == 'condition_x' }}">{{ '×3.0 surge' if active_scenario == 'condition_x' else 'baseline' }}</span>
+        </div>
+        <div class="value" id="stat-avgwait">{{ avg_wait }}m</div>
+        <div class="caption">Avg system wait</div>
+      </div>
+      <div class="kpi-card">
+        <div class="head">
+          <div class="icon-bubble">{{ icon('sparkles', size=15) }}</div>
+          <span class="trend">{{ severity_data.get('1', 0) + severity_data.get('2', 0) }} early</span>
+        </div>
+        <div class="value">{{ severity_data.get('1', 0) + severity_data.get('2', 0) }}</div>
+        <div class="caption">ML pattern matches</div>
+      </div>
+    </div>
 
-    <section class="grid grid-cols-1 gap-6 mb-8">
-      <div class="dash-card">
-        <h2 class="text-lg font-bold text-gray-800 mb-1">Triage volume trend</h2>
-        <p class="text-sm text-gray-500 mb-4">Cumulative patients routed through TriageWolf this session.</p>
-        <div class="h-64"><canvas id="trendChart"></canvas></div>
-      </div>
-    </section>
+    {# ---------- WAITS + SEVERITY ---------- #}
+    <div style="display: grid; grid-template-columns: 1.6fr 1fr; gap: 16px; margin-bottom: 16px;">
 
+<<<<<<< Updated upstream
     <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
       <div class="dash-card">
         <h2 class="text-lg font-bold text-gray-800 mb-1">Online consultation queue</h2>
@@ -177,42 +235,249 @@
     <section class="dash-card">
       <h2 class="text-lg font-bold text-gray-800 mb-3">Facility status</h2>
       <table class="w-full text-sm">
+=======
+      {# WAITS BAR CHART #}
+      <div class="surface" style="padding: 22px;">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 18px;">
+          <div>
+            <h3 style="font-size: 15px; margin: 0; font-weight: 600; letter-spacing: -0.01em;">Current wait times</h3>
+            <p style="font-size: 12px; color: var(--tw-ink-4); margin: 3px 0 0;">
+              M/M/c queueing approximation · refreshes 60s
+            </p>
+          </div>
+          {{ pill('×3.0 surge mult' if active_scenario == 'condition_x' else '×1.0 baseline', variant='warn' if active_scenario == 'condition_x' else 'neutral') }}
+        </div>
+
+        <div>
+          {% for f in facilities %}
+          {% set pct = ((f.wait / 480) * 100)|round(0)|int %}
+          {% set tone = 'ctas1' if f.wait >= 180 else ('ctas3' if f.wait >= 90 else ('ctas4' if f.wait >= 30 else 'ctas5')) %}
+          {% set bar_color = '#8b1018' if tone == 'ctas1' else ('#d97706' if tone == 'ctas3' else ('#65760e' if tone == 'ctas4' else '#2f7a55')) %}
+          <div class="wait-bar">
+            <div class="top">
+              <div class="name">{{ f.name }} <span class="type">{{ f.type }}</span></div>
+              {{ wait_chip(f.wait) }}
+            </div>
+            <div class="track">
+              <div class="fill" style="width: {{ pct }}%; background: {{ bar_color }};"></div>
+              <div class="tick" style="left: 12.5%;"></div>
+              <div class="tick" style="left: 37.5%;"></div>
+              <div class="tick" style="left: 75%;"></div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div style="margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--tw-line); font-size: 11.5px; color: var(--tw-ink-4);">
+          Formula: <span class="mono">wait = (queue × service) / clinicians + arrivals × 0.5</span>
+        </div>
+      </div>
+
+      {# SEVERITY DONUT #}
+      <div class="surface" style="padding: 22px;">
+        <h3 style="font-size: 15px; margin: 0; font-weight: 600; letter-spacing: -0.01em;">Severity mix today</h3>
+        <p style="font-size: 12px; color: var(--tw-ink-4); margin: 3px 0 18px;">
+          {{ total_severity }} patients triaged · CTAS distribution
+        </p>
+
+        {% set severity = [
+          (1, severity_data.get('1', 0), 'Resuscitation', '#8b1018'),
+          (2, severity_data.get('2', 0), 'Emergent', '#c83a2c'),
+          (3, severity_data.get('3', 0), 'Urgent', '#d97706'),
+          (4, severity_data.get('4', 0), 'Less urgent', '#65760e'),
+          (5, severity_data.get('5', 0), 'Non-urgent', '#2f7a55')
+        ] %}
+
+        <div class="donut-row">
+          <svg width="120" height="120" viewBox="0 0 120 120" style="flex-shrink: 0;">
+            {% set circ = 301.59 %}
+            {% if total_severity > 0 %}
+              {% for level, count, label, color in severity %}
+                {% set frac = count / total_severity %}
+                {% set dash = frac * circ %}
+                {% set offset = -ns.cum * circ %}
+                {% if frac > 0 %}
+                <circle cx="60" cy="60" r="48" fill="none" stroke="{{ color }}" stroke-width="14"
+                        stroke-dasharray="{{ dash|round(2) }} {{ (circ - dash)|round(2) }}"
+                        stroke-dashoffset="{{ offset|round(2) }}"
+                        transform="rotate(-90 60 60)"></circle>
+                {% endif %}
+                {% set ns.cum = ns.cum + frac %}
+              {% endfor %}
+            {% else %}
+              <circle cx="60" cy="60" r="48" fill="none" stroke="var(--tw-line)" stroke-width="14"></circle>
+            {% endif %}
+            <text x="60" y="58" text-anchor="middle" class="mono" style="font-size: 22px; font-weight: 600; fill: var(--tw-ink);">
+              {{ total_severity }}
+            </text>
+            <text x="60" y="74" text-anchor="middle" style="font-size: 9px; fill: var(--tw-ink-4); letter-spacing: 0.06em; text-transform: uppercase;">
+              patients
+            </text>
+          </svg>
+
+          <div class="donut-legend">
+            {% for level, count, label, color in severity %}
+            <div class="item">
+              <span class="swatch" style="background: {{ color }};"></span>
+              <span class="desc">CTAS {{ level }} <span class="small">· {{ label }}</span></span>
+              <span class="count">{{ count }}</span>
+              <span class="pct">{{ ((count / total_severity) * 100)|round(0)|int if total_severity > 0 else 0 }}%</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# ---------- TREND + FACILITY TABLE ---------- #}
+    <div style="display: grid; grid-template-columns: 1fr 1.6fr; gap: 16px;">
+
+      {# TREND #}
+      <div class="surface" style="padding: 22px;">
+        <h3 style="font-size: 15px; margin: 0; font-weight: 600; letter-spacing: -0.01em;">Triage volume · session</h3>
+        <p style="font-size: 12px; color: var(--tw-ink-4); margin: 3px 0 18px;">Cumulative routes through SwiftCare Brampton</p>
+
+        {% set trend_count = triage_log|length %}
+        <svg width="100%" height="120" viewBox="0 0 360 120" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="trend-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--tw-maroon)" stop-opacity="0.25"/>
+              <stop offset="100%" stop-color="var(--tw-maroon)" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          {% if trend_count > 1 %}
+            {% set step = 360 / (trend_count - 1) %}
+            {% set points = [] %}
+            {% for i in range(trend_count) %}
+              {% set _ = points.append((i * step, 120 - ((i + 1) / trend_count * 100))) %}
+            {% endfor %}
+            <path d="M 0 120 {% for p in points %}L {{ p[0]|round(1) }} {{ p[1]|round(1) }} {% endfor %}L 360 120 Z" fill="url(#trend-grad)"/>
+            <path d="M {{ points[0][0] }} {{ points[0][1] }} {% for p in points[1:] %}L {{ p[0]|round(1) }} {{ p[1]|round(1) }} {% endfor %}"
+                  fill="none" stroke="var(--tw-maroon)" stroke-width="2"/>
+            {% for p in points %}
+            <circle cx="{{ p[0]|round(1) }}" cy="{{ p[1]|round(1) }}" r="{{ 4 if loop.last else 2.5 }}" fill="var(--tw-maroon)"/>
+            {% endfor %}
+          {% else %}
+            <text x="180" y="62" text-anchor="middle" style="font-size: 11px; fill: var(--tw-ink-4);">
+              No triages yet — submit one from /
+            </text>
+          {% endif %}
+        </svg>
+        <div style="display: flex; justify-content: space-between; margin-top: 6px; font-size: 10.5px; color: var(--tw-ink-4);">
+          <span class="mono">start</span>
+          <span class="mono">{{ trend_count }} routed</span>
+          <span class="mono">now</span>
+        </div>
+      </div>
+
+      {# FACILITY TABLE #}
+      <div class="surface" style="padding: 0; overflow: hidden;">
+        <div style="padding: 18px 22px 12px; display: flex; justify-content: space-between; align-items: center;">
+          <h3 style="font-size: 15px; margin: 0; font-weight: 600; letter-spacing: -0.01em;">Facility status</h3>
+          <span class="pill">live · {{ facilities|length }} sites</span>
+        </div>
+
+        <table class="facility-table">
+          <thead>
+            <tr>
+              <th>Facility</th>
+              <th>Type</th>
+              <th class="r">Queue</th>
+              <th class="r">Wait</th>
+              <th class="r">Saturation</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for f in facilities %}
+            {% set sat_pct = ((f.queue_length / (f.clinicians * 10)) * 100)|round(0)|int %}
+            {% set sat_tone = 'hot' if sat_pct >= 85 else ('warn' if sat_pct >= 60 else 'ok') %}
+            {% set sat_color = '#c83a2c' if sat_tone == 'hot' else ('#d97706' if sat_tone == 'warn' else '#2f7a55') %}
+            <tr>
+              <td class="name">{{ f.name }}</td>
+              <td style="color: var(--tw-ink-3);">{{ f.type }}</td>
+              <td class="r mono">{{ f.queue_length }}</td>
+              <td class="r">{{ wait_chip(f.wait) }}</td>
+              <td class="r">
+                <div style="display: inline-flex; align-items: center; gap: 6px;">
+                  <div style="width: 50px; height: 4px; background: var(--tw-line-2); border-radius: 2px; overflow: hidden;">
+                    <div style="width: {{ sat_pct if sat_pct < 100 else 100 }}%; height: 100%; background: {{ sat_color }};"></div>
+                  </div>
+                  <span class="mono" style="color: {{ sat_color }}; font-size: 11.5px; font-weight: 600;">{{ sat_pct }}%</span>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    {# ---------- WAIT-TIME MATH (transparency) ---------- #}
+    <div class="surface" style="padding: 22px; margin-top: 16px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+        <div>
+          <h3 style="font-size: 15px; margin: 0; font-weight: 600; letter-spacing: -0.01em;">Wait-time math (per facility)</h3>
+          <p style="font-size: 12px; color: var(--tw-ink-4); margin: 3px 0 0;">Transparent inputs into the M/M/c queueing approximation</p>
+        </div>
+        <span class="mono" style="font-size: 12px; color: var(--tw-ink-3); padding: 6px 10px; background: var(--tw-paper-2); border-radius: 6px;">
+          (queue × service) / clinicians + arrivals × 0.5
+        </span>
+      </div>
+      <table class="facility-table">
+>>>>>>> Stashed changes
         <thead>
-          <tr class="text-left text-gray-500 border-b border-gray-200">
-            <th class="py-2">Facility</th>
-            <th class="py-2">Type</th>
-            <th class="py-2 text-right">Wait (min)</th>
-            <th class="py-2">Math</th>
+          <tr>
+            <th>Facility</th>
+            <th class="r">Queue</th>
+            <th class="r">Service (m)</th>
+            <th class="r">Clinicians</th>
+            <th class="r">Backlog</th>
+            <th class="r">Look-ahead</th>
+            <th class="r">Predicted</th>
           </tr>
         </thead>
         <tbody>
           {% for f in facilities %}
-          <tr class="border-b border-gray-100">
-            <td class="py-2 font-semibold tw-text-maroon">{{ f.name }}</td>
-            <td class="py-2 text-gray-600">{{ f.type }}</td>
-            <td class="py-2 text-right font-bold {{ 'text-red-600' if f.wait >= 180 else ('text-orange-500' if f.wait >= 60 else 'text-green-600') }}">
-              {{ f.wait }}
-            </td>
-            <td class="py-2 text-xs text-gray-600">(q={{ f.breakdown.queue_length }} * s={{ f.breakdown.avg_service_min }}) / c={{ f.breakdown.clinicians }} + a*0.5</td>
+          {% set b = f.breakdown %}
+          <tr>
+            <td class="name">{{ f.name }}</td>
+            <td class="r mono">{{ b.queue_length }}</td>
+            <td class="r mono">{{ b.avg_service_min }}</td>
+            <td class="r mono">{{ b.clinicians }}</td>
+            <td class="r mono">{{ b.backlog_min }}m</td>
+            <td class="r mono">{{ b.arrival_pressure_min }}m</td>
+            <td class="r">{{ wait_chip(f.wait) }}</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
-    </section>
+    </div>
+  </div>
+</main>
 
-  </main>
+{{ tw_footer() }}
 
-  <footer class="mt-10 py-6 text-center text-xs text-gray-500 border-t border-gray-200">
-    Brampton care navigation &middot; Aligned with Brampton 2040 Vision: Health & Well-Being
-  </footer>
-
-  <script>
-    window.__DASH_DATA__ = {
-      facilities: {{ facilities|tojson }},
-      severity_counts: {{ severity_data|tojson }},
-      triage_log: {{ triage_log|tojson }}
-    };
-  </script>
-  <script src="{{ url_for('static', filename='script.js') }}"></script>
+<script>
+  // Lightweight live polling — updates KPI numbers without redrawing charts
+  (function () {
+    async function poll() {
+      try {
+        const r = await fetch('/api/state');
+        if (!r.ok) return;
+        const d = await r.json();
+        const el = (id) => document.getElementById(id);
+        if (el('stat-triaged')) el('stat-triaged').textContent = d.patients_triaged_today;
+        if (el('stat-redirected')) el('stat-redirected').textContent = d.patients_redirected;
+        if (el('stat-avgwait')) {
+          const avg = d.facilities.length
+            ? Math.round(d.facilities.reduce((a, f) => a + f.wait, 0) / d.facilities.length)
+            : 0;
+          el('stat-avgwait').textContent = avg + 'm';
+        }
+      } catch (e) {}
+    }
+    setInterval(poll, 5000);
+  })();
+</script>
 </body>
 </html>

@@ -3,26 +3,50 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Your Care Recommendation - TriageWolf</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Care Plan — SwiftCare Brampton</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Lexend:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body class="min-h-screen flex flex-col">
+<body>
+{% from '_macros.html' import icon, tw_header, tw_footer, ctas_chip, wait_chip, pill %}
 
-  {% if scenario %}
-  <div class="surge-banner">{{ scenario.icon }} {{ scenario.banner }}</div>
-  {% endif %}
+{{ tw_header(active='results', wide=false, scenario=scenario, active_scenario=active_scenario, profile=demographics) }}
 
-  <header class="tw-bg-maroon text-white">
-    <div class="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between">
-      <a href="{{ url_for('index') }}" class="flex items-center gap-3">
-        <span class="text-3xl">🐺</span>
-        <div>
-          <div class="text-xl font-bold tracking-tight">TriageWolf</div>
-          <div class="text-xs text-orange-200">Brampton's Smart Healthcare Navigator</div>
+{% set ctas = classification.ctas_level %}
+{% set headline = {
+  1: ('Go to a hospital ER right now.', "These symptoms can be life-threatening. If you're alone or worsening, call 911."),
+  2: ('Get to an Emergency Department within an hour.', 'You should not wait this out. Brampton Civic ER is your fastest match.'),
+  3: ('You should be seen at urgent care today.', 'Peel Memorial Urgent Care is open and matches your case.'),
+  4: ('A walk-in clinic can help.', 'Telehealth is also a fine first step from home.'),
+  5: ("Self-care or telehealth is appropriate.", "We'll show telehealth and the closest walk-in just in case.")
+}.get(ctas) %}
+{% set top = results[0] if results else None %}
+
+<main class="paper-bg" style="min-height: calc(100vh - 80px); padding: 28px 28px 60px;">
+  <div style="max-width: 1080px; margin: 0 auto;">
+
+    <a href="{{ url_for('index') }}" style="display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--tw-ink-3); margin-bottom: 16px;">
+      {{ icon('chevron-left', size=14) }} Back to triage
+    </a>
+
+    {# ---------- DECISION CARD ---------- #}
+    <div class="decision-card{% if ctas <= 2 %} is-emergency{% endif %}" style="margin-bottom: 22px;">
+      <div class="body">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;">
+          {{ ctas_chip(ctas, 'lg') }}
+          {% if classification.safety_floor_triggered %}
+          {{ pill('Safety floor triggered', variant='danger', icon_name='shield') }}
+          {% endif %}
+          {% if classification.demographic_modifiers %}
+          {{ pill(classification.demographic_modifiers|length ~ ' demographic mod' ~ ('s' if classification.demographic_modifiers|length > 1 else ''), variant='neutral', icon_name='user') }}
+          {% endif %}
+          {% if redirected %}
+          {{ pill('Surge redirect to virtual', variant='warn', icon_name='video') }}
+          {% endif %}
         </div>
+<<<<<<< Updated upstream
       </a>
       <nav class="flex items-center gap-4 text-sm">
         <a href="{{ url_for('mental_health') }}" class="text-orange-200 hover:text-white">Mental Health</a>
@@ -31,10 +55,13 @@
       </nav>
     </div>
   </header>
+=======
+>>>>>>> Stashed changes
 
-  <main class="flex-1 max-w-5xl w-full mx-auto px-6 py-10">
-    <a href="{{ url_for('index') }}" class="text-sm tw-text-maroon hover:underline">&larr; Back to symptoms</a>
+        <h1 class="display title">{{ headline[0] if headline else 'Recommendation ready.' }}</h1>
+        <p class="sub">{{ headline[1] if headline else 'See your matches below.' }}</p>
 
+<<<<<<< Updated upstream
     <section class="mt-4 mb-6 bg-white rounded-2xl shadow-md border border-gray-100 p-6 md:p-8">
       <div class="flex flex-wrap items-center gap-3 mb-3">
         <span class="severity-badge {{ badge_class }}">{{ badge_label }}</span>
@@ -212,109 +239,311 @@
         <h2 class="font-bold text-gray-800 mb-2">How we scored this</h2>
         <p class="text-sm text-gray-600">{{ classification.tier_reason }}</p>
 
-        {% if classification.bayesian_matches %}
+        {% if classification.pattern_matches %}
         <div class="mt-3 space-y-2">
-          {% for m in classification.bayesian_matches %}
+          {% for m in classification.pattern_matches %}
           <div class="p-2 rounded bg-orange-50 border border-orange-200 text-sm">
             <span class="font-semibold text-orange-900">{{ m.label }}</span>
             <span class="text-orange-800">(P={{ m.probability }}, signals={{ m.signals_matched }})</span>
             <div class="text-orange-900">{{ m.warning }}</div>
+=======
+        <div class="stats-row">
+          <div>
+            <div class="stat-key">Symptoms</div>
+            <div class="stat-val">{{ symptoms|length }} reported</div>
+>>>>>>> Stashed changes
           </div>
-          {% endfor %}
+          <div class="stat-sep"></div>
+          <div>
+            <div class="stat-key">Patient</div>
+            <div class="stat-val">{{ age or '—' }} y · {{ fsa or '—' }}</div>
+          </div>
+          {% if demographics.chronic_conditions %}
+          <div class="stat-sep"></div>
+          <div>
+            <div class="stat-key">Conditions</div>
+            <div class="stat-val">{{ demographics.chronic_conditions|length }}</div>
+          </div>
+          {% endif %}
+          {% if demographics.caregiver_mode %}
+          <div class="stat-sep"></div>
+          <div>
+            <div class="stat-key">Triaged for</div>
+            <div class="stat-val">{{ demographics.patient_name or 'family member' }}{% if demographics.relationship %} ({{ demographics.relationship }}){% endif %}</div>
+          </div>
+          {% endif %}
+          <div class="stat-sep"></div>
+          <button type="button" id="reasoning-btn"
+                  style="display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--tw-clay); font-weight: 600;">
+            Why this rating? {{ icon('arrow-right', size=13) }}
+          </button>
+        </div>
+
+        {% if fsa_warning %}
+        <div style="margin-top: 12px; padding: 10px; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; font-size: 12px; color: #7c2d12;">
+          {{ fsa_warning }}
         </div>
         {% endif %}
 
-        {% if classification.demographic_modifiers %}
-        <div class="mt-3 p-3 rounded bg-gray-50 border border-gray-200 text-sm text-gray-700">
-          <div class="font-semibold mb-1">Demographic adaptation applied</div>
-          <ul class="list-disc list-inside">
-            {% for item in classification.demographic_modifiers %}
-            <li>{{ item }}</li>
-            {% endfor %}
-          </ul>
+        {% if offline_mode %}
+        <div style="margin-top: 12px; padding: 10px; background: #f0f4f8; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 12px; color: #1e293b; display: flex; gap: 8px; align-items: center;">
+          {{ icon('shield', size=14) }} <strong>Offline protocol active.</strong> Print or screenshot your QR card before leaving — staff will scan it manually if EHR is down.
         </div>
         {% endif %}
       </div>
 
-      <div class="bg-white rounded-xl border border-gray-100 p-4">
-        <h2 class="font-bold text-gray-800 mb-2">QR Handoff</h2>
-        <p class="text-sm text-gray-600 mb-3">Scan at intake to skip re-typing your symptoms.</p>
-        <div class="text-xs break-all p-2 rounded bg-gray-50 border border-gray-200 mb-3">{{ handoff_url }}</div>
-        <a class="tw-btn-secondary text-sm inline-block w-full text-center" href="{{ url_for('handoff', token=handoff_token) }}" target="_blank" rel="noopener">Open Handoff Card</a>
+      <div class="actions">
+        <div style="font-size: 12.5px; color: var(--tw-ink-3);">
+          {% if top %}
+          Recommended now: <span style="font-weight: 600; color: var(--tw-ink);">{{ top.facility.name }}</span> · {{ wait_chip(top.wait_minutes) }} wait
+          {% else %}
+          Call 811 (Telehealth Ontario) or 911 if urgent.
+          {% endif %}
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" id="qr-btn" class="btn btn--outline btn--sm">{{ icon('qr', size=14) }} Hand-off QR</button>
+          <a href="tel:811" class="btn btn--ghost btn--sm">{{ icon('phone', size=14) }} Call 811</a>
+          {% if top %}
+          <a href="https://www.google.com/maps/search/?api=1&query={{ top.facility.address|urlencode }}"
+             target="_blank" rel="noopener"
+             class="btn {{ 'btn--danger' if ctas <= 2 else 'btn--primary' }} btn--sm">
+             Open in Maps {{ icon('arrow-right', size=14) }}
+          </a>
+          {% endif %}
+        </div>
       </div>
-    </section>
+    </div>
 
-    {% if demographics.allergies or demographics.medications or demographics.emergency_contact %}
-    <section class="mb-6 bg-white rounded-xl border border-gray-100 p-4">
-      <h2 class="font-bold text-gray-800 mb-3">Medical profile shared with handoff</h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
-        <div class="p-3 rounded-lg bg-gray-50 border border-gray-200">
-          <div class="font-semibold text-gray-700">Allergies</div>
-          <div class="text-gray-600">{{ demographics.allergies or 'None listed' }}</div>
-        </div>
-        <div class="p-3 rounded-lg bg-gray-50 border border-gray-200">
-          <div class="font-semibold text-gray-700">Medications</div>
-          <div class="text-gray-600">{{ demographics.medications or 'None listed' }}</div>
-        </div>
-        <div class="p-3 rounded-lg bg-gray-50 border border-gray-200">
-          <div class="font-semibold text-gray-700">Emergency contact</div>
-          <div class="text-gray-600">{{ demographics.emergency_contact or 'None listed' }}</div>
-        </div>
+    {# ---------- ML PATTERN ALERT ---------- #}
+    {% if classification.bayesian_matches %}
+    {% set m = classification.pattern_matches[0] %}
+    <div class="bayes-alert" style="margin-bottom: 22px;">
+      <div class="icon-bubble">{{ icon('alert', size=16) }}</div>
+      <div class="content">
+        <div class="title">{{ m.label }} · <span class="mono" style="font-weight: 500;">P = {{ m.probability }}</span></div>
+        <div class="body">{{ m.warning }}</div>
       </div>
-    </section>
+    </div>
     {% endif %}
 
-    <h2 class="text-lg font-bold text-gray-800 mb-3">Top {{ results|length }} matches near you</h2>
+    {# ---------- FACILITY LIST ---------- #}
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+      <h2 style="font-size: 18px; font-weight: 600; margin: 0; letter-spacing: -0.01em;">
+        Top {{ results|length }} matches near you
+      </h2>
+      <div style="display: flex; gap: 4px;">
+        <button class="tw-pill-action" title="List view">{{ icon('list', size=13) }}</button>
+        <button class="tw-pill-action" title="Map view (coming soon)">{{ icon('map-pin', size=13) }}</button>
+      </div>
+    </div>
 
-    {% if results %}
-    <div class="space-y-4">
+    <div style="display: flex; flex-direction: column; gap: 10px;">
       {% for r in results %}
       {% set f = r.facility %}
-      <div class="facility-card">
-        <div class="flex flex-wrap items-start justify-between gap-3">
+      {% set type_icon = 'video' if f.type == 'Telehealth' else ('hospital' if f.type == 'Hospital ER' else 'stethoscope') %}
+      <div class="facility-card {{ 'is-top' if loop.first }}">
+        {% if loop.first %}<div class="top-badge">Best match</div>{% endif %}
+        <div class="row">
           <div>
-            <div class="text-xs uppercase tracking-wide text-gray-500 font-semibold">{{ f.type }}</div>
-            <div class="text-xl font-bold tw-text-maroon">{{ f.name }}</div>
-            <div class="text-sm text-gray-600">{{ f.address }}</div>
-          </div>
-          <div class="text-right">
-            <div class="text-3xl font-extrabold {{ 'text-red-600' if r.wait_minutes >= 180 else ('text-orange-500' if r.wait_minutes >= 60 else 'text-green-600') }}">
-              {{ r.wait_minutes }}
-              <span class="text-sm font-medium text-gray-500">min</span>
+            <div class="meta">
+              <div class="icon-bubble">{{ icon(type_icon, size=15) }}</div>
+              <span class="type">{{ f.type }}</span>
+              <span class="dot"></span>
+              <span class="dist">~{{ r.distance_km }} km</span>
+              <span class="dot"></span>
+              <span class="dist">match <span class="mono" style="color: var(--tw-ink-2); font-weight: 600;">{{ (r.score * 100)|round(0)|int }}%</span></span>
             </div>
-            <div class="text-xs text-gray-500">predicted wait</div>
+            <div class="name">{{ f.name }}</div>
+            <div class="addr">{{ f.address }}</div>
+            {% if f.capabilities %}
+            <div class="caps">
+              {% for k, v in f.capabilities.items() if v %}
+              {% if loop.index <= 5 %}
+              <span class="cap-tag">{{ k|replace('_', ' ') }}</span>
+              {% endif %}
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="right">
+            {{ wait_chip(r.wait_minutes, large=true) }}
+            <div class="pred-label">predicted wait</div>
+            <div class="capacity-bar"
+                 data-tone="{% if (f.queue_length / [f.clinicians, 1]|max) >= 8 %}hot{% elif (f.queue_length / [f.clinicians, 1]|max) >= 5 %}warn{% endif %}"
+                 style="width: 140px; margin-top: 4px;">
+              <div class="row">
+                <span>Queue</span>
+                <span class="mono">{{ f.queue_length }}/{{ f.clinicians * 10 }}</span>
+              </div>
+              <div class="track">
+                <div class="fill" style="width: {{ [(f.queue_length / (f.clinicians * 10)) * 100, 100]|min }}%;"></div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
-          <div class="text-sm text-gray-600">
-            {% if r.distance_km == 0.0 and f.type == 'Telehealth' %}
-              Online now
-            {% else %}
-              ~{{ r.distance_km }} km away
-            {% endif %}
-            &middot; match score <span class="font-semibold">{{ (r.score * 100)|round(0)|int }}%</span>
+        <div class="footer">
+          <div class="meta-line">
+            {% if f.phone %}<span>{{ icon('phone', size=11) }} <span class="mono" style="margin-left: 4px;">{{ f.phone }}</span></span>{% endif %}
+            <span>{{ icon('users', size=11) }} <span class="mono" style="margin-left: 4px;">{{ f.clinicians }} clinicians</span></span>
           </div>
-          {% if f.type == 'Telehealth' %}
-          <a href="#" class="tw-btn-secondary text-sm">Join Virtual Queue</a>
-          {% else %}
-          <a href="https://www.google.com/maps/search/?api=1&query={{ f.address|urlencode }}" target="_blank" rel="noopener" class="tw-btn-secondary text-sm">Get Directions</a>
-          {% endif %}
+          <div style="display: flex; gap: 6px;">
+            {% if f.type == 'Telehealth' %}
+            <a href="tel:{{ f.phone }}" class="btn {{ 'btn--accent' if loop.first else 'btn--outline' }} btn--sm">{{ icon('video', size=14) }} Join virtual queue</a>
+            {% else %}
+            <a href="tel:{{ f.phone }}" class="btn btn--ghost btn--sm">{{ icon('phone', size=14) }} Call</a>
+            <a href="https://www.google.com/maps/search/?api=1&query={{ f.address|urlencode }}"
+               target="_blank" rel="noopener"
+               class="btn {{ 'btn--accent' if loop.first else 'btn--outline' }} btn--sm">
+              Directions {{ icon('arrow-right', size=14) }}
+            </a>
+            {% endif %}
+          </div>
         </div>
       </div>
       {% endfor %}
     </div>
-    {% else %}
-    <p class="text-gray-600">No facilities matched. Please call 811 or 911 if urgent.</p>
+
+    {% if not results %}
+    <div class="surface" style="padding: 28px; text-align: center; color: var(--tw-ink-3);">
+      No facilities matched. Please call 811 (Telehealth Ontario) or 911 if urgent.
+    </div>
     {% endif %}
 
-    <div class="mt-8 text-center">
-      <a href="{{ url_for('index') }}" class="tw-btn-primary inline-block">Start Over</a>
+    <div style="margin-top: 24px; text-align: center;">
+      <a href="{{ url_for('index') }}" class="btn btn--primary btn--md">Start a new triage</a>
     </div>
-  </main>
+  </div>
+</main>
 
-  <footer class="mt-10 py-6 text-center text-xs text-gray-500 border-t border-gray-200">
-    Brampton care navigation &middot; Brampton 2040 Vision 6 (Health and Well-Being)
-  </footer>
+{# ---------- REASONING DRAWER ---------- #}
+<div id="drawer-overlay" class="drawer-overlay">
+  <div class="drawer-panel" onclick="event.stopPropagation()">
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 20px;">
+      <div>
+        <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--tw-ink-3); margin-bottom: 4px;">Reasoning</div>
+        <h3 class="display" style="font-size: 28px; font-weight: 400; margin: 0; letter-spacing: -0.02em;">
+          Why <em style="font-style: italic; color: var(--tw-maroon);">CTAS {{ ctas }}</em>
+        </h3>
+      </div>
+      <button id="drawer-close" type="button" class="tw-pill-action" style="width: 28px; height: 28px; padding: 0; justify-content: center;">
+        {{ icon('x', size=14) }}
+      </button>
+    </div>
+
+    <div style="margin-bottom: 22px;">
+      <div class="section-label"><span class="label">Pipeline</span><span class="rule"></span></div>
+      <div style="font-size: 12.5px; color: var(--tw-ink-2); line-height: 1.6;">
+        {% for r in classification.tier_reason.split(' | ') %}
+        <div style="display: flex; gap: 8px; padding: 8px 0; border-bottom: 1px dashed var(--tw-line);">
+          <span class="mono" style="font-size: 10.5px; color: var(--tw-ink-4); padding-top: 2px;">0{{ loop.index }}</span>
+          <span>{{ r }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% if classification.bayesian_matches %}
+    <div style="margin-bottom: 22px;">
+      <div class="section-label"><span class="label">ML patterns</span><span class="rule"></span></div>
+      {% for m in classification.pattern_matches %}
+      <div style="padding: 12px; background: var(--tw-paper-2); border-radius: 8px; margin-bottom: 8px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+          <span style="font-size: 13px; font-weight: 600;">{{ m.label }}</span>
+          <span class="mono" style="font-size: 12px; color: var(--tw-maroon);">P = {{ m.probability }}</span>
+        </div>
+        <div style="font-size: 11.5px; color: var(--tw-ink-4); margin-bottom: 6px;">
+          {{ m.signals_matched }} co-signal{{ 's' if m.signals_matched != 1 else '' }} · escalates to CTAS {{ m.target_ctas }}
+        </div>
+        <div style="height: 4px; background: white; border-radius: 2px; overflow: hidden;">
+          <div style="width: {{ m.probability * 100 }}%; height: 100%; background: var(--tw-ctas2);"></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if classification.demographic_modifiers %}
+    <div>
+      <div class="section-label"><span class="label">Demographic mods</span><span class="rule"></span></div>
+      {% for d in classification.demographic_modifiers %}
+      <div style="display: flex; gap: 8px; padding: 8px 0; font-size: 12.5px; color: var(--tw-ink-2); border-bottom: 1px dashed var(--tw-line);">
+        <span style="color: var(--tw-ink-4); margin-top: 2px;">{{ icon('user', size=13) }}</span>
+        {{ d }}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{# ---------- QR MODAL ---------- #}
+<div id="qr-overlay" class="modal-overlay">
+  <div class="modal-card" onclick="event.stopPropagation()">
+    <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--tw-ink-3); margin-bottom: 4px;">Hand-off</div>
+    <h3 style="font-size: 18px; margin: 0 0 14px; letter-spacing: -0.01em;">Show this at reception</h3>
+    <div class="qr-grid" id="qr-grid"></div>
+    <div class="mono" style="text-align: center; margin-top: 12px; font-size: 12px; color: var(--tw-ink-3);">
+      Token · {{ handoff_token }}
+    </div>
+    <div style="font-size: 11.5px; color: var(--tw-ink-4); text-align: center; margin-top: 8px; line-height: 1.5;">
+      Scanning this skips intake — staff see your CTAS level, symptoms and ML pattern flags instantly.
+      <br>Or open: <a href="{{ url_for('handoff', token=handoff_token) }}" target="_blank" style="color: var(--tw-clay); text-decoration: underline;">handoff card</a>
+    </div>
+    <button id="qr-close" type="button" class="btn btn--primary btn--sm is-full" style="margin-top: 16px;">Done</button>
+  </div>
+</div>
+
+{{ tw_footer() }}
+
+<script>
+  // Drawer + QR modal toggles
+  (function () {
+    const drawer = document.getElementById('drawer-overlay');
+    const drawerOpen = document.getElementById('reasoning-btn');
+    const drawerClose = document.getElementById('drawer-close');
+    drawerOpen && drawerOpen.addEventListener('click', () => drawer.classList.add('is-open'));
+    drawerClose && drawerClose.addEventListener('click', () => drawer.classList.remove('is-open'));
+    drawer && drawer.addEventListener('click', (e) => { if (e.target === drawer) drawer.classList.remove('is-open'); });
+
+    const qr = document.getElementById('qr-overlay');
+    const qrBtn = document.getElementById('qr-btn');
+    const qrClose = document.getElementById('qr-close');
+    qrBtn && qrBtn.addEventListener('click', () => qr.classList.add('is-open'));
+    qrClose && qrClose.addEventListener('click', () => qr.classList.remove('is-open'));
+    qr && qr.addEventListener('click', (e) => { if (e.target === qr) qr.classList.remove('is-open'); });
+
+    // Render a deterministic-looking QR-style grid
+    const grid = document.getElementById('qr-grid');
+    if (grid) {
+      const seed = "{{ handoff_token }}".split('').reduce((a, c) => ((a << 5) - a + c.charCodeAt(0)) | 0, 0);
+      let s = seed;
+      const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+      const cells = [];
+      for (let i = 0; i < 225; i++) {
+        const filled = rand() > 0.55;
+        const div = document.createElement('div');
+        if (!filled) div.style.background = 'transparent';
+        cells.push(div);
+      }
+      // Carve corner anchors
+      [0, 12, 168].forEach(start => {
+        for (let dy = 0; dy < 3; dy++) for (let dx = 0; dx < 3; dx++) {
+          const idx = start + dy * 15 + dx;
+          if (cells[idx]) cells[idx].style.background = 'var(--tw-ink)';
+        }
+      });
+      cells.forEach(c => grid.appendChild(c));
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        drawer && drawer.classList.remove('is-open');
+        qr && qr.classList.remove('is-open');
+      }
+    });
+  })();
+</script>
 </body>
 </html>

@@ -5,6 +5,8 @@
     "type": "Hospital ER",
     "address": "2100 Bovaird Dr E, Brampton, ON",
     "fsa": "L6R",
+    "lat": 43.7315,
+    "lng": -79.7624,
     "base_wait_minutes": 240,
     "handles_severity": [1, 2, 3, 4, 5],
     "queue_length": 38,
@@ -12,6 +14,7 @@
     "clinicians": 6,
     "arrival_rate_per_hour": 18,
     "phone": "905-494-2120",
+    "mobile_clinic": false,
     "capabilities": {
       "pediatric": true,
       "obstetric": true,
@@ -28,6 +31,8 @@
     "type": "Urgent Care",
     "address": "20 Lynch St, Brampton, ON",
     "fsa": "L6W",
+    "lat": 43.7089,
+    "lng": -79.7532,
     "base_wait_minutes": 90,
     "handles_severity": [3, 4, 5],
     "queue_length": 14,
@@ -35,6 +40,7 @@
     "clinicians": 4,
     "arrival_rate_per_hour": 9,
     "phone": "905-494-2120",
+    "mobile_clinic": false,
     "capabilities": {
       "pediatric": true,
       "obstetric": false,
@@ -51,6 +57,8 @@
     "type": "Walk-in Clinic",
     "address": "Bramalea City Centre, Brampton, ON",
     "fsa": "L6T",
+    "lat": 43.7331,
+    "lng": -79.7981,
     "base_wait_minutes": 45,
     "handles_severity": [4, 5],
     "queue_length": 9,
@@ -58,6 +66,7 @@
     "clinicians": 3,
     "arrival_rate_per_hour": 8,
     "phone": "905-458-3700",
+    "mobile_clinic": false,
     "capabilities": {
       "pediatric": true,
       "obstetric": false,
@@ -74,6 +83,8 @@
     "type": "Walk-in Clinic",
     "address": "Heart Lake Rd, Brampton, ON",
     "fsa": "L6Z",
+    "lat": 43.7180,
+    "lng": -79.8145,
     "base_wait_minutes": 30,
     "handles_severity": [4, 5],
     "queue_length": 5,
@@ -81,6 +92,7 @@
     "clinicians": 2,
     "arrival_rate_per_hour": 5,
     "phone": "905-846-1234",
+    "mobile_clinic": false,
     "capabilities": {
       "pediatric": false,
       "obstetric": false,
@@ -97,6 +109,8 @@
     "type": "Telehealth",
     "address": "Online",
     "fsa": "ALL",
+    "lat": 43.7315,
+    "lng": -79.7624,
     "base_wait_minutes": 15,
     "handles_severity": [4, 5],
     "queue_length": 3,
@@ -104,6 +118,7 @@
     "clinicians": 8,
     "arrival_rate_per_hour": 12,
     "phone": "1-866-797-0000",
+    "mobile_clinic": false,
     "capabilities": {
       "pediatric": true,
       "obstetric": false,
@@ -112,6 +127,58 @@
       "cardiac": false,
       "ac_indoor": true,
       "offline_protocol": true
+    }
+  },
+  {
+    "id": 6,
+    "name": "Etobicoke Creek Mobile Clinic",
+    "type": "Mobile Clinic",
+    "address": "Etobicoke Creek Park, Brampton, ON",
+    "fsa": "L6Y",
+    "lat": 43.7215,
+    "lng": -79.8412,
+    "base_wait_minutes": 25,
+    "handles_severity": [4, 5],
+    "queue_length": 3,
+    "avg_service_minutes": 12,
+    "clinicians": 2,
+    "arrival_rate_per_hour": 4,
+    "phone": "905-796-3000",
+    "mobile_clinic": true,
+    "capabilities": {
+      "pediatric": true,
+      "obstetric": false,
+      "trauma": false,
+      "stroke_center": false,
+      "cardiac": false,
+      "ac_indoor": false,
+      "offline_protocol": false
+    }
+  },
+  {
+    "id": 7,
+    "name": "Mount Pleasant Mobile Clinic",
+    "type": "Mobile Clinic",
+    "address": "Mount Pleasant Park, Brampton, ON",
+    "fsa": "L6S",
+    "lat": 43.7450,
+    "lng": -79.7350,
+    "base_wait_minutes": 20,
+    "handles_severity": [4, 5],
+    "queue_length": 2,
+    "avg_service_minutes": 10,
+    "clinicians": 1,
+    "arrival_rate_per_hour": 3,
+    "phone": "905-796-3000",
+    "mobile_clinic": true,
+    "capabilities": {
+      "pediatric": true,
+      "obstetric": false,
+      "trauma": false,
+      "stroke_center": false,
+      "cardiac": false,
+      "ac_indoor": false,
+      "offline_protocol": false
     }
   }
 ]

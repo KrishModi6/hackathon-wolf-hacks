@@ -3,38 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TriageWolf - Brampton's Smart Healthcare Navigator</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>SwiftCare Brampton — Triage</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Lexend:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body class="min-h-screen flex flex-col">
+<body>
+{% from '_macros.html' import icon, wordmark, tw_header, tw_footer, ctas_chip, wait_chip, pill, live_dot %}
 
-  {% if scenario %}
-  <div class="surge-banner" data-scenario="{{ active_scenario }}">
-    {{ scenario.icon }} {{ scenario.banner }}
-  </div>
-  {% endif %}
+{{ tw_header(active='triage', scenario=scenario, active_scenario=active_scenario, predictive=predictive, profile=profile) }}
 
-  {% if predictive %}
-  <div class="px-4 py-2 bg-amber-50 border-b border-amber-200 text-amber-900 text-sm text-center">
-    <span class="font-semibold">Heads up:</span>
-    {% for a in predictive %}
-      {{ a.facility }} is at {{ a.wait_minutes }} min wait{% if not loop.last %} &middot; {% endif %}
-    {% endfor %}
-    &mdash; we're routing patients to faster options.
-  </div>
-  {% endif %}
+<main class="paper-bg" style="min-height: calc(100vh - 80px); padding: 32px 28px 60px;">
+  <div style="max-width: 1080px; margin: 0 auto;">
 
-  <header class="tw-bg-maroon text-white">
-    <div class="max-w-6xl mx-auto px-6 py-4 flex flex-wrap items-center justify-between gap-3">
-      <a href="{{ url_for('index') }}" class="flex items-center gap-3">
-        <span class="text-3xl">🐺</span>
-        <div>
-          <div class="text-xl font-bold tracking-tight">TriageWolf</div>
-          <div class="text-xs text-orange-200">Brampton's Smart Healthcare Navigator</div>
+    {# ---------- HERO ---------- #}
+    <section style="margin-bottom: 28px; display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: end;">
+      <div>
+        <div class="eyebrow" style="margin-bottom: 14px;">
+          {{ icon('shield', size=12) }} CTAS-aligned · Brampton 2040
         </div>
+<<<<<<< Updated upstream
       </a>
       <nav class="flex flex-wrap items-center gap-4 text-sm">
         <a href="{{ url_for('impact') }}" class="text-orange-200 hover:text-white">Impact</a>
@@ -63,7 +52,7 @@
       </h1>
       <p class="mt-4 text-gray-700 max-w-2xl mx-auto">
         Built for Brampton's documented care-access gap. We'll match you to the right facility using the
-        <span class="font-semibold tw-text-orange">Canadian Triage and Acuity Scale</span> + a Bayesian early-detection layer,
+        <span class="font-semibold tw-text-orange">Canadian Triage and Acuity Scale</span> + ML-powered early-detection,
         live wait times, and your demographics.
       </p>
       <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
@@ -87,8 +76,7 @@
       <div class="flex items-start justify-between gap-3 mb-3">
         <div>
           <div class="flex items-center gap-2">
-            <span class="text-2xl">🤖</span>
-            <h2 class="text-xl font-bold tw-text-maroon">Talk to the TriageWolf Assistant</h2>
+            <h2 class="text-xl font-bold tw-text-maroon">Talk to the SwiftCare Assistant</h2>
           </div>
           <p class="text-sm text-gray-600 mt-1">
             Describe how you feel in plain words, or tap the mic to speak. The assistant detects cardiac, stroke and outbreak patterns early and pre-fills the form.
@@ -248,18 +236,284 @@
 
       <div class="mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <p class="text-xs text-gray-500 max-w-md">
-          TriageWolf is a clinical navigation tool, not medical advice. If you think it's an emergency, call 911 immediately.
+          SwiftCare Brampton is a clinical navigation tool, not medical advice. If you think it's an emergency, call 911 immediately.
+=======
+        <h1 class="hero-title">
+          Find the fastest care<br>
+          <em>right now.</em>
+        </h1>
+        <p class="hero-sub">
+          Tell SwiftCare how you feel. We match you to the right Brampton facility in seconds — using the Canadian Triage and Acuity Scale, live wait times, and an ML early-detection layer that catches cardiac, stroke and sepsis patterns before they're obvious.
+>>>>>>> Stashed changes
         </p>
-        <button type="submit" class="tw-btn-primary text-base">Find Care &rarr;</button>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-end; color: var(--tw-ink-4); font-size: 11.5px; letter-spacing: 0.04em; text-transform: uppercase;">
+        <div class="mono">{{ now_label or 'Live' }}</div>
+        <div>{{ facility_count or 5 }} facilities tracked</div>
+        <div>{{ active_sessions or '1,284' }} active sessions</div>
+      </div>
+    </section>
+
+    {# ---------- AI ASSISTANT ---------- #}
+    <section class="ai-panel" style="margin-bottom: 22px;">
+      <div class="ai-head">
+        <div class="ai-icon">{{ icon('sparkles', size=16) }}</div>
+        <div style="flex: 1;">
+          <div style="font-size: 14px; font-weight: 600;">SwiftCare Brampton Assistant</div>
+          <div style="font-size: 11.5px; color: var(--tw-ink-4);">Describe symptoms in plain words · or use the mic</div>
+        </div>
+        {{ pill('Online', variant='ok') }}
+        <button id="speak-toggle" type="button" class="tw-pill-action" style="margin-left: 8px;" title="Toggle voice replies">
+          {{ icon('chat', size=12) }} Voice: ON
+        </button>
+      </div>
+
+      <div class="ai-textarea-wrap">
+        <textarea id="ai-input" class="text-area" rows="3"
+          placeholder="e.g. My grandmother is 82, has chest pain spreading to her left arm and is sweating a lot..."
+          style="padding-right: 56px;"></textarea>
+        <button id="mic-btn" type="button" class="ai-mic-btn" title="Tap to speak">{{ icon('mic', size=16) }}</button>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; align-items: center; justify-content: space-between;">
+        <div class="ai-examples">
+          <button type="button" class="ai-example" data-example="82-yr-old grandmother, chest pain spreading to left arm, sweating">82-yr-old, chest pain + left arm, sweating</button>
+          <button type="button" class="ai-example" data-example="Toddler with high fever and a rash">Toddler, fever + rash</button>
+          <button type="button" class="ai-example" data-example="Sprained my ankle running, can walk but limping">Sprained ankle</button>
+        </div>
+        <button id="ai-send" type="button" class="btn btn--primary btn--sm">{{ icon('send', size=14) }} Analyze</button>
+      </div>
+
+      <div id="mic-status" style="margin-top: 6px; font-size: 11px; color: var(--tw-ink-4);"></div>
+      <div id="ai-result" class="hidden" style="display: none;"></div>
+    </section>
+
+    {# ---------- FORM ---------- #}
+    <form action="{{ url_for('triage') }}" method="POST" novalidate
+          style="display: grid; grid-template-columns: 1fr 320px; gap: 22px; align-items: start;">
+
+      <div class="surface" style="padding: 24px;">
+        {# STEP 1 — basics #}
+        <div class="section-label">
+          <span class="label" data-accent="maroon">Step 01 · Patient basics</span>
+          <span class="rule"></span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px;">
+          <label>
+            <div class="field-label">Postal code (FSA) <span class="hint">First 3 chars</span></div>
+            <input class="text-input is-mono" name="fsa" maxlength="3" placeholder="L6S"
+                   value="{{ profile.fsa if profile else '' }}" style="text-transform: uppercase;">
+          </label>
+          <label>
+            <div class="field-label">Patient age</div>
+            <input class="text-input is-mono" name="age" type="number" min="0" max="120"
+                   value="{{ profile.age if profile and profile.age else '25' }}">
+          </label>
+        </div>
+
+        {# Caregiver / advanced toggle #}
+        <button type="button" id="advanced-toggle"
+                style="width: 100%; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;
+                       background: var(--tw-paper-2); border: 1px solid var(--tw-line-2);
+                       border-radius: 8px; font-size: 13px; color: var(--tw-ink-3); margin-bottom: 12px;">
+          <span style="display: inline-flex; align-items: center; gap: 8px;">
+            {{ icon('users', size=14) }} Triaging for someone else, or pregnant / chronic conditions?
+          </span>
+          {{ icon('chevron-down', size=14) }}
+        </button>
+
+        <div id="advanced-panel" style="display: none; padding: 14px; background: var(--tw-paper); border-radius: 10px; border: 1px dashed var(--tw-line); margin-bottom: 18px;">
+          <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; cursor: pointer;">
+            <input type="checkbox" id="caregiver-mode" name="caregiver_mode" style="width: 16px; height: 16px; accent-color: var(--tw-maroon);">
+            <span>
+              <span style="font-size: 13px; font-weight: 500;">I'm triaging for a family member</span>
+              <span style="display: block; font-size: 11.5px; color: var(--tw-ink-4);">Adults triaging children, kids triaging elderly parents, etc.</span>
+            </span>
+          </label>
+
+          <div id="caregiver-fields" style="display: none; margin-bottom: 12px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <input class="text-input" name="patient_name" placeholder="Their name (optional)">
+              <select class="select-input" name="relationship">
+                <option value="">Relationship</option>
+                <option value="parent">Parent</option>
+                <option value="child">Child</option>
+                <option value="spouse">Spouse / partner</option>
+                <option value="sibling">Sibling</option>
+                <option value="grandparent">Grandparent</option>
+                <option value="friend">Friend / neighbour</option>
+              </select>
+            </div>
+            <label style="display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 12.5px; color: var(--tw-ink-3);">
+              <input type="checkbox" name="needs_transport" style="width: 14px; height: 14px; accent-color: var(--tw-maroon);">
+              We need help getting there (no car / can't drive)
+            </label>
+          </div>
+
+          <div class="section-label" style="margin-top: 6px; margin-bottom: 8px;">
+            <span class="label">Pre-existing conditions</span>
+            <span class="rule"></span>
+          </div>
+          {% set chronic = (profile.chronic_conditions if profile else []) or [] %}
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+            {% for k, lbl in [
+              ('pregnant', 'Pregnant'),
+              ('heart_disease', 'Heart disease'),
+              ('diabetes', 'Diabetes'),
+              ('asthma', 'Asthma / COPD'),
+              ('immunocompromised', 'Immunocompromised'),
+              ('kidney', 'Kidney disease'),
+            ] %}
+            <label style="display: flex; align-items: center; gap: 8px; padding: 6px 10px;
+                          background: white; border: 1px solid var(--tw-line); border-radius: 6px;
+                          cursor: pointer; font-size: 12.5px;">
+              {% if k == 'pregnant' %}
+              <input type="checkbox" name="pregnant" value="1" style="width: 14px; height: 14px; accent-color: var(--tw-maroon);"
+                     {% if profile and profile.pregnant %}checked{% endif %}>
+              {% else %}
+              <input type="checkbox" name="chronic" value="{{ k }}" style="width: 14px; height: 14px; accent-color: var(--tw-maroon);"
+                     {% if k in chronic %}checked{% endif %}>
+              {% endif %}
+              {{ lbl }}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        {# STEP 2 — symptoms #}
+        <div class="section-label">
+          <span class="label" data-accent="maroon">Step 02 · What's going on</span>
+          <span class="rule"></span>
+          <span class="count">SEL <span id="symptom-count">00</span></span>
+        </div>
+
+        {% set tier_meta = {
+          'critical': ('Critical',                    'Anything in this row triggers immediate ER routing.', 'alert'),
+          'urgent':   ('Urgent',                      'Should be seen within hours.',                        'thermometer'),
+          'moderate': ('Moderate',                    'Walk-in or telehealth typically suitable.',           'stethoscope'),
+          'mild':     ('Mild',                        'Self-care or telehealth.',                            'chat'),
+          'signals':  ('Subtle warning signs',        'Combined with other symptoms, these escalate severity.', 'sparkles')
+        } %}
+        {% set tier_tone = {'critical': 'critical', 'urgent': 'urgent', 'moderate': 'moderate', 'mild': 'mild', 'signals': 'signal'} %}
+
+        {% for tier in ['critical', 'urgent', 'moderate', 'mild', 'signals'] %}
+        <div class="tier-row" data-tone="{{ tier_tone[tier] }}">
+          <div class="tier-head">
+            <span class="tier-icon">{{ icon(tier_meta[tier][2], size=14) }}</span>
+            <span class="tier-name">{{ tier_meta[tier][0] }}</span>
+            <span class="tier-desc">· {{ tier_meta[tier][1] }}</span>
+          </div>
+          <div class="tier-grid">
+            {% for symptom in symptoms[tier] %}
+            <label class="symptom-pill" data-tone="{{ tier_tone[tier] }}">
+              <input type="checkbox" name="symptoms" value="{{ symptom }}">
+              <span class="check">{{ icon('check', size=10, stroke=3) }}</span>
+              <span class="dot"></span>
+              <span class="label">{{ symptom }}</span>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      {# ---------- RIGHT RAIL ---------- #}
+      <div class="right-rail" style="position: sticky; top: 16px;">
+        <div class="surface">
+          <div class="section-label" style="margin-bottom: 10px;">
+            <span class="label">Live near you</span>
+            <span class="rule"></span>
+          </div>
+          {% for f in nearby_facilities or [] %}
+          <div class="row">
+            <div>
+              <div class="name-line">{{ f.short_name }}</div>
+              <div class="type-line">{{ f.type }}</div>
+            </div>
+            {{ wait_chip(f.wait) }}
+          </div>
+          {% endfor %}
+          <hr class="dotted-rule" style="margin: 12px 0;">
+          <div style="font-size: 11px; color: var(--tw-ink-4);">
+            Auto-refreshes every 60s
+          </div>
+        </div>
+
+        <div class="surface" style="background: var(--tw-paper-2);">
+          <div class="section-label" style="margin-bottom: 8px;">
+            <span class="label">Your selection</span>
+            <span class="rule"></span>
+          </div>
+          <div id="selection-summary" style="font-size: 12.5px; color: var(--tw-ink-4);">
+            No symptoms yet — tap the most prominent one or describe it above.
+          </div>
+        </div>
+
+        <button type="submit" id="submit-btn" class="btn btn--danger btn--lg is-full" disabled>
+          Find my care {{ icon('arrow-right', size=16) }}
+        </button>
+
+        <div style="margin-top: 12px; padding: 10px; font-size: 11px; color: var(--tw-ink-4); line-height: 1.5; text-align: center;">
+          Hackathon prototype · not medical advice. If you suspect an emergency, call
+          <span class="mono" style="font-weight: 600; color: var(--tw-maroon);">911</span> immediately.
+        </div>
       </div>
     </form>
-  </main>
+  </div>
+</main>
 
-  <footer class="mt-10 py-6 text-center text-xs text-gray-500 border-t border-gray-200">
-    Brampton care navigation &middot; Aligned with Brampton 2040 Vision &middot;
-    <a href="{{ url_for('impact') }}" class="underline hover:text-maroon">See full impact &rarr;</a>
-  </footer>
+{{ tw_footer() }}
 
-  <script src="{{ url_for('static', filename='script.js') }}"></script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+<script>
+  // Local UI behaviour: caregiver toggle, advanced toggle, selection summary, submit gate
+  (function () {
+    const advBtn = document.getElementById('advanced-toggle');
+    const advPanel = document.getElementById('advanced-panel');
+    advBtn && advBtn.addEventListener('click', () => {
+      const open = advPanel.style.display !== 'none';
+      advPanel.style.display = open ? 'none' : 'block';
+    });
+
+    const caregiverCheck = document.getElementById('caregiver-mode');
+    const caregiverFields = document.getElementById('caregiver-fields');
+    caregiverCheck && caregiverCheck.addEventListener('change', () => {
+      caregiverFields.style.display = caregiverCheck.checked ? 'block' : 'none';
+    });
+
+    const counter = document.getElementById('symptom-count');
+    const summary = document.getElementById('selection-summary');
+    const submitBtn = document.getElementById('submit-btn');
+    const checkboxes = document.querySelectorAll('input[name="symptoms"]');
+    function pad2(n) { return String(n).padStart(2, '0'); }
+    function update() {
+      const checked = Array.from(checkboxes).filter(c => c.checked);
+      const n = checked.length;
+      if (counter) counter.textContent = pad2(n);
+      if (submitBtn) submitBtn.disabled = n === 0;
+      if (summary) {
+        if (n === 0) {
+          summary.innerHTML = 'No symptoms yet — tap the most prominent one or describe it above.';
+        } else {
+          summary.innerHTML = checked.map(c =>
+            `<span style="display:inline-block;font-size:11.5px;padding:3px 8px;background:white;border:1px solid var(--tw-line);border-radius:999px;margin:2px 4px 2px 0;">${c.value}</span>`
+          ).join('');
+        }
+      }
+    }
+    checkboxes.forEach(c => c.addEventListener('change', update));
+    update();
+
+    // AI examples → fill textarea
+    document.querySelectorAll('.ai-example').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const ex = btn.getAttribute('data-example');
+        const ta = document.getElementById('ai-input');
+        if (ta && ex) { ta.value = ex; ta.focus(); }
+      });
+    });
+  })();
+</script>
 </body>
 </html>

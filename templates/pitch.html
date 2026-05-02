@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pitch Deck - TriageWolf</title>
+  <title>Pitch Deck - SwiftCare Brampton</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -19,7 +19,7 @@
 <body class="min-h-screen flex flex-col">
   <header class="tw-bg-maroon text-white sticky top-0 z-30">
     <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-      <a href="{{ url_for('index') }}" class="text-xl font-bold">🐺 TriageWolf</a>
+      <a href="{{ url_for('index') }}" class="text-xl font-bold">🦠 SwiftCare Brampton</a>
       <nav class="flex gap-4 text-sm flex-wrap">
         <a href="{{ url_for('impact') }}" class="text-orange-200 hover:text-white">Why Brampton</a>
         <a href="{{ url_for('constraints') }}" class="text-orange-200 hover:text-white">Constraints</a>
@@ -32,7 +32,7 @@
   <main class="flex-1 max-w-5xl mx-auto w-full px-6 py-10">
     <div class="text-center mb-10">
       <h1 class="text-4xl md:text-5xl font-extrabold tw-text-maroon">10-Slide Judge Pitch</h1>
-      <p class="text-gray-600 mt-3 max-w-2xl mx-auto">Total runtime: 10 minutes. Open with Priya, demo QR handoff + Bayesian safety floor by minute 5, finish with the ask. Each slide below has speaker notes timed to the second.</p>
+      <p class="text-gray-600 mt-3 max-w-2xl mx-auto">Total runtime: 10 minutes. Open with Priya, demo QR handoff + ML safety floor by minute 5, finish with the ask. Each slide below has speaker notes timed to the second.</p>
       <div class="mt-4 inline-block px-4 py-2 bg-orange-100 rounded-full text-sm tw-text-maroon font-semibold">Total speaker time: 9:30 + 30s buffer</div>
     </div>
 
@@ -57,7 +57,7 @@
       <p class="text-gray-700 mb-4">67 years old. Lives in Bramalea. Last March she waited 9 hours in Brampton Civic's ER for what turned out to be a UTI - moderate severity, treatable at any walk-in clinic. She missed her grandson's birthday and went home with sepsis risk because she'd been in a crowded hallway too long.</p>
       <div class="speaker">
         <span class="label">Speaker notes (60s)</span>
-        Walk on stage, no slides for the first 15 seconds. "I want you to meet someone before I show you any of this." Tell Priya's story slowly. Pause after "9 hours". End with: "Tonight, I'm going to show you what her night looks like with TriageWolf."
+        Walk on stage, no slides for the first 15 seconds. "I want you to meet someone before I show you any of this." Tell Priya's story slowly. Pause after "9 hours". End with: "Tonight, I'm going to show you what her night looks like with SwiftCare Brampton."
       </div>
     </section>
 
@@ -98,10 +98,10 @@
         <div><span class="slide-num text-gray-400">SLIDE 03</span> <span class="ml-3 timer">2:00 - 2:45</span></div>
         <span class="text-xs px-2 py-1 rounded bg-yellow-100 text-yellow-800 font-semibold">SOLUTION</span>
       </div>
-      <h2 class="text-2xl font-extrabold tw-text-maroon mb-2">TriageWolf: a smart navigator that routes residents to the right care, faster.</h2>
+      <h2 class="text-2xl font-extrabold tw-text-maroon mb-2">SwiftCare Brampton: a smart navigator that routes residents to the right care, faster.</h2>
       <ul class="text-sm text-gray-700 space-y-1 mb-3 list-disc list-inside">
         <li>Voice or text intake - including a family-triage mode for caregivers.</li>
-        <li>Hybrid CTAS + Bayesian engine with a one-way safety floor (never downgrades a heart-attack pattern).</li>
+        <li>Hybrid CTAS + ML pattern engine with a one-way safety floor (never downgrades a heart-attack pattern).</li>
         <li>Live wait-time prediction using M/M/c queueing across 5 Brampton facilities.</li>
         <li>QR handoff card for paramedic / nurse intake - works even if the EHR is offline.</li>
         <li>3 disruption modes: outbreak, heatwave, cyberattack.</li>
@@ -121,8 +121,8 @@
       </div>
       <h2 class="text-2xl font-extrabold tw-text-maroon mb-2">Demo: Priya's night, 4 actions.</h2>
       <ol class="text-sm text-gray-700 space-y-2 list-decimal list-inside mb-3">
-        <li><strong>Voice input</strong> - Priya's daughter says "my mom is 67, has burning when she pees, mild fever". TriageWolf parses, pre-fills checkboxes.</li>
-        <li><strong>Hybrid classification</strong> - CTAS 4 + chronic-condition diabetes flag. Bayesian engine considers UTI + diabetes = sepsis risk monitor.</li>
+        <li><strong>Voice input</strong> - Priya's daughter says "my mom is 67, has burning when she pees, mild fever". SwiftCare Brampton parses, pre-fills checkboxes.</li>
+        <li><strong>Hybrid classification</strong> - CTAS 4 + chronic-condition diabetes flag. ML engine considers UTI + diabetes = sepsis risk monitor.</li>
         <li><strong>Recommendation</strong> - top match is Bramalea Walk-In (45 min wait, 1.5 km away, pediatric-capable not required). Brampton Civic is shown but deprioritized.</li>
         <li><strong>QR handoff</strong> - card generates with severity, symptoms, demographic flags. Show it to the clinic; staff scans, intake skipped.</li>
       </ol>
@@ -141,7 +141,7 @@
       <h2 class="text-2xl font-extrabold tw-text-maroon mb-2">How the engine actually works.</h2>
       <div class="bg-gray-50 border border-gray-200 rounded p-4 text-sm space-y-2">
         <div><span class="font-semibold tw-text-orange">Input layer:</span> Voice (Web Speech) / Text / SMS gateway -> normalized symptom set.</div>
-        <div><span class="font-semibold tw-text-orange">Classifier:</span> CTAS rule baseline -> Safety floor (never below CTAS 2 if anchor symptoms present) -> Bayesian co-occurrence (P(cardiac), P(stroke), P(sepsis), P(anaphylaxis)).</div>
+        <div><span class="font-semibold tw-text-orange">Classifier:</span> CTAS rule baseline -> Safety floor (never below CTAS 2 if anchor symptoms present) -> ML patterns (P(cardiac), P(stroke), P(sepsis), P(anaphylaxis)).</div>
         <div><span class="font-semibold tw-text-orange">Demographic mods:</span> Pediatric, geriatric, pregnancy, chronic conditions - matches CTAS Pediatric / Obstetric modifiers.</div>
         <div><span class="font-semibold tw-text-orange">Routing:</span> Capability hard-filter -> M/M/c wait predictor -> weighted score (0.5 sev + 0.3 wait + 0.2 dist) + scenario boosts.</div>
         <div><span class="font-semibold tw-text-orange">Handoff:</span> Token-signed QR; offline-ready card for paramedic/nurse intake.</div>
@@ -188,7 +188,7 @@
         <div><span class="slide-num text-gray-400">SLIDE 07</span> <span class="ml-3 timer">6:45 - 7:45</span></div>
         <span class="text-xs px-2 py-1 rounded bg-emerald-100 text-emerald-800 font-semibold">SCALABILITY</span>
       </div>
-      <h2 class="text-2xl font-extrabold tw-text-maroon mb-2">If 10% of Brampton uses TriageWolf weekly...</h2>
+      <h2 class="text-2xl font-extrabold tw-text-maroon mb-2">If 10% of Brampton uses SwiftCare Brampton weekly...</h2>
       <div class="grid sm:grid-cols-4 gap-3 mb-3 text-sm">
         <div class="p-3 rounded bg-emerald-50 border border-emerald-200">
           <div class="text-2xl font-extrabold text-emerald-700">{{ scale.weekly_users }}</div>
@@ -284,7 +284,7 @@
       <div class="space-y-4 text-sm">
         <div>
           <div class="font-semibold tw-text-orange">Q: What if your AI misclassifies a heart attack as indigestion?</div>
-          <p class="text-gray-700 mt-1">A: It can't. We have a one-way safety floor: any anchor symptom (chest pain, breathing trouble, stroke signs, severe bleeding, unconsciousness) forces CTAS 2 or below regardless of any other input. The Bayesian layer can only ESCALATE further, never relax. We also require a CTAS-certified physician to review the rules before pilot - that's part of our Ask.</p>
+          <p class="text-gray-700 mt-1">A: It can't. We have a one-way safety floor: any anchor symptom (chest pain, breathing trouble, stroke signs, severe bleeding, unconsciousness) forces CTAS 2 or below regardless of any other input. The ML pattern layer can only ESCALATE further, never relax. We also require a CTAS-certified physician to review the rules before pilot - that's part of our Ask.</p>
         </div>
         <div>
           <div class="font-semibold tw-text-orange">Q: Patient privacy under PHIPA?</div>
@@ -310,7 +310,7 @@
     </section>
 
     <p class="text-center text-xs text-gray-500 mt-10">
-      <a href="{{ url_for('index') }}" class="hover:underline">&larr; back to TriageWolf</a>
+      <a href="{{ url_for('index') }}" class="hover:underline">&larr; back to SwiftCare Brampton</a>
     </p>
   </main>
 

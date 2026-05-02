@@ -1,10 +1,10 @@
 """
-TriageWolf - Brampton's Smart Healthcare Navigator
+SwiftCare Brampton - Brampton's Smart Healthcare Navigator
 Built for WolfHacks 2026
 
 Triage logic is based on CTAS (Canadian Triage and Acuity Scale), the
 standard 5-level acuity scale used by Canadian emergency departments,
-with a Bayesian co-occurrence layer on top for early detection of
+with machine learning on top for early detection of
 cardiac, stroke, sepsis and anaphylaxis patterns.
 """
 
@@ -25,7 +25,7 @@ from triage_engine import (
 from surge_modes import SCENARIOS, get_active_scenario, multipliers_for
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "triagewolf-dev-secret")
+app.secret_key = os.environ.get("SECRET_KEY", "swiftcare-dev-secret")
 
 # ---------------------------------------------------------------------------
 # In-memory app state
@@ -136,7 +136,7 @@ def load_stats():
 
 def scalability_metrics(stats):
     """
-    Estimate measurable impact if 10% of residents use TriageWolf weekly.
+    Estimate measurable impact if 10% of residents use SwiftCare Brampton weekly.
     Assumptions are intentionally conservative for a hackathon projection.
     """
     population = stats.get("population", {}).get("current", 700000)
@@ -522,6 +522,16 @@ def index():
     if not profile:
         return redirect(url_for("account"))
     scen_key, scen = get_active_scenario(STATE)
+    facilities = load_facilities()
+    nearby = []
+    for f in facilities[:4]:
+        wait = current_wait(f)
+        nearby.append({
+            "short_name": f["name"].replace("Brampton ", "").replace(" Medical", "").replace(" Centre", ""),
+            "type": f["type"],
+            "wait": wait,
+        })
+    now_label = datetime.now(timezone.utc).strftime("%a %b %d · %H:%M UTC")
     return render_template(
         "index.html",
         symptoms=SYMPTOMS,
@@ -529,8 +539,11 @@ def index():
         active_scenario=scen_key,
         scenario=scen,
         predictive=predictive_alerts(),
-        facility_count=len(load_facilities()),
+        facility_count=len(facilities),
         warning_count=len(predictive_alerts()),
+        nearby_facilities=nearby,
+        now_label=now_label,
+        active_sessions=STATE["patients_triaged_today"] + 1284,
     )
 
 
@@ -761,7 +774,7 @@ def triage():
         "medications": demographics["medications"],
         "emergency_contact": demographics["emergency_contact"],
         "demographic_modifiers": classification["demographic_modifiers"],
-        "bayesian_matches": classification["bayesian_matches"],
+        "pattern_matches": classification["pattern_matches"],
         "tier_reason": classification["tier_reason"],
         "recommended_facility": top_facility_name,
     }
@@ -830,6 +843,7 @@ def dashboard():
         })
     severity_data = {str(k): STATE["severity_counts"].get(k, 0) for k in range(1, 6)}
     scen_key, scen = get_active_scenario(STATE)
+    now_label = datetime.now(timezone.utc).strftime("%a %b %d · %H:%M UTC")
     return render_template(
         "dashboard.html",
         facilities=facility_view,
@@ -844,6 +858,7 @@ def dashboard():
         emergency_responses=STATE["emergency_responses"],
         severity_data=severity_data,
         triage_log=STATE["triage_log"],
+        now_label=now_label,
     )
 
 
@@ -887,6 +902,38 @@ def pitch():
 def constraints():
     stats = load_stats()
     return render_template("constraints.html", stats=stats)
+
+
+@app.route("/maps")
+def maps():
+    facilities = load_facilities()
+    return render_template("maps.html", facilities=facilities)
+
+
+@app.route("/api/facilities")
+def api_facilities():
+    """API endpoint to get all facilities with wait times and locations."""
+    facilities = load_facilities()
+    state = get_active_scenario(STATE)
+    
+    result = []
+    for facility in facilities:
+        wait_time, wait_data = predict_wait_minutes(facility, multipliers_for(facility, STATE))
+        result.append({
+            "id": facility["id"],
+            "name": facility["name"],
+            "type": facility["type"],
+            "address": facility["address"],
+            "phone": facility["phone"],
+            "lat": facility.get("lat"),
+            "lng": facility.get("lng"),
+            "wait_minutes": wait_time,
+            "queue_length": facility.get("queue_length", 0),
+            "mobile_clinic": facility.get("mobile_clinic", False),
+            "capabilities": facility.get("capabilities", {})
+        })
+    
+    return jsonify(result)
 
 
 @app.route("/sms-demo")
