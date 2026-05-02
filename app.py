@@ -218,6 +218,8 @@ def index():
         active_scenario=scen_key,
         scenario=scen,
         predictive=predictive_alerts(),
+        facility_count=len(load_facilities()),
+        warning_count=len(predictive_alerts()),
     )
 
 

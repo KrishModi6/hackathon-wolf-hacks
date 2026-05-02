@@ -53,7 +53,7 @@
   <main class="flex-1 max-w-4xl w-full mx-auto px-6 py-10">
     <section class="mb-8 text-center">
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f7eaec] text-xs font-semibold tracking-[0.08em] uppercase tw-text-maroon mb-4">
-        CTAS-Aligned Care Routing
+        Brampton care navigation
       </div>
       <h1 class="display text-5xl md:text-6xl tw-text-maroon leading-[0.95]">
         Find the fastest care, right now.
@@ -63,6 +63,20 @@
         <span class="font-semibold tw-text-orange">Canadian Triage and Acuity Scale</span> + a Bayesian early-detection layer,
         live wait times, and your demographics.
       </p>
+      <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
+        <div class="dash-card">
+          <div class="mono text-2xl font-semibold tw-text-maroon">{{ facility_count }}</div>
+          <div class="stat-label">Facilities tracked</div>
+        </div>
+        <div class="dash-card">
+          <div class="mono text-2xl font-semibold tw-text-maroon">{{ warning_count }}</div>
+          <div class="stat-label">Live capacity alerts</div>
+        </div>
+        <div class="dash-card">
+          <div class="mono text-2xl font-semibold tw-text-maroon">QR</div>
+          <div class="stat-label">Handoff ready</div>
+        </div>
+      </div>
     </section>
 
     <!-- AI assistant panel -->
@@ -221,7 +235,7 @@
 
       <div class="mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <p class="text-xs text-gray-500 max-w-md">
-          TriageWolf is a hackathon prototype, not medical advice. If you think it's an emergency, call 911 immediately.
+          TriageWolf is a clinical navigation tool, not medical advice. If you think it's an emergency, call 911 immediately.
         </p>
         <button type="submit" class="tw-btn-primary text-base">Find Care &rarr;</button>
       </div>
@@ -229,7 +243,7 @@
   </main>
 
   <footer class="mt-10 py-6 text-center text-xs text-gray-500 border-t border-gray-200">
-    Built for WolfHacks 2026 &middot; Aligned with Brampton 2040 Vision &middot;
+    Brampton care navigation &middot; Aligned with Brampton 2040 Vision &middot;
     <a href="{{ url_for('impact') }}" class="underline hover:text-maroon">See full impact &rarr;</a>
   </footer>
 
