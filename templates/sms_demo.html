@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SMS Fallback - TriageWolf</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="min-h-screen flex flex-col">
+  <header class="tw-bg-maroon text-white">
+    <div class="max-w-4xl mx-auto px-6 py-5 flex items-center justify-between">
+      <a href="{{ url_for('index') }}" class="text-xl font-bold">TriageWolf SMS</a>
+      <a href="{{ url_for('index') }}" class="text-orange-200 text-sm">Back</a>
+    </div>
+  </header>
+  <main class="flex-1 max-w-4xl mx-auto w-full px-6 py-10">
+    <h1 class="text-3xl font-extrabold tw-text-maroon">No Smartphone? Use SMS Triage</h1>
+    <p class="text-gray-600 mt-2">This mockup demonstrates equity-first access for residents without data plans or smartphones.</p>
+
+    <div class="mt-8 max-w-md mx-auto bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
+      <div class="text-xs text-gray-500 mb-2">To: 647-TRIAGE-1</div>
+      <div class="space-y-2 text-sm">
+        <div class="p-2 rounded bg-gray-100">USER: TRIAGE L6S AGE 67 SYMPTOMS fever confusion</div>
+        <div class="p-2 rounded bg-orange-50 border border-orange-200">TRIAGEWOLF: Urgent risk pattern detected. Recommended: Peel Memorial Urgent Care. Predicted wait 62 min. Reply QR for intake code.</div>
+        <div class="p-2 rounded bg-gray-100">USER: QR</div>
+        <div class="p-2 rounded bg-orange-50 border border-orange-200">TRIAGEWOLF: Handoff token: TW-94KQ2M. Show this to intake nurse. If breathing worsens call 911 immediately.</div>
+      </div>
+    </div>
+
+    <div class="dash-card mt-8">
+      <h2 class="font-bold">Equity Benefits</h2>
+      <ul class="list-disc list-inside text-sm text-gray-700 mt-2 space-y-1">
+        <li>Works on basic phones.</li>
+        <li>Supports multilingual prompts.</li>
+        <li>Can integrate with community outreach programs.</li>
+      </ul>
+    </div>
+  </main>
+</body>
+</html>

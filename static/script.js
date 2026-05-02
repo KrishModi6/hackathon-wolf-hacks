@@ -5,7 +5,38 @@ document.addEventListener("DOMContentLoaded", () => {
   initSymptomCounter();
   initDashboard();
   initAssistant();
+  initCaregiverMode();
+  initAccessibilityMode();
 });
+
+function initCaregiverMode() {
+  const toggle = document.getElementById("caregiver-mode");
+  const panel = document.getElementById("caregiver-fields");
+  if (!toggle || !panel) return;
+  const sync = () => panel.classList.toggle("hidden", !toggle.checked);
+  toggle.addEventListener("change", sync);
+  sync();
+}
+
+function initAccessibilityMode() {
+  const btn = document.getElementById("a11y-toggle");
+  if (!btn) return;
+  const key = "triagewolf_a11y_mode";
+
+  const apply = (on) => {
+    document.body.classList.toggle("a11y-mode", on);
+    btn.textContent = on ? "A11y: ON" : "A11y";
+  };
+
+  const remembered = window.localStorage.getItem(key) === "1";
+  apply(remembered);
+
+  btn.addEventListener("click", () => {
+    const now = !document.body.classList.contains("a11y-mode");
+    apply(now);
+    window.localStorage.setItem(key, now ? "1" : "0");
+  });
+}
 
 // ---- AI assistant + voice ----------------------------------------------------
 

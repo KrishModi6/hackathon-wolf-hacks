@@ -6,7 +6,21 @@
     "address": "2100 Bovaird Dr E, Brampton, ON",
     "fsa": "L6R",
     "base_wait_minutes": 240,
-    "handles_severity": [1, 2, 3, 4, 5]
+    "handles_severity": [1, 2, 3, 4, 5],
+    "queue_length": 38,
+    "avg_service_minutes": 42,
+    "clinicians": 6,
+    "arrival_rate_per_hour": 18,
+    "phone": "905-494-2120",
+    "capabilities": {
+      "pediatric": true,
+      "obstetric": true,
+      "trauma": true,
+      "stroke_center": true,
+      "cardiac": true,
+      "ac_indoor": true,
+      "offline_protocol": true
+    }
   },
   {
     "id": 2,
@@ -15,7 +29,21 @@
     "address": "20 Lynch St, Brampton, ON",
     "fsa": "L6W",
     "base_wait_minutes": 90,
-    "handles_severity": [3, 4, 5]
+    "handles_severity": [3, 4, 5],
+    "queue_length": 14,
+    "avg_service_minutes": 30,
+    "clinicians": 4,
+    "arrival_rate_per_hour": 9,
+    "phone": "905-494-2120",
+    "capabilities": {
+      "pediatric": true,
+      "obstetric": false,
+      "trauma": false,
+      "stroke_center": false,
+      "cardiac": false,
+      "ac_indoor": true,
+      "offline_protocol": true
+    }
   },
   {
     "id": 3,
@@ -24,7 +52,21 @@
     "address": "Bramalea City Centre, Brampton, ON",
     "fsa": "L6T",
     "base_wait_minutes": 45,
-    "handles_severity": [4, 5]
+    "handles_severity": [4, 5],
+    "queue_length": 9,
+    "avg_service_minutes": 18,
+    "clinicians": 3,
+    "arrival_rate_per_hour": 8,
+    "phone": "905-458-3700",
+    "capabilities": {
+      "pediatric": true,
+      "obstetric": false,
+      "trauma": false,
+      "stroke_center": false,
+      "cardiac": false,
+      "ac_indoor": true,
+      "offline_protocol": false
+    }
   },
   {
     "id": 4,
@@ -33,7 +75,21 @@
     "address": "Heart Lake Rd, Brampton, ON",
     "fsa": "L6Z",
     "base_wait_minutes": 30,
-    "handles_severity": [4, 5]
+    "handles_severity": [4, 5],
+    "queue_length": 5,
+    "avg_service_minutes": 15,
+    "clinicians": 2,
+    "arrival_rate_per_hour": 5,
+    "phone": "905-846-1234",
+    "capabilities": {
+      "pediatric": false,
+      "obstetric": false,
+      "trauma": false,
+      "stroke_center": false,
+      "cardiac": false,
+      "ac_indoor": true,
+      "offline_protocol": false
+    }
   },
   {
     "id": 5,
@@ -42,6 +98,20 @@
     "address": "Online",
     "fsa": "ALL",
     "base_wait_minutes": 15,
-    "handles_severity": [4, 5]
+    "handles_severity": [4, 5],
+    "queue_length": 3,
+    "avg_service_minutes": 12,
+    "clinicians": 8,
+    "arrival_rate_per_hour": 12,
+    "phone": "1-866-797-0000",
+    "capabilities": {
+      "pediatric": true,
+      "obstetric": false,
+      "trauma": false,
+      "stroke_center": false,
+      "cardiac": false,
+      "ac_indoor": true,
+      "offline_protocol": true
+    }
   }
 ]

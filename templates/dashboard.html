@@ -12,9 +12,9 @@
 </head>
 <body class="min-h-screen flex flex-col">
 
-  {% if condition_x %}
+  {% if scenario %}
   <div class="surge-banner">
-    CONDITION X ACTIVE: Surge protocols are running. ER waits tripled. Non-emergency cases routed to Virtual Care.
+    {{ scenario.icon }} {{ scenario.banner }}
   </div>
   {% endif %}
 
@@ -27,7 +27,10 @@
           <div class="text-xs text-orange-200">Live system load &middot; Brampton</div>
         </div>
       </a>
-      <a href="{{ url_for('index') }}" class="text-sm text-orange-200 hover:text-white">&larr; Back to patient view</a>
+      <div class="flex items-center gap-4 text-sm">
+        <a href="{{ url_for('constraints') }}" class="text-orange-200 hover:text-white">Deployment Constraints</a>
+        <a href="{{ url_for('index') }}" class="text-orange-200 hover:text-white">&larr; Patient view</a>
+      </div>
     </div>
   </header>
 
@@ -43,27 +46,38 @@
         <div class="stat-label">Redirected to virtual care</div>
       </div>
       <div class="dash-card">
-        <div class="flex items-start justify-between">
+        <div class="flex items-start justify-between gap-4">
           <div>
-            <div class="stat-number {{ 'text-red-600' if condition_x else '' }}">
-              {{ 'ON' if condition_x else 'OFF' }}
+            <div class="stat-number {{ 'text-red-600' if active_scenario else '' }}">
+              {{ active_scenario|upper if active_scenario else 'OFF' }}
             </div>
-            <div class="stat-label">Condition X mode</div>
+            <div class="stat-label">Active scenario</div>
           </div>
-          <form method="POST" action="{{ url_for('toggle_condition_x') }}">
-            <button type="submit"
-                    class="px-4 py-2 rounded-lg font-semibold text-white {{ 'toggle-active' if condition_x else 'tw-bg-orange' }}">
-              {{ 'Deactivate' if condition_x else 'Activate Condition X' }}
-            </button>
+          <form method="POST" action="{{ url_for('set_scenario') }}" class="flex items-center gap-2">
+            <select name="scenario" class="px-3 py-2 rounded-lg border border-gray-300 text-sm">
+              <option value="off">No surge mode</option>
+              {% for key, item in scenarios.items() %}
+              <option value="{{ key }}" {{ 'selected' if active_scenario == key else '' }}>{{ item.label }}</option>
+              {% endfor %}
+            </select>
+            <button type="submit" class="px-4 py-2 rounded-lg font-semibold text-white tw-bg-orange">Apply</button>
           </form>
         </div>
       </div>
     </section>
 
+    {% if scenario %}
+    <section class="dash-card mb-8">
+      <h2 class="text-lg font-bold text-gray-800">Scenario Guidance</h2>
+      <p class="text-sm text-gray-600 mt-1">{{ scenario.description }}</p>
+      <p class="text-sm text-gray-700 mt-2"><span class="font-semibold">Patient advice:</span> {{ scenario.patient_advice }}</p>
+    </section>
+    {% endif %}
+
     <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
       <div class="dash-card lg:col-span-2">
         <h2 class="text-lg font-bold text-gray-800 mb-1">Current wait times</h2>
-        <p class="text-sm text-gray-500 mb-4">Live across all Brampton facilities. Surge mode triples ER waits.</p>
+        <p class="text-sm text-gray-500 mb-4">Live across all Brampton facilities with queueing formula breakdown.</p>
         <div class="h-72"><canvas id="waitsChart"></canvas></div>
       </div>
       <div class="dash-card">
@@ -89,6 +103,7 @@
             <th class="py-2">Facility</th>
             <th class="py-2">Type</th>
             <th class="py-2 text-right">Wait (min)</th>
+            <th class="py-2">Math</th>
           </tr>
         </thead>
         <tbody>
@@ -99,6 +114,7 @@
             <td class="py-2 text-right font-bold {{ 'text-red-600' if f.wait >= 180 else ('text-orange-500' if f.wait >= 60 else 'text-green-600') }}">
               {{ f.wait }}
             </td>
+            <td class="py-2 text-xs text-gray-600">(q={{ f.breakdown.queue_length }} * s={{ f.breakdown.avg_service_min }}) / c={{ f.breakdown.clinicians }} + a*0.5</td>
           </tr>
           {% endfor %}
         </tbody>

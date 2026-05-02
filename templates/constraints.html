@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deployment Constraints - TriageWolf</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="min-h-screen flex flex-col">
+  <header class="tw-bg-maroon text-white">
+    <div class="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between">
+      <a href="{{ url_for('dashboard') }}" class="text-xl font-bold">Deployment Constraints</a>
+      <a href="{{ url_for('dashboard') }}" class="text-orange-200 text-sm">Back to dashboard</a>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-5xl mx-auto w-full px-6 py-10 space-y-4">
+    <div class="dash-card">
+      <h2 class="font-bold text-lg tw-text-maroon">Regulatory and Clinical Safety</h2>
+      <ul class="list-disc list-inside text-sm text-gray-700 mt-2 space-y-1">
+        <li>PHIPA compliance: minimum necessary personal health information and encrypted transport.</li>
+        <li>Clinical governance: safety-floor triage cannot be overridden by convenience ranking.</li>
+        <li>Ethics and pilot approval: institutional review before production pilot.</li>
+      </ul>
+    </div>
+
+    <div class="dash-card">
+      <h2 class="font-bold text-lg tw-text-maroon">Integration Dependencies</h2>
+      <ul class="list-disc list-inside text-sm text-gray-700 mt-2 space-y-1">
+        <li>Ontario Health wait-time APIs and facility metadata normalization.</li>
+        <li>EHR integration pathway for William Osler intake handoff.</li>
+        <li>Fallback process when EHR unavailable (cyberattack scenario).</li>
+      </ul>
+    </div>
+
+    <div class="dash-card">
+      <h2 class="font-bold text-lg tw-text-maroon">Operations and Adoption</h2>
+      <ul class="list-disc list-inside text-sm text-gray-700 mt-2 space-y-1">
+        <li>Staff training for QR handoff and escalation exceptions.</li>
+        <li>Multilingual experience in English, Punjabi, Urdu, Hindi, and French.</li>
+        <li>SMS fallback for residents with low digital access.</li>
+      </ul>
+    </div>
+
+    <div class="dash-card">
+      <h2 class="font-bold text-lg tw-text-maroon">Phased Rollout</h2>
+      <ol class="list-decimal list-inside text-sm text-gray-700 mt-2 space-y-1">
+        {% for phase in stats.rollout_phases %}
+        <li>Phase {{ phase.phase }}: {{ phase.where }} ({{ phase.duration_months }} months), KPI: {{ phase.kpi }}</li>
+        {% endfor %}
+      </ol>
+    </div>
+  </main>
+</body>
+</html>

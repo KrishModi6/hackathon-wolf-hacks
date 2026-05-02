@@ -6,29 +6,47 @@
   <title>TriageWolf - Brampton's Smart Healthcare Navigator</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body class="min-h-screen flex flex-col">
 
-  {% if condition_x %}
-  <div class="surge-banner">
-    CONDITION X ALERT: Brampton hospitals at capacity. Non-emergency patients are being routed to virtual triage.
+  {% if scenario %}
+  <div class="surge-banner" data-scenario="{{ active_scenario }}">
+    {{ scenario.icon }} {{ scenario.banner }}
+  </div>
+  {% endif %}
+
+  {% if predictive %}
+  <div class="px-4 py-2 bg-amber-50 border-b border-amber-200 text-amber-900 text-sm text-center">
+    <span class="font-semibold">Heads up:</span>
+    {% for a in predictive %}
+      {{ a.facility }} is at {{ a.wait_minutes }} min wait{% if not loop.last %} &middot; {% endif %}
+    {% endfor %}
+    &mdash; we're routing patients to faster options.
   </div>
   {% endif %}
 
   <header class="tw-bg-maroon text-white">
-    <div class="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between">
-      <div class="flex items-center gap-3">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex flex-wrap items-center justify-between gap-3">
+      <a href="{{ url_for('index') }}" class="flex items-center gap-3">
         <span class="text-3xl">🐺</span>
         <div>
           <div class="text-xl font-bold tracking-tight">TriageWolf</div>
           <div class="text-xs text-orange-200">Brampton's Smart Healthcare Navigator</div>
         </div>
-      </div>
-      <a href="{{ url_for('dashboard') }}" class="text-sm text-orange-200 hover:text-white underline-offset-4 hover:underline">
-        Admin Dashboard &rarr;
       </a>
+      <nav class="flex flex-wrap items-center gap-4 text-sm">
+        <a href="{{ url_for('impact') }}" class="text-orange-200 hover:text-white">Impact</a>
+        <a href="{{ url_for('sms_demo') }}" class="text-orange-200 hover:text-white">SMS Demo</a>
+        <a href="{{ url_for('pitch') }}" class="text-orange-200 hover:text-white">Pitch</a>
+        <a href="{{ url_for('constraints') }}" class="text-orange-200 hover:text-white">Constraints</a>
+        <a href="{{ url_for('dashboard') }}" class="text-orange-200 hover:text-white">Dashboard</a>
+        <button id="a11y-toggle" type="button"
+                class="text-xs px-2 py-1 rounded border border-orange-300 hover:bg-white hover:text-maroon">
+          A11y
+        </button>
+      </nav>
     </div>
   </header>
 
@@ -38,9 +56,9 @@
         Find the fastest care, right now.
       </h1>
       <p class="mt-3 text-gray-600 max-w-xl mx-auto">
-        Tell us what's going on. We'll match you to the right Brampton facility using the
-        <span class="font-semibold tw-text-orange">Canadian Triage and Acuity Scale</span> (CTAS),
-        live wait times, and your location.
+        Built for Brampton's documented care-access gap. We'll match you to the right facility using the
+        <span class="font-semibold tw-text-orange">Canadian Triage and Acuity Scale</span> + a Bayesian early-detection layer,
+        live wait times, and your demographics.
       </p>
     </section>
 
@@ -53,7 +71,7 @@
             <h2 class="text-xl font-bold tw-text-maroon">Talk to the TriageWolf Assistant</h2>
           </div>
           <p class="text-sm text-gray-600 mt-1">
-            Describe how you feel in plain words, or tap the mic to speak. The assistant will detect serious patterns early and pre-fill the form.
+            Describe how you feel in plain words, or tap the mic to speak. The assistant detects cardiac, stroke and outbreak patterns early and pre-fills the form.
           </p>
         </div>
         <button id="speak-toggle" type="button"
@@ -66,10 +84,10 @@
       <div class="relative">
         <textarea id="ai-input"
                   rows="3"
-                  placeholder="e.g. I've had crushing chest pain for 20 minutes and my left arm feels numb..."
+                  placeholder="e.g. My grandmother is 82, has chest pain that's spreading to her left arm, and is sweating a lot..."
                   class="w-full px-4 py-3 pr-14 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-300 resize-none"></textarea>
         <button id="mic-btn" type="button"
-                title="Hold to speak"
+                title="Tap to speak"
                 class="absolute bottom-3 right-3 w-10 h-10 rounded-full bg-white border border-gray-300 hover:border-orange-400 flex items-center justify-center text-lg">
           🎤
         </button>
@@ -83,7 +101,35 @@
       <div id="ai-result" class="mt-4 hidden"></div>
     </section>
 
-    <form action="{{ url_for('triage') }}" method="POST" class="bg-white rounded-2xl shadow-md border border-gray-100 p-6 md:p-8">
+    <form action="{{ url_for('triage') }}" method="POST" class="bg-white rounded-2xl shadow-md border border-gray-100 p-6 md:p-8" novalidate>
+
+      <!-- Caregiver / family triage mode -->
+      <div class="mb-6 p-4 rounded-lg border border-gray-200 bg-gray-50">
+        <label class="flex items-center gap-3 cursor-pointer">
+          <input type="checkbox" id="caregiver-mode" name="caregiver_mode" class="w-5 h-5 accent-maroon">
+          <div>
+            <span class="font-semibold text-gray-800">I'm triaging for someone else</span>
+            <span class="block text-xs text-gray-500">Family triage mode - for parents triaging children, kids triaging elderly parents, etc.</span>
+          </div>
+        </label>
+        <div id="caregiver-fields" class="hidden mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <input name="patient_name" placeholder="Their name (optional)"
+                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-300">
+          <select name="relationship" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-300">
+            <option value="">Relationship to you</option>
+            <option value="parent">Parent</option>
+            <option value="child">Child</option>
+            <option value="spouse">Spouse / partner</option>
+            <option value="sibling">Sibling</option>
+            <option value="grandparent">Grandparent</option>
+            <option value="friend">Friend / neighbour</option>
+          </select>
+          <label class="flex items-center gap-2 sm:col-span-2 text-sm text-gray-700">
+            <input type="checkbox" name="needs_transport" class="w-4 h-4 accent-maroon">
+            We need help getting there (no car / can't drive)
+          </label>
+        </div>
+      </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
         <div>
@@ -98,7 +144,7 @@
           />
         </div>
         <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2">Age</label>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Patient age</label>
           <input
             name="age"
             type="number"
@@ -107,6 +153,37 @@
             value="25"
             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-300"
           />
+        </div>
+      </div>
+
+      <!-- Demographic context -->
+      <div class="mb-6 p-4 rounded-lg border border-gray-200">
+        <div class="text-sm font-semibold text-gray-700 mb-2">Important context (helps route correctly)</div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+          <label class="flex items-center gap-2">
+            <input type="checkbox" name="pregnant" value="1" class="w-4 h-4 accent-maroon">
+            Pregnant
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" name="chronic" value="heart_disease" class="w-4 h-4 accent-maroon">
+            Heart disease history
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" name="chronic" value="diabetes" class="w-4 h-4 accent-maroon">
+            Diabetes
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" name="chronic" value="asthma" class="w-4 h-4 accent-maroon">
+            Asthma / COPD
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" name="chronic" value="immunocompromised" class="w-4 h-4 accent-maroon">
+            Immunocompromised
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" name="chronic" value="kidney" class="w-4 h-4 accent-maroon">
+            Kidney disease
+          </label>
         </div>
       </div>
 
@@ -121,10 +198,11 @@
         'critical': ('Critical (Call 911 if alone)', 'tier-critical'),
         'urgent':   ('Urgent', 'tier-urgent'),
         'moderate': ('Moderate', 'tier-moderate'),
-        'mild':     ('Mild', 'tier-mild')
+        'mild':     ('Mild', 'tier-mild'),
+        'signals':  ('Subtle warning signs (boost early detection)', 'tier-signals')
       } %}
 
-      {% for tier in ['critical', 'urgent', 'moderate', 'mild'] %}
+      {% for tier in ['critical', 'urgent', 'moderate', 'mild', 'signals'] %}
       <div class="mb-5">
         <div class="tier-label {{ tier_meta[tier][1] }} mb-2">{{ tier_meta[tier][0] }}</div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -148,7 +226,8 @@
   </main>
 
   <footer class="mt-10 py-6 text-center text-xs text-gray-500 border-t border-gray-200">
-    Built for WolfHacks 2026 &middot; Aligned with Brampton 2040 Vision: Health & Well-Being
+    Built for WolfHacks 2026 &middot; Aligned with Brampton 2040 Vision &middot;
+    <a href="{{ url_for('impact') }}" class="underline hover:text-maroon">See full impact &rarr;</a>
   </footer>
 
   <script src="{{ url_for('static', filename='script.js') }}"></script>

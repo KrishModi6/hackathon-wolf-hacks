@@ -4,12 +4,17 @@
   --tw-orange: #e8552b;
   --tw-orange-dark: #c14418;
   --tw-cream: #fdf7f3;
+  --tw-sand: #f6efe4;
+  --tw-ink: #1e1d1b;
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: var(--tw-cream);
-  color: #1f1f1f;
+  font-family: 'Lexend', 'Segoe UI', sans-serif;
+  background:
+    radial-gradient(1200px 420px at -10% -10%, #ffe5d8 0%, transparent 55%),
+    radial-gradient(900px 360px at 110% 0%, #fdebd8 0%, transparent 50%),
+    linear-gradient(180deg, var(--tw-cream), var(--tw-sand));
+  color: var(--tw-ink);
 }
 
 .tw-bg-maroon { background-color: var(--tw-maroon); }
@@ -128,6 +133,36 @@ body {
   padding: 1.5rem;
   border: 1px solid #e5e7eb;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+main {
+  animation: enter-up 340ms ease-out;
+}
+
+@keyframes enter-up {
+  from { transform: translateY(8px); opacity: 0.0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.a11y-mode {
+  font-size: 1.06rem;
+}
+
+.a11y-mode .symptom-pill,
+.a11y-mode .dash-card,
+.a11y-mode .facility-card {
+  border-width: 2px;
+}
+
+.a11y-mode .tw-btn-primary,
+.a11y-mode .tw-btn-secondary {
+  min-height: 44px;
+}
+
+@media (max-width: 640px) {
+  .stat-number {
+    font-size: 1.9rem;
+  }
 }
 
 .stat-number {

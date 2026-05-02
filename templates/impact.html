@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Why Brampton - TriageWolf</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="min-h-screen flex flex-col">
+  <header class="tw-bg-maroon text-white">
+    <div class="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
+      <a href="{{ url_for('index') }}" class="text-xl font-bold">TriageWolf</a>
+      <a href="{{ url_for('pitch') }}" class="text-orange-200 hover:text-white text-sm">Pitch</a>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-6xl mx-auto w-full px-6 py-10">
+    <h1 class="text-4xl font-extrabold tw-text-maroon">Why Brampton Needs This</h1>
+    <p class="text-gray-600 mt-3 max-w-3xl">Brampton's care system faces capacity pressure, workforce shortages, and equity gaps. TriageWolf routes residents to the right care level faster using CTAS + Bayesian risk detection + live demand modeling.</p>
+
+    <section class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+      <div class="dash-card"><div class="stat-number">{{ stats.population.current | int }}</div><div class="stat-label">Residents served</div></div>
+      <div class="dash-card"><div class="stat-number">{{ stats.population.growth_rate_pct_per_year }}%</div><div class="stat-label">Annual growth rate</div></div>
+      <div class="dash-card"><div class="stat-number">{{ stats.er_wait_times.brampton_civic_p90_hours }}h</div><div class="stat-label">Brampton Civic P90 ER wait</div></div>
+      <div class="dash-card"><div class="stat-number">{{ stats.physician_shortage.shortfall_pct }}%</div><div class="stat-label">Family doctor shortfall</div></div>
+    </section>
+
+    <section class="mt-8 grid lg:grid-cols-2 gap-6">
+      <div class="dash-card">
+        <h2 class="text-xl font-bold tw-text-maroon mb-2">Systemic Impact</h2>
+        <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
+          <li>Hallway medicine worsens clinical outcomes and staff burnout.</li>
+          <li>Long waits cause avoidable ER abandonment and delayed treatment.</li>
+          <li>Lower primary-care access pushes non-emergency traffic into hospitals.</li>
+          <li>Chronic disease burden is disproportionately high in key communities.</li>
+        </ul>
+      </div>
+      <div class="dash-card">
+        <h2 class="text-xl font-bold tw-text-maroon mb-2">Scalability Math (Weekly)</h2>
+        <div class="text-sm text-gray-700 space-y-2">
+          <div>Assume 10% adoption of Brampton's population.</div>
+          <div><span class="font-semibold">Users triaged:</span> {{ scale.weekly_users }}</div>
+          <div><span class="font-semibold">Non-emergency ER cases deflected:</span> {{ scale.deflected_cases }}</div>
+          <div><span class="font-semibold">Clinician-hours saved:</span> {{ scale.clinician_hours_saved }}</div>
+          <div><span class="font-semibold">Cost avoided:</span> ${{ scale.cost_savings_low }} to ${{ scale.cost_savings_high }} CAD / week</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="dash-card mt-8">
+      <h2 class="text-xl font-bold tw-text-maroon mb-3">Stakeholders for Real Implementation</h2>
+      <div class="grid md:grid-cols-2 gap-3 text-sm">
+        {% for s in stats.stakeholders %}
+        <div class="p-3 rounded border border-gray-200 bg-gray-50">
+          <div class="font-semibold">{{ s.name }}</div>
+          <div class="text-gray-600">{{ s.role }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+  </main>
+
+  <footer class="py-6 text-center text-xs text-gray-500 border-t border-gray-200">Brampton 2040 Vision 6: a mosaic of healthy citizens enjoying physical and mental wellness.</footer>
+</body>
+</html>

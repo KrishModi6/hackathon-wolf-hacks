@@ -6,15 +6,13 @@
   <title>Your Care Recommendation - TriageWolf</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body class="min-h-screen flex flex-col">
 
-  {% if condition_x %}
-  <div class="surge-banner">
-    CONDITION X ALERT: Brampton hospitals at capacity. Non-emergency patients are being routed to virtual triage.
-  </div>
+  {% if scenario %}
+  <div class="surge-banner">{{ scenario.icon }} {{ scenario.banner }}</div>
   {% endif %}
 
   <header class="tw-bg-maroon text-white">
@@ -26,24 +24,22 @@
           <div class="text-xs text-orange-200">Brampton's Smart Healthcare Navigator</div>
         </div>
       </a>
-      <a href="{{ url_for('dashboard') }}" class="text-sm text-orange-200 hover:text-white">Dashboard &rarr;</a>
+      <a href="{{ url_for('dashboard') }}" class="text-sm text-orange-200 hover:text-white">Dashboard</a>
     </div>
   </header>
 
-  <main class="flex-1 max-w-4xl w-full mx-auto px-6 py-10">
-
+  <main class="flex-1 max-w-5xl w-full mx-auto px-6 py-10">
     <a href="{{ url_for('index') }}" class="text-sm tw-text-maroon hover:underline">&larr; Back to symptoms</a>
 
-    <section class="mt-4 mb-8 bg-white rounded-2xl shadow-md border border-gray-100 p-6 md:p-8">
+    <section class="mt-4 mb-6 bg-white rounded-2xl shadow-md border border-gray-100 p-6 md:p-8">
       <div class="flex flex-wrap items-center gap-3 mb-3">
         <span class="severity-badge {{ badge_class }}">{{ badge_label }}</span>
         <span class="text-sm text-gray-500">CTAS Level {{ classification.ctas_level }}</span>
-        {% if classification.age_boosted %}
-        <span class="text-xs px-2 py-1 rounded bg-yellow-100 text-yellow-800 font-semibold">
-          Age-adjusted (under 5 / over 75)
-        </span>
+        {% if classification.safety_floor_triggered %}
+        <span class="text-xs px-2 py-1 rounded bg-red-100 text-red-700 font-semibold">CTAS Safety Floor Active</span>
         {% endif %}
       </div>
+
       <h1 class="text-3xl font-extrabold tw-text-maroon mb-2">
         {% if classification.ctas_level <= 2 %}
           Go to a hospital ER now.
@@ -52,33 +48,73 @@
         {% elif classification.ctas_level == 4 %}
           A walk-in clinic can help.
         {% else %}
-          Self-care or telehealth is appropriate.
+          Self-care or telehealth is likely appropriate.
         {% endif %}
       </h1>
 
       <div class="text-sm text-gray-600">
-        Based on
-        {% if symptoms %}
-          <span class="font-semibold">{{ symptoms|length }}</span> symptom{{ 's' if symptoms|length != 1 else '' }}:
-          <span class="italic">{{ symptoms|join(', ') }}</span>
-        {% else %}
-          no symptoms selected
+        {% if demographics.caregiver_mode %}
+          Family triage mode: {{ demographics.patient_name or 'your family member' }}
+          {% if demographics.relationship %}({{ demographics.relationship }}){% endif %}
+          &middot;
         {% endif %}
-        &middot; Age {{ age }} &middot; FSA {{ fsa }}
+        Age {{ age }} &middot; FSA {{ fsa }}
       </div>
+
+      {% if fsa_warning %}
+      <div class="mt-3 p-3 rounded-lg bg-yellow-50 border border-yellow-200 text-sm text-yellow-800">
+        {{ fsa_warning }}
+      </div>
+      {% endif %}
 
       {% if redirected %}
       <div class="mt-4 p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-800">
-        <strong>Surge redirect:</strong> Because Brampton is in Condition X mode, we've moved
-        Virtual Care to the top of your list to keep ERs free for the most critical cases.
+        <strong>Surge redirect:</strong> Scenario rules moved virtual care to the top for non-critical traffic.
       </div>
       {% endif %}
 
-      {% if classification.ctas_level <= 2 %}
-      <div class="mt-4 p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-800">
-        <strong>If you are alone or your condition is worsening, call 911 immediately.</strong>
+      {% if offline_mode %}
+      <div class="mt-4 p-3 rounded-lg bg-blue-50 border border-blue-200 text-sm text-blue-900">
+        <strong>Offline protocol active:</strong> Print or screenshot your QR handoff card before leaving.
       </div>
       {% endif %}
+    </section>
+
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+      <div class="bg-white rounded-xl border border-gray-100 p-4 lg:col-span-2">
+        <h2 class="font-bold text-gray-800 mb-2">How we scored this</h2>
+        <p class="text-sm text-gray-600">{{ classification.tier_reason }}</p>
+
+        {% if classification.bayesian_matches %}
+        <div class="mt-3 space-y-2">
+          {% for m in classification.bayesian_matches %}
+          <div class="p-2 rounded bg-orange-50 border border-orange-200 text-sm">
+            <span class="font-semibold text-orange-900">{{ m.label }}</span>
+            <span class="text-orange-800">(P={{ m.probability }}, signals={{ m.signals_matched }})</span>
+            <div class="text-orange-900">{{ m.warning }}</div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if classification.demographic_modifiers %}
+        <div class="mt-3 p-3 rounded bg-gray-50 border border-gray-200 text-sm text-gray-700">
+          <div class="font-semibold mb-1">Demographic adaptation applied</div>
+          <ul class="list-disc list-inside">
+            {% for item in classification.demographic_modifiers %}
+            <li>{{ item }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="bg-white rounded-xl border border-gray-100 p-4">
+        <h2 class="font-bold text-gray-800 mb-2">QR Handoff</h2>
+        <p class="text-sm text-gray-600 mb-3">Scan at intake to skip re-typing your symptoms.</p>
+        <div class="text-xs break-all p-2 rounded bg-gray-50 border border-gray-200 mb-3">{{ handoff_url }}</div>
+        <a class="tw-btn-secondary text-sm inline-block w-full text-center" href="{{ url_for('handoff', token=handoff_token) }}" target="_blank" rel="noopener">Open Handoff Card</a>
+      </div>
     </section>
 
     <h2 class="text-lg font-bold text-gray-800 mb-3">Top {{ results|length }} matches near you</h2>
@@ -99,14 +135,14 @@
               {{ r.wait_minutes }}
               <span class="text-sm font-medium text-gray-500">min</span>
             </div>
-            <div class="text-xs text-gray-500">wait time</div>
+            <div class="text-xs text-gray-500">predicted wait</div>
           </div>
         </div>
 
         <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
           <div class="text-sm text-gray-600">
             {% if r.distance_km == 0.0 and f.type == 'Telehealth' %}
-              Available online
+              Online now
             {% else %}
               ~{{ r.distance_km }} km away
             {% endif %}
@@ -115,16 +151,14 @@
           {% if f.type == 'Telehealth' %}
           <a href="#" class="tw-btn-secondary text-sm">Join Virtual Queue</a>
           {% else %}
-          <a href="https://www.google.com/maps/search/?api=1&query={{ f.address|urlencode }}"
-             target="_blank" rel="noopener"
-             class="tw-btn-secondary text-sm">Get Directions</a>
+          <a href="https://www.google.com/maps/search/?api=1&query={{ f.address|urlencode }}" target="_blank" rel="noopener" class="tw-btn-secondary text-sm">Get Directions</a>
           {% endif %}
         </div>
       </div>
       {% endfor %}
     </div>
     {% else %}
-    <p class="text-gray-600">No facilities matched. Please call 811 (Telehealth Ontario) or 911 if urgent.</p>
+    <p class="text-gray-600">No facilities matched. Please call 811 or 911 if urgent.</p>
     {% endif %}
 
     <div class="mt-8 text-center">
@@ -133,7 +167,7 @@
   </main>
 
   <footer class="mt-10 py-6 text-center text-xs text-gray-500 border-t border-gray-200">
-    Built for WolfHacks 2026 &middot; Aligned with Brampton 2040 Vision: Health & Well-Being
+    Built for WolfHacks 2026 &middot; Brampton 2040 Vision 6 (Health and Well-Being)
   </footer>
 </body>
 </html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pitch Deck - TriageWolf</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="min-h-screen flex flex-col">
+  <header class="tw-bg-maroon text-white">
+    <div class="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
+      <a href="{{ url_for('index') }}" class="text-xl font-bold">TriageWolf</a>
+      <a href="{{ url_for('impact') }}" class="text-orange-200 hover:text-white text-sm">Why Brampton</a>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-6xl mx-auto w-full px-6 py-10">
+    <h1 class="text-4xl font-extrabold tw-text-maroon">10-Slide Judge Pitch</h1>
+    <p class="text-gray-600 mt-3">Open with Priya's story, then demo QR handoff + Bayesian safety floor in under 90 seconds.</p>
+
+    <section class="mt-8 grid gap-4">
+      <div class="dash-card"><div class="font-bold">Slide 1 - Priya's Story</div><div class="text-sm text-gray-600">67-year-old Bramalea resident waited 9+ hours for a non-emergency case. TriageWolf changes her care path in minutes.</div></div>
+      <div class="dash-card"><div class="font-bold">Slide 2 - Problem in Brampton</div><div class="text-sm text-gray-600">Population {{ stats.population.current }}, fast growth {{ stats.population.growth_rate_pct_per_year }}%, P90 ER wait {{ stats.er_wait_times.brampton_civic_p90_hours }}h, family doctor shortfall {{ stats.physician_shortage.shortfall_pct }}%.</div></div>
+      <div class="dash-card"><div class="font-bold">Slide 3 - Stakeholders</div><div class="text-sm text-gray-600">William Osler, Ontario Health, Peel Public Health, BCHC, Punjabi Community Health Services.</div></div>
+      <div class="dash-card"><div class="font-bold">Slide 4 - Live Demo</div><div class="text-sm text-gray-600">Show triage, recommendations, and QR handoff intake card.</div></div>
+      <div class="dash-card"><div class="font-bold">Slide 5 - Architecture</div><div class="text-sm text-gray-600">Patient input -> AI parsing -> CTAS + Bayesian engine -> capability filter -> wait-time model -> recommendations -> QR handoff.</div></div>
+      <div class="dash-card"><div class="font-bold">Slide 6 - Adaptability</div><div class="text-sm text-gray-600">Condition X outbreak, heatwave protocol, cyberattack offline mode.</div></div>
+      <div class="dash-card"><div class="font-bold">Slide 7 - Scalability Math</div><div class="text-sm text-gray-600">{{ scale.weekly_users }} users/week at 10% adoption, {{ scale.deflected_cases }} non-emergency deflections, ${{ scale.cost_savings_low }}-${{ scale.cost_savings_high }} CAD weekly savings.</div></div>
+      <div class="dash-card"><div class="font-bold">Slide 8 - 2040 Vision Alignment</div><div class="text-sm text-gray-600">Health, equity, community-based living, and tech resilience pillars all mapped to product features.</div></div>
+      <div class="dash-card"><div class="font-bold">Slide 9 - Rollout Plan</div><div class="text-sm text-gray-600">Clinic pilot -> Peel Memorial -> Brampton Civic handoff integration -> city-wide + SMS fallback.</div></div>
+      <div class="dash-card"><div class="font-bold">Slide 10 - Ask</div><div class="text-sm text-gray-600">Pilot partner, API sandbox access, and 3 months of clinical advisor support.</div></div>
+    </section>
+
+    <section class="dash-card mt-8">
+      <h2 class="text-xl font-bold tw-text-maroon mb-2">Architecture Snapshot</h2>
+      <div class="bg-gray-50 border border-gray-200 rounded p-4 text-sm overflow-x-auto">
+        Patient -> Symptom API -> Hybrid Triage Engine (CTAS + Bayesian Safety Floor) -> Facility Capability Filter -> Queueing Wait Predictor -> Ranked Routing -> QR Handoff / Offline Card
+      </div>
+    </section>
+  </main>
+
+  <footer class="py-6 text-center text-xs text-gray-500 border-t border-gray-200">Presentation mode page for WolfHacks judges.</footer>
+</body>
+</html>
