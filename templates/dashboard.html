@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard - TriageWolf</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="min-h-screen flex flex-col">
+
+  {% if condition_x %}
+  <div class="surge-banner">
+    CONDITION X ACTIVE: Surge protocols are running. ER waits tripled. Non-emergency cases routed to Virtual Care.
+  </div>
+  {% endif %}
+
+  <header class="tw-bg-maroon text-white">
+    <div class="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
+      <a href="{{ url_for('index') }}" class="flex items-center gap-3">
+        <span class="text-3xl">🐺</span>
+        <div>
+          <div class="text-xl font-bold tracking-tight">TriageWolf Admin</div>
+          <div class="text-xs text-orange-200">Live system load &middot; Brampton</div>
+        </div>
+      </a>
+      <a href="{{ url_for('index') }}" class="text-sm text-orange-200 hover:text-white">&larr; Back to patient view</a>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-6xl w-full mx-auto px-6 py-8">
+
+    <section class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+      <div class="dash-card">
+        <div id="stat-triaged" class="stat-number">{{ triaged_today }}</div>
+        <div class="stat-label">Patients triaged today</div>
+      </div>
+      <div class="dash-card">
+        <div id="stat-redirected" class="stat-number">{{ redirected }}</div>
+        <div class="stat-label">Redirected to virtual care</div>
+      </div>
+      <div class="dash-card">
+        <div class="flex items-start justify-between">
+          <div>
+            <div class="stat-number {{ 'text-red-600' if condition_x else '' }}">
+              {{ 'ON' if condition_x else 'OFF' }}
+            </div>
+            <div class="stat-label">Condition X mode</div>
+          </div>
+          <form method="POST" action="{{ url_for('toggle_condition_x') }}">
+            <button type="submit"
+                    class="px-4 py-2 rounded-lg font-semibold text-white {{ 'toggle-active' if condition_x else 'tw-bg-orange' }}">
+              {{ 'Deactivate' if condition_x else 'Activate Condition X' }}
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      <div class="dash-card lg:col-span-2">
+        <h2 class="text-lg font-bold text-gray-800 mb-1">Current wait times</h2>
+        <p class="text-sm text-gray-500 mb-4">Live across all Brampton facilities. Surge mode triples ER waits.</p>
+        <div class="h-72"><canvas id="waitsChart"></canvas></div>
+      </div>
+      <div class="dash-card">
+        <h2 class="text-lg font-bold text-gray-800 mb-1">Severity distribution</h2>
+        <p class="text-sm text-gray-500 mb-4">CTAS levels of patients triaged today.</p>
+        <div class="h-72"><canvas id="severityChart"></canvas></div>
+      </div>
+    </section>
+
+    <section class="grid grid-cols-1 gap-6 mb-8">
+      <div class="dash-card">
+        <h2 class="text-lg font-bold text-gray-800 mb-1">Triage volume trend</h2>
+        <p class="text-sm text-gray-500 mb-4">Cumulative patients routed through TriageWolf this session.</p>
+        <div class="h-64"><canvas id="trendChart"></canvas></div>
+      </div>
+    </section>
+
+    <section class="dash-card">
+      <h2 class="text-lg font-bold text-gray-800 mb-3">Facility status</h2>
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-left text-gray-500 border-b border-gray-200">
+            <th class="py-2">Facility</th>
+            <th class="py-2">Type</th>
+            <th class="py-2 text-right">Wait (min)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for f in facilities %}
+          <tr class="border-b border-gray-100">
+            <td class="py-2 font-semibold tw-text-maroon">{{ f.name }}</td>
+            <td class="py-2 text-gray-600">{{ f.type }}</td>
+            <td class="py-2 text-right font-bold {{ 'text-red-600' if f.wait >= 180 else ('text-orange-500' if f.wait >= 60 else 'text-green-600') }}">
+              {{ f.wait }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <footer class="mt-10 py-6 text-center text-xs text-gray-500 border-t border-gray-200">
+    Built for WolfHacks 2026 &middot; Aligned with Brampton 2040 Vision: Health & Well-Being
+  </footer>
+
+  <script>
+    window.__DASH_DATA__ = {
+      facilities: {{ facilities|tojson }},
+      severity_counts: {{ severity_data|tojson }},
+      triage_log: {{ triage_log|tojson }}
+    };
+  </script>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

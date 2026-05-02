@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "name": "Brampton Civic Hospital",
+    "type": "Hospital ER",
+    "address": "2100 Bovaird Dr E, Brampton, ON",
+    "fsa": "L6R",
+    "base_wait_minutes": 240,
+    "handles_severity": [1, 2, 3, 4, 5]
+  },
+  {
+    "id": 2,
+    "name": "Peel Memorial Centre",
+    "type": "Urgent Care",
+    "address": "20 Lynch St, Brampton, ON",
+    "fsa": "L6W",
+    "base_wait_minutes": 90,
+    "handles_severity": [3, 4, 5]
+  },
+  {
+    "id": 3,
+    "name": "Bramalea Medical Walk-In",
+    "type": "Walk-in Clinic",
+    "address": "Bramalea City Centre, Brampton, ON",
+    "fsa": "L6T",
+    "base_wait_minutes": 45,
+    "handles_severity": [4, 5]
+  },
+  {
+    "id": 4,
+    "name": "Heart Lake Family Health",
+    "type": "Walk-in Clinic",
+    "address": "Heart Lake Rd, Brampton, ON",
+    "fsa": "L6Z",
+    "base_wait_minutes": 30,
+    "handles_severity": [4, 5]
+  },
+  {
+    "id": 5,
+    "name": "Brampton Virtual Care Queue",
+    "type": "Telehealth",
+    "address": "Online",
+    "fsa": "ALL",
+    "base_wait_minutes": 15,
+    "handles_severity": [4, 5]
+  }
+]
