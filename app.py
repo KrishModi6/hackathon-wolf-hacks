@@ -892,12 +892,6 @@ def impact():
     return render_template("impact.html", stats=stats, scale=scalability_metrics(stats))
 
 
-@app.route("/pitch")
-def pitch():
-    stats = load_stats()
-    return render_template("pitch.html", stats=stats, scale=scalability_metrics(stats))
-
-
 @app.route("/constraints")
 def constraints():
     stats = load_stats()
