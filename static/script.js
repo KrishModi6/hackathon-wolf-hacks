@@ -65,7 +65,7 @@ function initAssistant() {
 
   speakToggle.addEventListener("click", () => {
     voiceRepliesOn = !voiceRepliesOn;
-    speakToggle.textContent = voiceRepliesOn ? "🔊 Voice replies: ON" : "🔇 Voice replies: OFF";
+    speakToggle.textContent = voiceRepliesOn ? "Voice replies: ON" : "Voice replies: OFF";
     if (!voiceRepliesOn) window.speechSynthesis?.cancel();
   });
 
@@ -90,7 +90,7 @@ function initAssistant() {
     listening = true;
     finalTranscript = "";
     micBtn.classList.add("bg-red-100", "border-red-400");
-    micStatus.textContent = "🎙️ Listening… speak now.";
+    micStatus.textContent = "Listening… speak now.";
   };
   speechRecognizer.onresult = (event) => {
     let interim = "";
@@ -180,7 +180,7 @@ function renderAssistantResult(data) {
   if (data.early_warning) {
     html += `
       <div class="mt-3 p-3 rounded bg-white border-l-4 border-red-600 text-sm text-red-900">
-        <strong>⚠️ Early warning:</strong> ${escapeHtml(data.early_warning)}
+        <strong>Early warning:</strong> ${escapeHtml(data.early_warning)}
       </div>`;
   }
 
@@ -195,7 +195,7 @@ function renderAssistantResult(data) {
   if (data.condition_x_auto_triggered) {
     html += `
       <div class="mt-3 p-3 rounded bg-red-700 text-white text-sm font-semibold">
-        🦠 OUTBREAK ALERT AUTO-ACTIVATED — ${escapeHtml(data.outbreak_reason || 'outbreak pattern detected')}.
+        OUTBREAK ALERT AUTO-ACTIVATED — ${escapeHtml(data.outbreak_reason || 'outbreak pattern detected')}.
         Surge protocols are now live across Brampton.
       </div>`;
     // Show the surge banner immediately without a page reload.

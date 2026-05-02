@@ -12,7 +12,7 @@ deactivates the others.
 SCENARIOS = {
     "condition_x": {
         "label": "Condition X — Outbreak Alert",
-        "icon": "🦠",
+        "icon": "",
         "banner": "CONDITION X ALERT: Rapidly spreading artificial plague detected. Brampton hospitals at capacity — non-emergency patients rerouted to virtual triage.",
         "description": "Condition X: a rapidly spreading artificial plague, not fully understood. Exposes weaknesses in healthcare infrastructure, data sharing, and emergency response. ER capacity tripled; virtual care promoted for non-critical cases. System must remain reliable under extreme pressure.",
         "wait_multipliers": {
@@ -30,7 +30,7 @@ SCENARIOS = {
     },
     "heatwave": {
         "label": "Heatwave / Extreme Weather",
-        "icon": "🌡️",
+        "icon": "",
         "banner": "HEAT EMERGENCY: Extreme heat advisory in effect. Stay hydrated. Seniors and chronic-condition patients prioritized.",
         "description": "Heatwave protocol. Vulnerable demographics get priority routing; AC-equipped facilities preferred.",
         "wait_multipliers": {
@@ -49,7 +49,7 @@ SCENARIOS = {
     },
     "cyberattack": {
         "label": "Cyberattack / EHR Outage",
-        "icon": "🛡️",
+        "icon": "",
         "banner": "SYSTEMS OUTAGE: Hospital EHR systems offline. BramHealth is now in Offline Protocol Mode - print your card before arriving.",
         "description": "Hospital electronic health records offline. Facilities with offline protocols preferred. Patients receive printable triage cards for paramedic / nurse handoff.",
         "wait_multipliers": {

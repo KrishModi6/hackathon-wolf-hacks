@@ -102,10 +102,10 @@
 
       {% if classification.pattern_matches %}
       <div class="mt-4 p-4 rounded-lg bg-orange-50 border-2 border-orange-300">
-        <div class="font-bold text-orange-900 mb-2">🔍 Early Detection Alerts</div>
+        <div class="font-bold text-orange-900 mb-2">Early Detection Alerts</div>
         {% for pattern in classification.pattern_matches %}
         <div class="text-sm text-orange-800 mb-3 pb-3 border-b border-orange-200 last:border-b-0">
-          <strong class="block mb-1">⚠️ {{ pattern.label }}</strong>
+          <strong class="block mb-1">{{ pattern.label }}</strong>
           {{ pattern.warning }}
         </div>
         {% endfor %}
@@ -182,7 +182,6 @@
             {{ icon('play', size=14) }} Start Exercise Tracking
           </a>
         </div>
-        <div class="text-4xl">🏃</div>
       </div>
     </section>
     {% endif %}
