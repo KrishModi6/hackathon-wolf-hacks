@@ -1,5 +1,5 @@
 """
-Three disruption scenarios SwiftCare Brampton can adapt to.
+Three disruption scenarios BramHealth can adapt to.
 
 Each scenario tweaks (a) wait-time multipliers per facility type,
 (b) routing logic (e.g. promote virtual care, deprioritize ER),
@@ -50,7 +50,7 @@ SCENARIOS = {
     "cyberattack": {
         "label": "Cyberattack / EHR Outage",
         "icon": "🛡️",
-        "banner": "SYSTEMS OUTAGE: Hospital EHR systems offline. SwiftCare Brampton is now in Offline Protocol Mode - print your card before arriving.",
+        "banner": "SYSTEMS OUTAGE: Hospital EHR systems offline. BramHealth is now in Offline Protocol Mode - print your card before arriving.",
         "description": "Hospital electronic health records offline. Facilities with offline protocols preferred. Patients receive printable triage cards for paramedic / nurse handoff.",
         "wait_multipliers": {
             "Hospital ER": {"queue_mult": 2.2, "service_mult": 1.4},

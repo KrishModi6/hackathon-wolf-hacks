@@ -1,5 +1,5 @@
 """
-SwiftCare Brampton AI assistant.
+BramHealth AI assistant.
 
 Wraps OpenAI to translate free-text or voice-transcribed symptom descriptions
 into structured CTAS-aligned triage data, plus an "early detection" flag for
@@ -36,7 +36,7 @@ def get_client():
     return _client
 
 
-SYSTEM_PROMPT = """You are SwiftCare Brampton, an AI medical triage assistant for Brampton, Ontario.
+SYSTEM_PROMPT = """You are BramHealth, an AI medical triage assistant for Brampton, Ontario.
 You analyze a patient's free-text symptom description and return STRICT JSON only.
 
 Our symptom catalogue (match user descriptions to these EXACT strings):

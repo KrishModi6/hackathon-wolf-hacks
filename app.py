@@ -1,5 +1,5 @@
 """
-SwiftCare Brampton - Brampton's Smart Healthcare Navigator
+BramHealth - Brampton's Smart Healthcare Navigator
 Built for WolfHacks 2026
 
 Triage logic is based on CTAS (Canadian Triage and Acuity Scale), the
@@ -25,7 +25,7 @@ from triage_engine import (
 from surge_modes import SCENARIOS, get_active_scenario, multipliers_for
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "swiftcare-dev-secret")
+app.secret_key = os.environ.get("SECRET_KEY", "bramhealth-dev-secret")
 
 # ---------------------------------------------------------------------------
 # In-memory app state
@@ -136,7 +136,7 @@ def load_stats():
 
 def scalability_metrics(stats):
     """
-    Estimate measurable impact if 10% of residents use SwiftCare Brampton weekly.
+    Estimate measurable impact if 10% of residents use BramHealth weekly.
     Assumptions are intentionally conservative for a hackathon projection.
     """
     population = stats.get("population", {}).get("current", 700000)

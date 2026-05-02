@@ -1,4 +1,4 @@
-// Frontend behaviour for SwiftCare Brampton.
+// Frontend behaviour for BramHealth.
 // Most interactivity is form-based, but the dashboard polls /api/state for live updates.
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -22,7 +22,7 @@ function initCaregiverMode() {
 function initAccessibilityMode() {
   const btn = document.getElementById("a11y-toggle");
   if (!btn) return;
-  const key = "swiftcare_a11y_mode";
+  const key = "bramhealth_a11y_mode";
   const label = btn.querySelector(".a11y-label");
 
   const apply = (on) => {

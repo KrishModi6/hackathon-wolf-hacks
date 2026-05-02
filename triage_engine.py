@@ -1,5 +1,5 @@
 """
-SwiftCare Brampton hybrid triage engine.
+BramHealth hybrid triage engine.
 
 Combines:
   1) CTAS rule-based classifier (safety floor) - matches the standard
