@@ -65,7 +65,7 @@ width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24" fill="none" stroke="c
     <path d="M15 18h3" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/>
   </svg>
   <span class="wordmark-text">
-    <span class="wordmark-name">Swift<em>Care</em></span>
+    <span class="wordmark-name">Bram<em>Health</em></span>
     {% if subtitle %}<span class="wordmark-sub">Brampton Care Navigator</span>{% endif %}
   </span>
 </a>
@@ -125,7 +125,6 @@ width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24" fill="none" stroke="c
       <a href="{{ url_for('dashboard') }}" {% if active == 'dashboard' %}class="is-active"{% endif %}>Operations</a>
       <a href="{{ url_for('impact') }}" {% if active == 'impact' %}class="is-active"{% endif %}>Impact</a>
       <a href="{{ url_for('features') }}" {% if active == 'features' %}class="is-active"{% endif %}>Features</a>
-      <a href="{{ url_for('pitch') }}" {% if active == 'pitch' %}class="is-active"{% endif %}>Pitch</a>
       <a href="{{ url_for('constraints') }}" {% if active == 'constraints' %}class="is-active"{% endif %}>Constraints</a>
       <a href="{{ url_for('mental_health') }}" {% if active == 'mental-health' %}class="is-active"{% endif %}>Mental Health</a>
       <a href="{{ url_for('wellness_rewards') }}" {% if active == 'wellness' %}class="is-active"{% endif %}>Active Living</a>
