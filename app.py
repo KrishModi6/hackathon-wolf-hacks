@@ -211,14 +211,7 @@ def predictive_alerts():
 @app.route("/")
 @app.route("/app")
 def index():
-    scen_key, scen = get_active_scenario(STATE)
-    return render_template(
-        "index.html",
-        symptoms=SYMPTOMS,
-        active_scenario=scen_key,
-        scenario=scen,
-        predictive=predictive_alerts(),
-    )
+    return redirect(url_for("static", filename="redesign/redesign.html"))
 
 
 @app.route("/prototype")
@@ -345,31 +338,7 @@ def handoff(token):
 
 @app.route("/dashboard")
 def dashboard():
-    facilities = load_facilities()
-    facility_view = []
-    for f in facilities:
-        minutes, breakdown = wait_breakdown(f)
-        facility_view.append({
-            "name": f["name"],
-            "type": f["type"],
-            "wait": minutes,
-            "breakdown": breakdown,
-            "queue_length": f["queue_length"],
-            "clinicians": f["clinicians"],
-        })
-    severity_data = {str(k): STATE["severity_counts"].get(k, 0) for k in range(1, 6)}
-    scen_key, scen = get_active_scenario(STATE)
-    return render_template(
-        "dashboard.html",
-        facilities=facility_view,
-        active_scenario=scen_key,
-        scenario=scen,
-        scenarios=SCENARIOS,
-        triaged_today=STATE["patients_triaged_today"],
-        redirected=STATE["patients_redirected_to_virtual"],
-        severity_data=severity_data,
-        triage_log=STATE["triage_log"],
-    )
+    return redirect(url_for("static", filename="redesign/redesign.html"))
 
 
 @app.route("/dashboard/scenario", methods=["POST"])
@@ -398,25 +367,22 @@ def toggle_condition_x_legacy():
 
 @app.route("/impact")
 def impact():
-    stats = load_stats()
-    return render_template("impact.html", stats=stats, scale=scalability_metrics(stats))
+    return redirect(url_for("static", filename="redesign/redesign.html"))
 
 
 @app.route("/pitch")
 def pitch():
-    stats = load_stats()
-    return render_template("pitch.html", stats=stats, scale=scalability_metrics(stats))
+    return redirect(url_for("static", filename="redesign/redesign.html"))
 
 
 @app.route("/constraints")
 def constraints():
-    stats = load_stats()
-    return render_template("constraints.html", stats=stats)
+    return redirect(url_for("static", filename="redesign/redesign.html"))
 
 
 @app.route("/sms-demo")
 def sms_demo():
-    return render_template("sms_demo.html")
+    return redirect(url_for("static", filename="redesign/redesign.html"))
 
 
 # ---------------------------------------------------------------------------
