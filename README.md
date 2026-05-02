@@ -1,1 +1,1 @@
-(https://bramhealth.vercel.app)
+https://bramhealth.vercel.app
