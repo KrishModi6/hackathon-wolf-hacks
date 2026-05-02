@@ -904,6 +904,18 @@ def constraints():
     return render_template("constraints.html", stats=stats)
 
 
+@app.route("/features")
+def features():
+    stats = load_stats()
+    return render_template("features.html", stats=stats)
+
+
+@app.route("/wellness-rewards")
+def wellness_rewards():
+    stats = load_stats()
+    return render_template("wellness_rewards.html", stats=stats)
+
+
 @app.route("/maps")
 def maps():
     facilities = load_facilities()

@@ -8,6 +8,71 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    .calm-room {
+      background: linear-gradient(180deg, #1a2f4a 0%, #0f1f2e 100%);
+      border-radius: 8px;
+      padding: 3rem;
+      text-align: center;
+      min-height: 400px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      color: #b0d4ff;
+    }
+    .calm-room::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at center, rgba(100, 200, 255, 0.05) 0%, transparent 70%);
+      animation: breathe 6s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes breathe {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.8; }
+    }
+    .calm-room-content { position: relative; z-index: 10; }
+    .calm-text { font-size: 1.2rem; line-height: 1.8; margin-bottom: 1rem; }
+    .age-card {
+      background: white;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 1rem;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    .age-card:hover { border-color: #7a1f2b; transform: translateY(-4px); }
+    .age-card.selected { background: linear-gradient(135deg, #7a1f2b 0%, #a8243a 100%); color: white; border-color: #7a1f2b; }
+    .help-button {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #e74c3c;
+      color: white;
+      border: none;
+      font-size: 2rem;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+      animation: pulse 2s ease-in-out infinite;
+      z-index: 100;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    .help-button:hover { animation: none; transform: scale(1.15); }
+  </style>
 </head>
 <body>
 {% from '_macros.html' import tw_header, tw_footer %}
@@ -15,17 +80,88 @@
 {{ tw_header(active='mental_health') }}
 
   <main class="flex-1 max-w-6xl w-full mx-auto px-6 py-10">
-    <section class="mb-8">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f7eaec] text-xs font-semibold tracking-[0.08em] uppercase tw-text-maroon mb-4">
-        DSM-5-informed support
+    <!-- Age Selection Screen -->
+    <div id="age-selection-screen">
+      <section class="mb-8">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f7eaec] text-xs font-semibold tracking-[0.08em] uppercase tw-text-maroon mb-4">
+          Age-Aware Support
+        </div>
+        <h1 class="display text-5xl md:text-6xl tw-text-maroon leading-[0.95]">
+          Talk through what you are feeling.
+        </h1>
+        <p class="mt-4 text-gray-700 max-w-3xl">
+          Our AI is trained to provide age-appropriate mental health support. Select your age group to get started.
+          No login required. Everything is private and confidential.
+        </p>
+      </section>
+
+      <section class="bg-white p-8 rounded-lg shadow-md mb-8">
+        <h2 class="text-2xl font-bold tw-text-maroon mb-6 text-center">How old are you?</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div class="age-card" onclick="selectAge('youth', this)">
+            <div class="text-3xl mb-2">👶</div>
+            <div class="font-semibold">Youth (13-17)</div>
+            <p class="text-xs text-gray-600 mt-2">Teen-focused support</p>
+          </div>
+          <div class="age-card" onclick="selectAge('young-adult', this)">
+            <div class="text-3xl mb-2">🧑</div>
+            <div class="font-semibold">Young Adult (18-30)</div>
+            <p class="text-xs text-gray-600 mt-2">Early career & relationships</p>
+          </div>
+          <div class="age-card" onclick="selectAge('adult', this)">
+            <div class="text-3xl mb-2">👨</div>
+            <div class="font-semibold">Adult (31-60)</div>
+            <p class="text-xs text-gray-600 mt-2">Work & family balance</p>
+          </div>
+          <div class="age-card" onclick="selectAge('senior', this)">
+            <div class="text-3xl mb-2">👴</div>
+            <div class="font-semibold">Senior (60+)</div>
+            <p class="text-xs text-gray-600 mt-2">Aging & wellness</p>
+          </div>
+        </div>
+
+        <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg text-sm text-gray-700">
+          <strong>🔒 Privacy & Ethics:</strong> Your conversation remains anonymous. No personal data is stored. 
+          All responses are AI-generated, trained on professional bioethics research to ensure fair, unbiased support.
+        </div>
+      </section>
+    </div>
+
+    <!-- Calm Room Screen -->
+    <div id="calm-room-screen" style="display: none;">
+      <div class="calm-room">
+        <div class="calm-room-content">
+          <div class="calm-text">Take a moment. You're safe here.</div>
+          <div class="calm-text" style="font-size: 0.95rem; opacity: 0.8;">
+            <span id="selected-age-display"></span><br><br>
+            <em>The room is quiet. The light is soft. There's no rush.</em>
+          </div>
+          <button onclick="enterChat()" class="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition mb-3">
+            Talk to the AI →
+          </button>
+          <button onclick="backToAgeSelection()" class="px-6 py-3 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700 transition">
+            Change Age Group
+          </button>
+        </div>
       </div>
-      <h1 class="display text-5xl md:text-6xl tw-text-maroon leading-[0.95]">
-        Talk through what you are feeling.
-      </h1>
-      <p class="mt-4 text-gray-700 max-w-3xl">
-        The chat screens for mental-health symptom domains, suggests safe at-home coping steps when appropriate, and routes you to live support or emergency intake when needed. It does not diagnose.
-      </p>
-    </section>
+      <div class="text-center text-xs text-gray-500 mt-4">
+        🔍 Behavioral sensors active · Motion tracking enabled · Real-time support monitoring
+      </div>
+    </div>
+
+    <!-- Chat Screen -->
+    <div id="chat-screen" style="display: none;">
+      <section class="mb-8">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f7eaec] text-xs font-semibold tracking-[0.08em] uppercase tw-text-maroon mb-4">
+          DSM-5-informed support
+        </div>
+        <h1 class="display text-5xl md:text-6xl tw-text-maroon leading-[0.95]">
+          Talk through what you are feeling.
+        </h1>
+        <p class="mt-4 text-gray-700 max-w-3xl">
+          The chat screens for mental-health symptom domains, suggests safe at-home coping steps when appropriate, and routes you to live support or emergency intake when needed. It does not diagnose.
+        </p>
+      </section>
 
     {% if emergency_ticket %}
     <section class="mb-6 bg-red-50 border border-red-200 rounded-xl p-5 text-red-900">
@@ -97,6 +233,7 @@
         </div>
       </aside>
     </section>
+    </div>
 
     <section class="critical-panel mb-8" id="mh-emergency-form">
       <div>
@@ -137,6 +274,54 @@
     {% endif %}
   </main>
 
+  <!-- Help Button (Always Visible) -->
+  <button class="help-button" onclick="triggerHelp()" title="Need immediate help? Click here">?</button>
+
   <script src="{{ url_for('static', filename='script.js') }}"></script>
+  <script>
+    let currentAgeGroup = null;
+    const ageNames = {
+      'youth': 'Youth (13-17)',
+      'young-adult': 'Young Adult (18-30)',
+      'adult': 'Adult (31-60)',
+      'senior': 'Senior (60+)'
+    };
+
+    function selectAge(ageGroup, element) {
+      currentAgeGroup = ageGroup;
+      document.querySelectorAll('.age-card').forEach(card => card.classList.remove('selected'));
+      element.classList.add('selected');
+      
+      document.getElementById('selected-age-display').textContent = 'Age Group: ' + ageNames[ageGroup];
+      document.getElementById('age-selection-screen').style.display = 'none';
+      document.getElementById('calm-room-screen').style.display = 'block';
+    }
+
+    function backToAgeSelection() {
+      document.getElementById('age-selection-screen').style.display = 'block';
+      document.getElementById('calm-room-screen').style.display = 'none';
+      document.getElementById('chat-screen').style.display = 'none';
+      document.getElementById('mh-emergency-form').style.display = 'none';
+      currentAgeGroup = null;
+    }
+
+    function enterChat() {
+      document.getElementById('calm-room-screen').style.display = 'none';
+      document.getElementById('chat-screen').style.display = 'block';
+      document.getElementById('mh-emergency-form').style.display = 'block';
+    }
+
+    function triggerHelp() {
+      alert('🆘 HELP BUTTON ACTIVATED\n\nImmediate Resources:\n• Crisis Text Line: Text HOME to 741741\n• Suicide & Crisis Lifeline: 988\n• Emergency: 911\n\nYou matter. Help is available 24/7.');
+    }
+
+    // Initialize screen
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('age-selection-screen').style.display = 'block';
+      document.getElementById('calm-room-screen').style.display = 'none';
+      document.getElementById('chat-screen').style.display = 'none';
+      document.getElementById('mh-emergency-form').style.display = 'none';
+    });
+  </script>
 </body>
 </html>

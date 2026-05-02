@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Features & Vision - TriageWolf Brampton</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    .pillar-card {
+      background: linear-gradient(135deg, #fdf7f3 0%, #fff9f7 100%);
+      border-left: 5px solid #e8552b;
+      transition: all 0.3s ease;
+    }
+    .pillar-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(232, 85, 43, 0.1);
+    }
+    .feature-item {
+      background: white;
+      border-left: 3px solid #7a1f2b;
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      border-radius: 4px;
+    }
+    .steam-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .steam-science { background: #e8f4f8; color: #0369a1; }
+    .steam-tech { background: #f0e8f8; color: #6d28d9; }
+    .steam-eng { background: #f8e8f8; color: #be185d; }
+    .steam-arts { background: #f8f0e8; color: #c2410c; }
+    .steam-math { background: #e8f8f0; color: #047857; }
+    .icon-circle {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .icon-1 { background: #fef3c7; }
+    .icon-2 { background: #d1fae5; }
+    .icon-3 { background: #dbeafe; }
+    .icon-4 { background: #fce7f3; }
+    .icon-5 { background: #e0e7ff; }
+  </style>
+</head>
+<body>
+  {% from '_macros.html' import tw_header %}
+  {{ tw_header(active='features') }}
+
+  <main class="flex-1 max-w-6xl w-full mx-auto px-6 py-10">
+    <!-- Hero Section -->
+    <div class="text-center mb-12">
+      <h1 class="text-5xl font-extrabold tw-text-maroon mb-4">Features & Vision</h1>
+      <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+        TriageWolf addresses Brampton 2040 Vision 6 through five strategic pillars, 
+        grounded in STEAM principles (Science, Technology, Engineering, Arts, Mathematics).
+      </p>
+    </div>
+
+    <!-- STEAM Overview -->
+    <section class="mb-16 bg-gradient-to-r from-blue-50 to-purple-50 p-8 rounded-lg border border-gray-200">
+      <h2 class="text-2xl font-bold tw-text-maroon mb-6">Our STEAM Foundation</h2>
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div class="text-center">
+          <div class="steam-badge steam-science w-full">Science</div>
+          <p class="text-xs text-gray-600">Symptom logic, mental health support, health tracking</p>
+        </div>
+        <div class="text-center">
+          <div class="steam-badge steam-tech w-full">Technology</div>
+          <p class="text-xs text-gray-600">Website, AI chat, symptom checker</p>
+        </div>
+        <div class="text-center">
+          <div class="steam-badge steam-eng w-full">Engineering</div>
+          <p class="text-xs text-gray-600">System flow, care pathways, modular design</p>
+        </div>
+        <div class="text-center">
+          <div class="steam-badge steam-arts w-full">Arts</div>
+          <p class="text-xs text-gray-600">Clean UI, accessible design, calming interfaces</p>
+        </div>
+        <div class="text-center">
+          <div class="steam-badge steam-math w-full">Math</div>
+          <p class="text-xs text-gray-600">Scoring, risk levels, tracking, rewards</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Five Pillars Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+      
+      <!-- Pillar 1: Health & Wellness Systems -->
+      <div class="pillar-card p-8 rounded-lg">
+        <div class="icon-circle icon-1">❤️</div>
+        <h3 class="text-2xl font-bold tw-text-maroon mb-4">1. Health & Wellness Systems</h3>
+        <p class="text-gray-700 mb-4 text-sm leading-relaxed">
+          Strengthen long-term health outcomes through smart, preventative, and coordinated care systems.
+        </p>
+        <div class="space-y-3">
+          <div class="feature-item">
+            <div class="font-semibold text-gray-900">Preventative Care Technology</div>
+            <div class="text-xs text-gray-600 mt-1">Apps, dashboards, and AI tools for early detection and long-term wellness tracking.</div>
+            <div class="mt-2"><span class="steam-badge steam-tech">Technology</span><span class="steam-badge steam-science">Science</span></div>
+          </div>
+          <div class="feature-item">
+            <div class="font-semibold text-gray-900">Chronic Condition Monitoring</div>
+            <div class="text-xs text-gray-600 mt-1">Digital systems with voice chat for patients and providers to monitor ongoing conditions.</div>
+            <div class="mt-2"><span class="steam-badge steam-tech">Technology</span><span class="steam-badge steam-eng">Engineering</span></div>
+          </div>
+          <div class="feature-item">
+            <div class="font-semibold text-gray-900">Connected Care Platforms</div>
+            <div class="text-xs text-gray-600 mt-1">Secure tools (AWS Connect) improving communication between patients, families, and providers.</div>
+            <div class="mt-2"><span class="steam-badge steam-tech">Technology</span><span class="steam-badge steam-eng">Engineering</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pillar 2: Active Living & Lifestyle Health -->
+      <div class="pillar-card p-8 rounded-lg">
+        <div class="icon-circle icon-2">🏃</div>
+        <h3 class="text-2xl font-bold tw-text-maroon mb-4">2. Active Living & Lifestyle Health</h3>
+        <p class="text-gray-700 mb-4 text-sm leading-relaxed">
+          Encourage healthier lifestyles through tangible solutions promoting movement and well-being.
+        </p>
+        <div class="space-y-3">
+          <div class="feature-item">
+            <div class="font-semibold text-gray-900">Physical Activity Tools with Rewards</div>
+            <div class="text-xs text-gray-600 mt-1">Teachable Machine ML tracks exercise; users earn Brampton city credits for healthy activity.</div>
+            <div class="mt-2"><span class="steam-badge steam-tech">Technology</span><span class="steam-badge steam-math">Math</span></div>
+          </div>
+          <div class="feature-item">
+            <div class="font-semibold text-gray-900">Community Wellness Kits</div>
+            <div class="text-xs text-gray-600 mt-1">Digital thermometer, pulse oximeter, blood pressure monitor, first-aid supplies.</div>
+            <div class="mt-2"><span class="steam-badge steam-eng">Engineering</span><span class="steam-badge steam-science">Science</span></div>
+          </div>
+          <div class="feature-item">
+            <div class="font-semibold text-gray-900">Built Environment Solutions</div>
+            <div class="text-xs text-gray-600 mt-1">AI-powered designs for schools, parks, community spaces encouraging safe, active living.</div>
+            <div class="mt-2"><span class="steam-badge steam-arts">Arts</span><span class="steam-badge steam-tech">Technology</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pillar 3: Community Healthcare Access -->
+      <div class="pillar-card p-8 rounded-lg">
+        <div class="icon-circle icon-3">🏥</div>
+        <h3 class="text-2xl font-bold tw-text-maroon mb-4">3. Community Healthcare Access</h3>
+        <p class="text-gray-700 mb-4 text-sm leading-relaxed">
+          Improve healthcare structure, organization, and delivery within Brampton communities.
+        </p>
+        <div class="space-y-3">
+          <div class="feature-item">
+            <div class="font-semibold text-gray-900">Clinic & Facility Design</div>
+            <div class="text-xs text-gray-600 mt-1">CAD models of clinics, mobile health units, optimized care spaces for improved patient flow.</div>
+            <div class="mt-2"><span class="steam-badge steam-eng">Engineering</span><span class="steam-badge steam-arts">Arts</span></div>
+          </div>
+          <div class="feature-item">
+            <div class="font-semibold text-gray-900">Workflow Optimization</div>
+            <div class="text-xs text-gray-600 mt-1">System architecture reducing wait times and improving referral pathways—integrated via TriageWolf dashboard.</div>
+            <div class="mt-2"><span class="steam-badge steam-eng">Engineering</span><span class="steam-badge steam-math">Math</span></div>
+          </div>
+          <div class="feature-item">
+            <div class="font-semibold text-gray-900">Mobile & Modular Care Systems</div>
+            <div class="text-xs text-gray-600 mt-1">Scalable healthcare infrastructure for growing, underserved populations across Brampton.</div>
+            <div class="mt-2"><span class="steam-badge steam-eng">Engineering</span><span class="steam-badge steam-tech">Technology</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pillar 4: Mental Health & Well-Being -->
+      <div class="pillar-card p-8 rounded-lg">
+        <div class="icon-circle icon-4">🧠</div>
+        <h3 class="text-2xl font-bold tw-text-maroon mb-4">4. Mental Health & Well-Being</h3>
+        <p class="text-gray-700 mb-4 text-sm leading-relaxed">
+          Address growing mental health challenges through age-aware, accessible support systems.
+        </p>
+        <div class="space-y-3">
+          <div class="feature-item">
+            <div class="font-semibold text-gray-900">Age-Segmented AI Support</div>
+            <div class="text-xs text-gray-600 mt-1">AI assistant responds to users based on age group (youth, adult, senior). <a href="{{ url_for('mental_health') }}" class="text-blue-600 underline">Try demo →</a></div>
+            <div class="mt-2"><span class="steam-badge steam-tech">Technology</span><span class="steam-badge steam-science">Science</span></div>
+          </div>
+          <div class="feature-item">
+            <div class="font-semibold text-gray-900">Safe Spaces by Design</div>
+            <div class="text-xs text-gray-600 mt-1">Calm room with dim lighting, minimal clutter, behavioral sensors, privacy, no login required, help button.</div>
+            <div class="mt-2"><span class="steam-badge steam-arts">Arts</span><span class="steam-badge steam-eng">Engineering</span></div>
+          </div>
+          <div class="feature-item">
+            <div class="font-semibold text-gray-900">Youth & Community Support</div>
+            <div class="text-xs text-gray-600 mt-1">Supervised forum connecting youth with peers and admins; stigma-free, inclusive mental health tools.</div>
+            <div class="mt-2"><span class="steam-badge steam-tech">Technology</span><span class="steam-badge steam-social">Arts</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pillar 5: Health Data, Ethics & Equity -->
+      <div class="pillar-card p-8 rounded-lg">
+        <div class="icon-circle icon-5">🔒</div>
+        <h3 class="text-2xl font-bold tw-text-maroon mb-4">5. Health Data, Ethics & Equity</h3>
+        <p class="text-gray-700 mb-4 text-sm leading-relaxed">
+          Ensure healthcare innovation is responsible, secure, and fair for all Brampton residents.
+        </p>
+        <div class="space-y-3">
+          <div class="feature-item">
+            <div class="font-semibold text-gray-900">Secure Data Sharing</div>
+            <div class="text-xs text-gray-600 mt-1">Encrypted data storage and sharing via AWS; HIPAA-compliant healthcare data architecture.</div>
+            <div class="mt-2"><span class="steam-badge steam-tech">Technology</span><span class="steam-badge steam-eng">Engineering</span></div>
+          </div>
+          <div class="feature-item">
+            <div class="font-semibold text-gray-900">Ethical Decision-Making</div>
+            <div class="text-xs text-gray-600 mt-1">Anonymous AI-then-human chat; AI trained on bioethics research to ensure fair, unbiased care decisions. Immunocompromised prioritization included.</div>
+            <div class="mt-2"><span class="steam-badge steam-science">Science</span><span class="steam-badge steam-tech">Technology</span></div>
+          </div>
+          <div class="feature-item">
+            <div class="font-semibold text-gray-900">Building Public Trust</div>
+            <div class="text-xs text-gray-600 mt-1">Transparent, accountable AI; professional ethics training; stigma-free design ensures diverse communities adopt care.</div>
+            <div class="mt-2"><span class="steam-badge steam-arts">Arts</span><span class="steam-badge steam-science">Science</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Key Capabilities -->
+    <section class="bg-gray-50 p-8 rounded-lg mb-16 border border-gray-200">
+      <h2 class="text-2xl font-bold tw-text-maroon mb-6">Key Capabilities Implemented</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+          <div class="text-lg font-bold text-gray-900 mb-2">🎤 Voice-First Symptoms</div>
+          <p class="text-sm text-gray-600">No typing required—describe symptoms with efficiency. Perfect for elderly, mobility-limited patients.</p>
+        </div>
+        <div>
+          <div class="text-lg font-bold text-gray-900 mb-2">🧠 Mental Health Hub</div>
+          <p class="text-sm text-gray-600">Age-aware AI, calm room environment, supervised youth forum, anonymous ethical support chats.</p>
+        </div>
+        <div>
+          <div class="text-lg font-bold text-gray-900 mb-2">🏃 Active Living Rewards</div>
+          <p class="text-sm text-gray-600">Trackable ML-based fitness system. Exercise → Brampton city credits. Preventative health incentivized.</p>
+        </div>
+        <div>
+          <div class="text-lg font-bold text-gray-900 mb-2">📊 Outbreak & Surge Modes</div>
+          <p class="text-sm text-gray-600">Real-time condition_x detection. Heatwave and cyberattack resilience. Automated routing under stress.</p>
+        </div>
+        <div>
+          <div class="text-lg font-bold text-gray-900 mb-2">🔐 HIPAA & Encrypted Data</div>
+          <p class="text-sm text-gray-600">AWS-backed secure sharing. Bias-aware ethical decision-making. Immunocompromised flagging.</p>
+        </div>
+        <div>
+          <div class="text-lg font-bold text-gray-900 mb-2">🚑 Mobile Health Integration</div>
+          <p class="text-sm text-gray-600">CAD-designed facilities, modular care units, live wait-time optimization, family-mode triage.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Brampton 2040 Alignment -->
+    <section class="text-center mb-12 p-8 bg-orange-50 rounded-lg border-2 border-orange-200">
+      <h2 class="text-2xl font-bold tw-text-maroon mb-3">Aligned with Brampton 2040 Vision 6</h2>
+      <p class="text-gray-700 max-w-2xl mx-auto mb-4">
+        <strong>"A mosaic of healthy citizens enjoying physical and mental wellness."</strong>
+      </p>
+      <p class="text-sm text-gray-600">
+        TriageWolf embeds Brampton's strategic vision into every layer: 
+        preventative health tech, active living rewards, accessible mental health, secure data sharing, and equity-first design.
+      </p>
+    </section>
+
+    <!-- CTA -->
+    <div class="text-center space-y-4 mb-12">
+      <a href="{{ url_for('mental_health') }}" class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+        Explore Mental Health Demo →
+      </a>
+      <a href="{{ url_for('wellness_rewards') }}" class="inline-block bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition ml-4">
+        View Active Living Rewards →
+      </a>
+    </div>
+
+  </main>
+
+  <footer class="py-6 text-center text-xs text-gray-500 border-t border-gray-200 mt-12">
+    Brampton 2040 Vision 6: A mosaic of healthy citizens enjoying physical and mental wellness. Built for WolfHacks 2026.
+  </footer>
+</body>
+</html>

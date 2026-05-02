@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Active Living Rewards - TriageWolf Brampton</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    .reward-card {
+      background: linear-gradient(135deg, #fdf7f3 0%, #fff9f7 100%);
+      border-left: 5px solid #e8552b;
+      transition: all 0.3s ease;
+    }
+    .reward-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(232, 85, 43, 0.1);
+    }
+    .progress-ring {
+      transform: rotate(-90deg);
+    }
+    .progress-ring__circle {
+      transition: stroke-dashoffset 0.35s;
+      stroke-dasharray: 339.292;
+      stroke-dashoffset: 0;
+    }
+    .activity-badge {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .badge-walk { background: #d1fae5; color: #065f46; }
+    .badge-run { background: #dbeafe; color: #1e40af; }
+    .badge-swim { background: #fce7f3; color: #831843; }
+    .badge-bike { background: #fef3c7; color: #78350f; }
+    .badge-yoga { background: #e9d5ff; color: #581c87; }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+    }
+    .stat-box {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      text-align: center;
+      border: 1px solid #e0e0e0;
+    }
+    .stat-number { font-size: 2rem; font-weight: 800; tw-text-maroon: true; }
+    .stat-label { font-size: 0.875rem; color: #666; margin-top: 0.5rem; }
+    .ml-visualization {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      padding: 2rem;
+      border-radius: 8px;
+      text-align: center;
+      min-height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .ml-animation {
+      font-size: 4rem;
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+    .credit-display {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #e8552b;
+      text-align: center;
+      margin: 1rem 0;
+    }
+  </style>
+</head>
+<body>
+  {% from '_macros.html' import tw_header %}
+  {{ tw_header(active='wellness') }}
+
+  <main class="flex-1 max-w-6xl w-full mx-auto px-6 py-10">
+    <!-- Hero Section -->
+    <div class="text-center mb-12">
+      <h1 class="text-5xl font-extrabold tw-text-maroon mb-4">Active Living Rewards</h1>
+      <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+        Exercise with Teachable Machine ML recognition. Earn Brampton city credits for each activity. 
+        Real-time tracking, rewards redemption, and community wellness leaderboards.
+      </p>
+    </div>
+
+    <!-- Current User Stats -->
+    <section class="bg-gradient-to-r from-green-50 to-blue-50 p-8 rounded-lg mb-12 border border-gray-200">
+      <h2 class="text-2xl font-bold tw-text-maroon mb-6">Your Wellness Dashboard</h2>
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div style="font-size: 2rem; font-weight: 800; color: #7a1f2b;">42</div>
+          <div class="stat-label">Activities This Week</div>
+        </div>
+        <div class="stat-box">
+          <div style="font-size: 2rem; font-weight: 800; color: #7a1f2b;">1,250</div>
+          <div class="stat-label">Minutes Active</div>
+        </div>
+        <div class="stat-box">
+          <div style="font-size: 2rem; font-weight: 800; color: #e8552b;">895</div>
+          <div class="stat-label">Credits Earned</div>
+        </div>
+        <div class="stat-box">
+          <div style="font-size: 2rem; font-weight: 800; color: #7a1f2b;">#18</div>
+          <div class="stat-label">Community Rank</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold tw-text-maroon mb-6">How Teachable Machine ML Works</h2>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div>
+          <h3 class="text-xl font-semibold mb-4">Real-Time Exercise Recognition</h3>
+          <ol class="space-y-4">
+            <li class="flex gap-4">
+              <div class="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold">1</div>
+              <div>
+                <div class="font-semibold">Point Device Camera</div>
+                <p class="text-sm text-gray-600">Use your phone, tablet, or webcam to record your exercise.</p>
+              </div>
+            </li>
+            <li class="flex gap-4">
+              <div class="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold">2</div>
+              <div>
+                <div class="font-semibold">AI Model Analyzes Movement</div>
+                <p class="text-sm text-gray-600">Teachable Machine ML identifies exercises: walking, running, swimming, cycling, yoga, etc.</p>
+              </div>
+            </li>
+            <li class="flex gap-4">
+              <div class="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold">3</div>
+              <div>
+                <div class="font-semibold">Instant Credits Award</div>
+                <p class="text-sm text-gray-600">Credits deposited to your account in real-time. ~20 credits per 10 min activity.</p>
+              </div>
+            </li>
+            <li class="flex gap-4">
+              <div class="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold">4</div>
+              <div>
+                <div class="font-semibold">Redeem for Benefits</div>
+                <p class="text-sm text-gray-600">Trade credits for fitness memberships, health products, or city services.</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+
+        <div class="ml-visualization">
+          <div>
+            <div class="ml-animation">🤸</div>
+            <p class="text-gray-700 font-semibold mt-4">Exercise Detection Active</p>
+            <p class="text-sm text-gray-600 mt-2">Teachable Machine recognizing movement patterns...</p>
+            <div class="credit-display">+20 credits</div>
+            <div class="text-sm text-gray-600">Yoga Session • 10 minutes</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Supported Activities -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold tw-text-maroon mb-6">Supported Activities</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="reward-card p-6 rounded-lg">
+          <div class="text-4xl mb-3">🚶</div>
+          <h3 class="font-semibold text-lg mb-2">Walking</h3>
+          <p class="text-sm text-gray-600 mb-3">Outdoor or indoor walking at any pace.</p>
+          <div class="text-sm"><span class="font-bold">+20 credits/10 min</span> · Low intensity</div>
+        </div>
+
+        <div class="reward-card p-6 rounded-lg">
+          <div class="text-4xl mb-3">🏃</div>
+          <h3 class="font-semibold text-lg mb-2">Running</h3>
+          <p class="text-sm text-gray-600 mb-3">Jogging or running on any surface.</p>
+          <div class="text-sm"><span class="font-bold">+40 credits/10 min</span> · High intensity</div>
+        </div>
+
+        <div class="reward-card p-6 rounded-lg">
+          <div class="text-4xl mb-3">🏊</div>
+          <h3 class="font-semibold text-lg mb-2">Swimming</h3>
+          <p class="text-sm text-gray-600 mb-3">Pool or open water swimming.</p>
+          <div class="text-sm"><span class="font-bold">+50 credits/10 min</span> · Full body</div>
+        </div>
+
+        <div class="reward-card p-6 rounded-lg">
+          <div class="text-4xl mb-3">🚴</div>
+          <h3 class="font-semibold text-lg mb-2">Cycling</h3>
+          <p class="text-sm text-gray-600 mb-3">Stationary or outdoor cycling.</p>
+          <div class="text-sm"><span class="font-bold">+35 credits/10 min</span> · Cardio</div>
+        </div>
+
+        <div class="reward-card p-6 rounded-lg">
+          <div class="text-4xl mb-3">🧘</div>
+          <h3 class="font-semibold text-lg mb-2">Yoga & Stretching</h3>
+          <p class="text-sm text-gray-600 mb-3">Any yoga or flexibility session.</p>
+          <div class="text-sm"><span class="font-bold">+25 credits/10 min</span> · Flexibility</div>
+        </div>
+
+        <div class="reward-card p-6 rounded-lg">
+          <div class="text-4xl mb-3">💪</div>
+          <h3 class="font-semibold text-lg mb-2">Strength Training</h3>
+          <p class="text-sm text-gray-600 mb-3">Weight lifting, calisthenics, resistance.</p>
+          <div class="text-sm"><span class="font-bold">+45 credits/10 min</span> · Strength</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Reward Tiers -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold tw-text-maroon mb-6">Reward Redemption Tiers</h2>
+      <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <table class="w-full">
+          <thead class="bg-gray-50 border-b">
+            <tr>
+              <th class="text-left px-6 py-3 font-semibold text-gray-900">Credits Required</th>
+              <th class="text-left px-6 py-3 font-semibold text-gray-900">Reward</th>
+              <th class="text-left px-6 py-3 font-semibold text-gray-900">Value</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y">
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 font-semibold tw-text-maroon">100 credits</td>
+              <td class="px-6 py-4">Brampton Recreation Pass (1 month)</td>
+              <td class="px-6 py-4">$25</td>
+            </tr>
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 font-semibold tw-text-maroon">250 credits</td>
+              <td class="px-6 py-4">Fitness Equipment Voucher</td>
+              <td class="px-6 py-4">$75</td>
+            </tr>
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 font-semibold tw-text-maroon">500 credits</td>
+              <td class="px-6 py-4">Community Gym Membership (3 months)</td>
+              <td class="px-6 py-4">$150</td>
+            </tr>
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 font-semibold tw-text-maroon">1000 credits</td>
+              <td class="px-6 py-4">Premium Smartwatch</td>
+              <td class="px-6 py-4">$300</td>
+            </tr>
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 font-semibold tw-text-maroon">2000 credits</td>
+              <td class="px-6 py-4">Annual Health Fund (Brampton City Services)</td>
+              <td class="px-6 py-4">$500+</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Community Leaderboard -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold tw-text-maroon mb-6">Community Wellness Leaderboard</h2>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+          <h3 class="font-semibold text-lg mb-4">This Week's Top Exercisers</h3>
+          <div class="space-y-3">
+            <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+              <div class="flex items-center gap-3">
+                <span class="text-2xl">🥇</span>
+                <div>
+                  <div class="font-semibold">Priya M.</div>
+                  <div class="text-sm text-gray-600">542 minutes active</div>
+                </div>
+              </div>
+              <span class="font-bold text-lg">2,710 credits</span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-gray-100 rounded-lg">
+              <div class="flex items-center gap-3">
+                <span class="text-2xl">🥈</span>
+                <div>
+                  <div class="font-semibold">Marcus L.</div>
+                  <div class="text-sm text-gray-600">438 minutes active</div>
+                </div>
+              </div>
+              <span class="font-bold text-lg">2,190 credits</span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
+              <div class="flex items-center gap-3">
+                <span class="text-2xl">🥉</span>
+                <div>
+                  <div class="font-semibold">Asha K.</div>
+                  <div class="text-sm text-gray-600">387 minutes active</div>
+                </div>
+              </div>
+              <span class="font-bold text-lg">1,935 credits</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+          <h3 class="font-semibold text-lg mb-4">Your Activity Streak</h3>
+          <div class="space-y-4">
+            <div>
+              <div class="flex justify-between mb-2">
+                <span class="font-semibold">Current Streak</span>
+                <span class="text-xl font-bold tw-text-maroon">12 days 🔥</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-orange-500 h-2 rounded-full" style="width: 60%"></div>
+              </div>
+            </div>
+            <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+              <div class="font-semibold text-sm mb-2">🎯 Next Milestone</div>
+              <p class="text-sm text-gray-700">Keep active for 3 more days to reach a 15-day streak! Earn 150 bonus credits.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tech Stack -->
+    <section class="bg-gradient-to-r from-purple-50 to-blue-50 p-8 rounded-lg mb-12 border border-gray-200">
+      <h2 class="text-2xl font-bold tw-text-maroon mb-6">Technology & Integration</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+          <div class="text-4xl mb-3">🤖</div>
+          <h3 class="font-semibold mb-2">Teachable Machine ML</h3>
+          <p class="text-sm text-gray-700">Google's no-code ML: custom-trained models recognize user-specific exercise patterns with high accuracy.</p>
+        </div>
+        <div>
+          <div class="text-4xl mb-3">📱</div>
+          <h3 class="font-semibold mb-2">Real-Time Processing</h3>
+          <p class="text-sm text-gray-700">Client-side ML inference: instant feedback, no server lag. Privacy-first (video never leaves device).</p>
+        </div>
+        <div>
+          <div class="text-4xl mb-3">🏅</div>
+          <h3 class="font-semibold mb-2">Blockchain Rewards</h3>
+          <p class="text-sm text-gray-700">Optional: Credits stored on-chain for transparency and redemption across city partners.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <div class="text-center space-y-4 mb-12 bg-orange-50 p-8 rounded-lg border-2 border-orange-200">
+      <h2 class="text-2xl font-bold tw-text-maroon">Start Earning Credits Today</h2>
+      <p class="text-gray-700 max-w-2xl mx-auto">
+        Launch the activity tracker, let the ML model recognize your exercise, and start accumulating rewards instantly.
+        Join thousands of Brampton residents building healthier habits.
+      </p>
+      <div class="space-x-4">
+        <a href="#" class="inline-block bg-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-600 transition">
+          Launch Activity Tracker →
+        </a>
+        <a href="{{ url_for('features') }}" class="inline-block bg-white text-orange-600 px-6 py-3 rounded-lg font-semibold border-2 border-orange-500 hover:bg-orange-50 transition">
+          Learn More About Our Vision
+        </a>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="py-6 text-center text-xs text-gray-500 border-t border-gray-200 mt-12">
+    Active Living Rewards powered by Teachable Machine ML & Brampton City Services. Built for WolfHacks 2026.
+  </footer>
+</body>
+</html>

@@ -124,8 +124,11 @@ width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24" fill="none" stroke="c
       <a href="{{ url_for('maps') }}" {% if active == 'maps' %}class="is-active"{% endif %}>Maps</a>
       <a href="{{ url_for('dashboard') }}" {% if active == 'dashboard' %}class="is-active"{% endif %}>Operations</a>
       <a href="{{ url_for('impact') }}" {% if active == 'impact' %}class="is-active"{% endif %}>Impact</a>
+      <a href="{{ url_for('features') }}" {% if active == 'features' %}class="is-active"{% endif %}>Features</a>
       <a href="{{ url_for('pitch') }}" {% if active == 'pitch' %}class="is-active"{% endif %}>Pitch</a>
       <a href="{{ url_for('constraints') }}" {% if active == 'constraints' %}class="is-active"{% endif %}>Constraints</a>
+      <a href="{{ url_for('mental_health') }}" {% if active == 'mental-health' %}class="is-active"{% endif %}>Mental Health</a>
+      <a href="{{ url_for('wellness_rewards') }}" {% if active == 'wellness' %}class="is-active"{% endif %}>Active Living</a>
       <a href="{{ url_for('sms_demo') }}" {% if active == 'sms' %}class="is-active"{% endif %}>SMS</a>
     </nav>
     <div class="tw-actions">
