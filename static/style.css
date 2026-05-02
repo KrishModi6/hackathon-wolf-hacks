@@ -133,6 +133,17 @@ body {
 
 .dash-card { padding: 1.45rem; }
 
+.profile-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--tw-line);
+  border-radius: 0.75rem;
+  background: linear-gradient(90deg, #fff7f2, #ffffff);
+}
+
 .severity-badge {
   display: inline-block;
   padding: 0.24rem 0.74rem;
@@ -141,6 +152,33 @@ body {
   font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.02em;
+}
+
+.risk-panel {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.35fr) 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 0.8rem;
+  border: 1px solid transparent;
+}
+
+.risk-low {
+  color: #14532d;
+  background: #ecfdf3;
+  border-color: #bbf7d0;
+}
+
+.risk-medium {
+  color: #7c2d12;
+  background: #fff7ed;
+  border-color: #fed7aa;
+}
+
+.risk-high {
+  color: #7f1d1d;
+  background: #fef2f2;
+  border-color: #fecaca;
 }
 
 .surge-banner {
@@ -208,4 +246,8 @@ main { animation: enter-up 320ms ease-out; }
 
 @media (max-width: 640px) {
   .stat-number { font-size: 1.92rem; }
+  .profile-summary,
+  .risk-panel {
+    grid-template-columns: 1fr;
+  }
 }

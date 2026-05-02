@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Account - TriageWolf</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="min-h-screen flex flex-col">
+  <header class="tw-bg-maroon text-white">
+    <div class="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between">
+      <a href="{{ url_for('index') }}" class="flex items-center gap-3">
+        <span class="text-3xl">TW</span>
+        <div>
+          <div class="text-xl font-bold tracking-tight">TriageWolf</div>
+          <div class="text-xs text-orange-200">Brampton's Smart Healthcare Navigator</div>
+        </div>
+      </a>
+      {% if profile %}
+      <a href="{{ url_for('index') }}" class="text-sm text-orange-200 hover:text-white">Back to triage</a>
+      {% endif %}
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-5xl w-full mx-auto px-6 py-10">
+    <section class="mb-8">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f7eaec] text-xs font-semibold tracking-[0.08em] uppercase tw-text-maroon mb-4">
+        Step 1 of 2
+      </div>
+      <h1 class="display text-5xl md:text-6xl tw-text-maroon leading-[0.95]">
+        Create your care profile.
+      </h1>
+      <p class="mt-4 text-gray-700 max-w-2xl">
+        Save the basics TriageWolf needs before symptoms are checked: age, location, medical context, and who to contact in an emergency.
+      </p>
+    </section>
+
+    <form action="{{ url_for('account') }}" method="POST" class="bg-white rounded-2xl shadow-md border border-gray-100 p-6 md:p-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Full name</label>
+          <input name="name" value="{{ profile.name or '' }}" required
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-300"
+                 placeholder="Your name">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+          <input name="email" type="email" value="{{ profile.email or '' }}" required
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-300"
+                 placeholder="you@example.com">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Patient age</label>
+          <input name="age" type="number" min="0" max="120" value="{{ profile.age or '25' }}" required
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-300">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Postal code FSA</label>
+          <input name="fsa" maxlength="3" value="{{ profile.fsa or '' }}" required
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-300 uppercase"
+                 placeholder="L6S">
+        </div>
+      </div>
+
+      <div class="mt-6 p-4 rounded-lg border border-gray-200">
+        <div class="text-sm font-semibold text-gray-700 mb-2">Medical profile</div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+          <label class="flex items-center gap-2">
+            <input type="checkbox" name="pregnant" value="1" class="w-4 h-4 accent-maroon"
+                   {% if profile.pregnant %}checked{% endif %}>
+            Pregnant
+          </label>
+          {% set chronic = profile.chronic_conditions or [] %}
+          <label class="flex items-center gap-2">
+            <input type="checkbox" name="chronic" value="heart_disease" class="w-4 h-4 accent-maroon"
+                   {% if 'heart_disease' in chronic %}checked{% endif %}>
+            Heart disease history
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" name="chronic" value="diabetes" class="w-4 h-4 accent-maroon"
+                   {% if 'diabetes' in chronic %}checked{% endif %}>
+            Diabetes
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" name="chronic" value="asthma" class="w-4 h-4 accent-maroon"
+                   {% if 'asthma' in chronic %}checked{% endif %}>
+            Asthma / COPD
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" name="chronic" value="immunocompromised" class="w-4 h-4 accent-maroon"
+                   {% if 'immunocompromised' in chronic %}checked{% endif %}>
+            Immunocompromised
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" name="chronic" value="kidney" class="w-4 h-4 accent-maroon"
+                   {% if 'kidney' in chronic %}checked{% endif %}>
+            Kidney disease
+          </label>
+        </div>
+      </div>
+
+      <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Allergies</label>
+          <textarea name="allergies" rows="3"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-300"
+                    placeholder="Penicillin, peanuts...">{{ profile.allergies or '' }}</textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Medications</label>
+          <textarea name="medications" rows="3"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-300"
+                    placeholder="Inhaler, insulin...">{{ profile.medications or '' }}</textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Emergency contact</label>
+          <textarea name="emergency_contact" rows="3"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-300"
+                    placeholder="Name and phone number">{{ profile.emergency_contact or '' }}</textarea>
+        </div>
+      </div>
+
+      <div class="mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <p class="text-xs text-gray-500 max-w-md">This prototype stores the profile in your browser session for the demo.</p>
+        <button type="submit" class="tw-btn-primary text-base">Continue to symptoms</button>
+      </div>
+    </form>
+  </main>
+</body>
+</html>

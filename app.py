@@ -13,7 +13,7 @@ import os
 import secrets
 from collections import defaultdict
 from datetime import datetime, timezone
-from flask import Flask, render_template, request, jsonify, redirect, url_for, abort
+from flask import Flask, render_template, request, jsonify, redirect, url_for, abort, session
 
 from ai_assistant import analyze_symptoms
 from triage_engine import (
@@ -25,6 +25,7 @@ from triage_engine import (
 from surge_modes import SCENARIOS, get_active_scenario, multipliers_for
 
 app = Flask(__name__)
+app.secret_key = os.environ.get("SECRET_KEY", "triagewolf-dev-secret")
 
 # ---------------------------------------------------------------------------
 # In-memory app state
@@ -113,6 +114,30 @@ def severity_badge(ctas_level):
     if ctas_level == 4:
         return ("Moderate", "bg-yellow-500")
     return ("Mild", "bg-green-600")
+
+
+def risk_recommendation(ctas_level):
+    """Map clinical acuity into the simple user-facing risk ladder."""
+    if ctas_level <= 2:
+        return {
+            "level": "HIGH",
+            "action": "Seek emergency care",
+            "description": "Your symptoms may need immediate in-person care. If this feels urgent, call 911.",
+            "class": "risk-high",
+        }
+    if ctas_level == 3:
+        return {
+            "level": "MEDIUM",
+            "action": "Consider virtual care",
+            "description": "You should speak with a clinician soon. Virtual care or urgent care can help decide the fastest next step.",
+            "class": "risk-medium",
+        }
+    return {
+        "level": "LOW",
+        "action": "Stay home and monitor",
+        "description": "Self-care, monitoring, or non-urgent clinic support is likely appropriate unless symptoms worsen.",
+        "class": "risk-low",
+    }
 
 
 def current_wait(facility):
@@ -211,16 +236,48 @@ def predictive_alerts():
 @app.route("/")
 @app.route("/app")
 def index():
+    profile = session.get("profile")
+    if not profile:
+        return redirect(url_for("account"))
     scen_key, scen = get_active_scenario(STATE)
     return render_template(
         "index.html",
         symptoms=SYMPTOMS,
+        profile=profile,
         active_scenario=scen_key,
         scenario=scen,
         predictive=predictive_alerts(),
         facility_count=len(load_facilities()),
         warning_count=len(predictive_alerts()),
     )
+
+
+@app.route("/account", methods=["GET", "POST"])
+def account():
+    profile = session.get("profile", {})
+    if request.method == "POST":
+        age = request.form.get("age", "").strip()
+        fsa_raw = request.form.get("fsa", "").strip().upper()
+        session["profile"] = {
+            "name": request.form.get("name", "").strip(),
+            "email": request.form.get("email", "").strip(),
+            "age": age or "25",
+            "fsa": fsa_raw[:3] if fsa_raw else "",
+            "pregnant": bool(request.form.get("pregnant")),
+            "chronic_conditions": request.form.getlist("chronic"),
+            "allergies": request.form.get("allergies", "").strip(),
+            "medications": request.form.get("medications", "").strip(),
+            "emergency_contact": request.form.get("emergency_contact", "").strip(),
+        }
+        return redirect(url_for("index"))
+
+    return render_template("account.html", profile=profile)
+
+
+@app.route("/logout")
+def logout():
+    session.pop("profile", None)
+    return redirect(url_for("account"))
 
 
 @app.route("/prototype")
@@ -230,9 +287,10 @@ def prototype_preview():
 
 @app.route("/triage", methods=["POST"])
 def triage():
+    profile = session.get("profile", {})
     selected = request.form.getlist("symptoms")
-    age = request.form.get("age", "25").strip()
-    fsa_raw = request.form.get("fsa", "").strip().upper()
+    age = request.form.get("age", profile.get("age", "25")).strip()
+    fsa_raw = request.form.get("fsa", profile.get("fsa", "")).strip().upper()
     fsa = fsa_raw[:3] if fsa_raw else ""
 
     # Demographic inputs
@@ -240,6 +298,11 @@ def triage():
         "age": age,
         "pregnant": bool(request.form.get("pregnant")),
         "chronic_conditions": request.form.getlist("chronic"),
+        "profile_name": profile.get("name", ""),
+        "profile_email": profile.get("email", ""),
+        "allergies": profile.get("allergies", ""),
+        "medications": profile.get("medications", ""),
+        "emergency_contact": profile.get("emergency_contact", ""),
         "caregiver_mode": bool(request.form.get("caregiver_mode")),
         "patient_name": request.form.get("patient_name", "").strip(),
         "relationship": request.form.get("relationship", "").strip(),
@@ -282,6 +345,7 @@ def triage():
 
     top3 = ranked[:3]
     badge_label, badge_class = severity_badge(ctas)
+    risk = risk_recommendation(ctas)
 
     # Generate QR handoff token
     token = secrets.token_urlsafe(8)
@@ -296,6 +360,10 @@ def triage():
         "patient_name": demographics["patient_name"],
         "caregiver_mode": demographics["caregiver_mode"],
         "relationship": demographics["relationship"],
+        "profile_name": demographics["profile_name"],
+        "allergies": demographics["allergies"],
+        "medications": demographics["medications"],
+        "emergency_contact": demographics["emergency_contact"],
         "demographic_modifiers": classification["demographic_modifiers"],
         "bayesian_matches": classification["bayesian_matches"],
         "tier_reason": classification["tier_reason"],
@@ -323,6 +391,7 @@ def triage():
         results=top3,
         badge_label=badge_label,
         badge_class=badge_class,
+        risk=risk,
         active_scenario=scen_key,
         scenario=scen,
         redirected=redirected,

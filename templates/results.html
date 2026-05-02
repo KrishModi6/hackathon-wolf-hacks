@@ -53,6 +53,9 @@
       </h1>
 
       <div class="text-sm text-gray-600">
+        {% if demographics.profile_name %}
+          Profile: {{ demographics.profile_name }} &middot;
+        {% endif %}
         {% if demographics.caregiver_mode %}
           Family triage mode: {{ demographics.patient_name or 'your family member' }}
           {% if demographics.relationship %}({{ demographics.relationship }}){% endif %}
@@ -78,6 +81,18 @@
         <strong>Offline protocol active:</strong> Print or screenshot your QR handoff card before leaving.
       </div>
       {% endif %}
+
+      <div class="mt-6 risk-panel {{ risk.class }}">
+        <div>
+          <div class="text-xs uppercase tracking-wide font-semibold opacity-80">Risk level</div>
+          <div class="text-3xl font-extrabold">{{ risk.level }}</div>
+        </div>
+        <div>
+          <div class="text-xs uppercase tracking-wide font-semibold opacity-80">Recommended action</div>
+          <div class="text-2xl font-bold">{{ risk.action }}</div>
+          <p class="mt-1 text-sm opacity-90">{{ risk.description }}</p>
+        </div>
+      </div>
     </section>
 
     <section class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
@@ -116,6 +131,26 @@
         <a class="tw-btn-secondary text-sm inline-block w-full text-center" href="{{ url_for('handoff', token=handoff_token) }}" target="_blank" rel="noopener">Open Handoff Card</a>
       </div>
     </section>
+
+    {% if demographics.allergies or demographics.medications or demographics.emergency_contact %}
+    <section class="mb-6 bg-white rounded-xl border border-gray-100 p-4">
+      <h2 class="font-bold text-gray-800 mb-3">Medical profile shared with handoff</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+        <div class="p-3 rounded-lg bg-gray-50 border border-gray-200">
+          <div class="font-semibold text-gray-700">Allergies</div>
+          <div class="text-gray-600">{{ demographics.allergies or 'None listed' }}</div>
+        </div>
+        <div class="p-3 rounded-lg bg-gray-50 border border-gray-200">
+          <div class="font-semibold text-gray-700">Medications</div>
+          <div class="text-gray-600">{{ demographics.medications or 'None listed' }}</div>
+        </div>
+        <div class="p-3 rounded-lg bg-gray-50 border border-gray-200">
+          <div class="font-semibold text-gray-700">Emergency contact</div>
+          <div class="text-gray-600">{{ demographics.emergency_contact or 'None listed' }}</div>
+        </div>
+      </div>
+    </section>
+    {% endif %}
 
     <h2 class="text-lg font-bold text-gray-800 mb-3">Top {{ results|length }} matches near you</h2>
 

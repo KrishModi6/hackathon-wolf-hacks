@@ -20,9 +20,23 @@
     <div class="mt-5 grid sm:grid-cols-2 gap-3 text-sm">
       <div class="p-3 rounded border border-gray-200 bg-gray-50"><span class="font-semibold">CTAS:</span> {{ payload.ctas_level }}</div>
       <div class="p-3 rounded border border-gray-200 bg-gray-50"><span class="font-semibold">Tier:</span> {{ payload.tier }}</div>
-      <div class="p-3 rounded border border-gray-200 bg-gray-50"><span class="font-semibold">Patient:</span> {{ payload.patient_name or 'Not provided' }}</div>
+      <div class="p-3 rounded border border-gray-200 bg-gray-50"><span class="font-semibold">Patient:</span> {{ payload.patient_name or payload.profile_name or 'Not provided' }}</div>
       <div class="p-3 rounded border border-gray-200 bg-gray-50"><span class="font-semibold">FSA:</span> {{ payload.fsa or 'Unknown' }}</div>
     </div>
+
+    {% if payload.allergies or payload.medications or payload.emergency_contact %}
+    <div class="mt-4 grid sm:grid-cols-3 gap-3 text-sm">
+      <div class="p-3 rounded border border-gray-200 bg-gray-50">
+        <span class="font-semibold">Allergies:</span><br>{{ payload.allergies or 'None listed' }}
+      </div>
+      <div class="p-3 rounded border border-gray-200 bg-gray-50">
+        <span class="font-semibold">Medications:</span><br>{{ payload.medications or 'None listed' }}
+      </div>
+      <div class="p-3 rounded border border-gray-200 bg-gray-50">
+        <span class="font-semibold">Emergency contact:</span><br>{{ payload.emergency_contact or 'None listed' }}
+      </div>
+    </div>
+    {% endif %}
 
     <div class="mt-4 p-3 rounded border border-gray-200 bg-white">
       <div class="font-semibold text-sm mb-1">Reported symptoms</div>
