@@ -33,17 +33,17 @@
     {"name": "Region of Peel Public Health", "role": "Population health surveillance, outbreak response"},
     {"name": "Brampton Community Health Centre", "role": "Walk-in care for uninsured residents"},
     {"name": "Punjabi Community Health Services", "role": "Multilingual health outreach for South Asian community"},
-    {"name": "City of Brampton (2040 Vision Office)", "role": "Strategic alignment with Vision 6 - Health & Well-Being"}
+    {"name": "City of Brampton (2040 Vision Office)", "role": "Strategic alignment with Living the Mosaic - Health & Well-Being"}
   ],
   "rollout_phases": [
     {"phase": 1, "where": "Single walk-in clinic pilot", "duration_months": 3, "kpi": "60% reduction in re-intake time"},
     {"phase": 2, "where": "Peel Memorial Urgent Care integration", "duration_months": 6, "kpi": "20% non-emergency ER deflection"},
     {"phase": 3, "where": "Brampton Civic ER triage handshake", "duration_months": 9, "kpi": "P90 wait time below 6 hours"},
-    {"phase": 4, "where": "City-wide deployment + SMS fallback", "duration_months": 12, "kpi": "70% of residents triaged before arrival"}
+    {"phase": 4, "where": "City-wide deployment + multilingual rollout", "duration_months": 12, "kpi": "70% of residents triaged before arrival"}
   ],
   "vision_2040_pillars": [
     {"name": "Health & Well-Being", "alignment": "Faster access to appropriate care, lower ER overcrowding"},
-    {"name": "Social Inclusion & Equity", "alignment": "Multilingual support, SMS fallback for digital divide, demographic-aware routing"},
+    {"name": "Social Inclusion & Equity", "alignment": "Multilingual support, accessible voice/text intake, demographic-aware routing"},
     {"name": "Community-Based Living", "alignment": "Routes to neighbourhood walk-ins and telehealth, not just hospitals"},
     {"name": "Technology & Resilience", "alignment": "Surge mode, offline protocol cards, predictive load balancing, cyberattack failover"}
   ]

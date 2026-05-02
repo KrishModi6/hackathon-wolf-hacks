@@ -96,7 +96,7 @@
         <li>Live wait-time prediction using M/M/c queueing across 5 Brampton facilities.</li>
         <li>QR handoff card for paramedic / nurse intake - works even if the EHR is offline.</li>
         <li>3 disruption modes: outbreak, heatwave, cyberattack.</li>
-        <li>SMS fallback for residents without smartphones or data.</li>
+        <li>Multilingual intake — accepts free-text in any language (tested: Punjabi, Urdu, Tamil).</li>
       </ul>
       <div class="speaker">
         <span class="label">Speaker notes (45s)</span>
@@ -152,18 +152,15 @@
       <h2 class="text-2xl font-extrabold tw-text-maroon mb-2">Three disruption scenarios, one toggle each.</h2>
       <div class="grid sm:grid-cols-3 gap-3 mb-3">
         <div class="p-3 rounded bg-red-50 border border-red-200">
-          <div class="text-2xl">🦠</div>
-          <div class="font-semibold mt-1">Condition X</div>
+          <div class="font-semibold tw-text-maroon">Condition X</div>
           <div class="text-xs text-gray-600 mt-1">ER waits 3x. Non-critical patients auto-routed to virtual triage. AI auto-activates on outbreak signals.</div>
         </div>
         <div class="p-3 rounded bg-orange-50 border border-orange-200">
-          <div class="text-2xl">🌡️</div>
-          <div class="font-semibold mt-1">Heatwave</div>
+          <div class="font-semibold text-orange-700">Heatwave</div>
           <div class="text-xs text-gray-600 mt-1">Seniors and chronic-condition patients prioritized. AC-required filter on facilities. Cooling-centre advice surfaced.</div>
         </div>
         <div class="p-3 rounded bg-blue-50 border border-blue-200">
-          <div class="text-2xl">🛡️</div>
-          <div class="font-semibold mt-1">Cyberattack</div>
+          <div class="font-semibold text-blue-700">Cyberattack / EHR Outage</div>
           <div class="text-xs text-gray-600 mt-1">Hospital EHR offline. Offline-protocol facilities preferred. Patients arrive with printable QR card.</div>
         </div>
       </div>
@@ -211,7 +208,7 @@
         <div><span class="slide-num text-gray-400">SLIDE 08</span> <span class="ml-3 timer">7:45 - 8:30</span></div>
         <span class="text-xs px-2 py-1 rounded bg-pink-100 text-pink-800 font-semibold">2040 VISION</span>
       </div>
-      <h2 class="text-2xl font-extrabold tw-text-maroon mb-2">Brampton 2040 Vision 6.</h2>
+      <h2 class="text-2xl font-extrabold tw-text-maroon mb-2">Brampton 2040 Vision: Living the Mosaic.</h2>
       <p class="italic text-gray-600 mb-3">"In 2040, Brampton will be a mosaic of healthy citizens enjoying physical and mental wellness, fitness, and sports."</p>
       <div class="grid sm:grid-cols-2 gap-2 text-sm">
         {% for p in stats.vision_2040_pillars %}
@@ -223,7 +220,7 @@
       </div>
       <div class="speaker mt-3">
         <span class="label">Speaker notes (45s)</span>
-        Read the Vision 6 quote slowly. Then: "We map to all four pillars. Faster care - that's Health & Well-Being. SMS fallback - that's Equity. Routing to neighbourhood walk-ins - Community-Based Living. Surge modes - Technology & Resilience."
+        Read the Living the Mosaic quote slowly. Then: "We map to all four pillars. Faster care - that's Health & Well-Being. Multilingual routing - that's Equity. Routing to neighbourhood walk-ins - Community-Based Living. Surge modes - Technology & Resilience."
       </div>
     </section>
 
@@ -283,7 +280,7 @@
         </div>
         <div>
           <div class="font-semibold tw-text-orange">Q: What about patients without smartphones?</div>
-          <p class="text-gray-700 mt-1">A: Our SMS fallback (see /sms-demo) works on any phone with text. Same triage engine, same routing, same QR card via MMS. We also designed the form to be screen-reader-friendly and use a Lexend font that's tested for dyslexia accessibility.</p>
+          <p class="text-gray-700 mt-1">A: The AI assistant accepts free-text input including dictated speech via the Web Speech API. For low-bandwidth users, the structured checkbox form works without JavaScript. We also designed the form to be screen-reader-friendly using a Lexend font tested for dyslexia accessibility. A multilingual v2 with translated intake is planned with Punjabi Community Health Services.</p>
         </div>
         <div>
           <div class="font-semibold tw-text-orange">Q: How do you handle multilingual residents (Punjabi, Urdu, Tamil)?</div>
