@@ -99,35 +99,72 @@
       </div>
     </section>
 
-    {% if risk.level in ['LOW', 'MEDIUM'] %}
-    <section class="mb-6 consult-panel">
+    {% if risk.level == 'HIGH' %}
+    <section class="mb-6 emergency-next-steps">
       <div>
-        <div class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Online care option</div>
-        <h2 class="text-2xl font-bold tw-text-maroon">Book an online doctor consultation</h2>
-        <p class="mt-1 text-sm text-gray-600">
-          Because this is {{ risk.level|lower }} risk, you can request a virtual doctor visit. Your profile, symptoms, and triage score are attached so the doctor can review them first.
+        <div class="text-xs uppercase tracking-wide font-semibold opacity-80">Critical next steps</div>
+        <h2 class="text-2xl font-bold">Choose what you need right now</h2>
+        <p class="mt-1 text-sm opacity-90">
+          If this is a real emergency, call 911 directly. In this prototype, choosing 911 creates an ambulance tracking ticket and connects the triage packet to a paramedic view.
         </p>
       </div>
-      <form action="{{ url_for('consult') }}" method="POST" class="consult-form">
-        <input type="hidden" name="mode" value="consult">
-        <input type="hidden" name="token" value="{{ handoff_token }}">
-        <select name="preferred_time" class="consult-input" required>
-          <option value="">Choose a time</option>
-          <option value="First available">First available</option>
-          <option value="Morning">Morning</option>
-          <option value="Afternoon">Afternoon</option>
-          <option value="Evening">Evening</option>
-        </select>
-        <input name="phone" class="consult-input" placeholder="Phone number">
-        <textarea name="visit_reason" rows="3" class="consult-input sm:col-span-2" placeholder="What should the doctor know before the call?">{{ symptoms | join(', ') }}</textarea>
-        <label class="flex items-center gap-2 text-sm text-gray-700 sm:col-span-2">
-          <input type="checkbox" name="video_ok" value="1" class="w-4 h-4 accent-maroon" checked>
-          Video consultation is okay
-        </label>
-        <button type="submit" class="tw-btn-primary sm:col-span-2">Request Online Consultation</button>
-      </form>
+      <div class="emergency-options">
+        <form action="{{ url_for('emergency_response') }}" method="POST">
+          <input type="hidden" name="token" value="{{ handoff_token }}">
+          <button type="submit" class="tw-btn-primary w-full">I choose 911: connect me to emergency response</button>
+        </form>
+        <a href="{{ critical_intake_url }}" class="tw-btn-secondary w-full">Send more symptom details to ER</a>
+        {% if results %}
+        <a href="https://www.google.com/maps/search/?api=1&query={{ results[0].facility.address|urlencode }}" target="_blank" rel="noopener" class="tw-btn-secondary w-full">Open nearest ER in Google Maps</a>
+        {% endif %}
+      </div>
+    </section>
+    {% elif risk.level == 'MEDIUM' %}
+    <section class="mb-6 consult-panel">
+      <div>
+        <div class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Moderate care options</div>
+        <h2 class="text-2xl font-bold tw-text-maroon">Pick the fastest practical option</h2>
+        <p class="mt-1 text-sm text-gray-600">
+          You can go to urgent care, use Google Maps for directions, or book a virtual doctor if you are stable enough to wait.
+        </p>
+      </div>
+      <div class="route-option-grid">
+        {% for r in results[:2] %}
+        <a href="https://www.google.com/maps/search/?api=1&query={{ r.facility.address|urlencode }}" target="_blank" rel="noopener" class="route-option-card">
+          <span class="font-bold">{{ r.facility.name }}</span>
+          <span>{{ r.facility.type }} &middot; {{ r.wait_minutes }} min &middot; ~{{ r.distance_km }} km</span>
+          <span class="text-xs underline">Open in Google Maps</span>
+        </a>
+        {% endfor %}
+        <a href="{{ consult_url }}" class="route-option-card">
+          <span class="font-bold">Book virtual care</span>
+          <span>Share symptoms with a doctor before the visit</span>
+          <span class="text-xs underline">Consult a Doctor</span>
+        </a>
+      </div>
     </section>
     {% else %}
+    <section class="mb-6 consult-panel">
+      <div>
+        <div class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Mild care partners</div>
+        <h2 class="text-2xl font-bold tw-text-maroon">Use walk-in, pharmacy, or telehealth</h2>
+        <p class="mt-1 text-sm text-gray-600">
+          Because this is low risk, you can use a partner pharmacy, walk-in clinic, or TELUS-style telehealth option depending on what is nearest and easiest.
+        </p>
+      </div>
+      <div class="route-option-grid">
+        {% for option in partner_options[:4] %}
+        <a href="{{ option.maps_url if option.type != 'Telehealth' else consult_url }}" target="{{ '_blank' if option.type != 'Telehealth' else '_self' }}" rel="noopener" class="route-option-card">
+          <span class="font-bold">{{ option.name }}</span>
+          <span>{{ option.type }} &middot; {{ option.wait_minutes }} min &middot; ~{{ option.distance_km }} km</span>
+          <span class="text-xs underline">{{ 'Open in Google Maps' if option.type != 'Telehealth' else 'Book telehealth' }}</span>
+        </a>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+    {% if risk.level == 'HIGH' %}
     <section class="mb-6 critical-panel">
       <div>
         <div class="text-xs uppercase tracking-wide font-semibold opacity-80">Critical intake</div>

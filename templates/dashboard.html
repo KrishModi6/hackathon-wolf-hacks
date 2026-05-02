@@ -156,6 +156,24 @@
       {% endif %}
     </section>
 
+    <section class="dash-card mb-8">
+      <h2 class="text-lg font-bold text-gray-800 mb-1">Ambulance response tracking</h2>
+      <p class="text-sm text-gray-500 mb-4">Critical patients who chose the emergency response path.</p>
+      {% if emergency_responses %}
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+        {% for response in emergency_responses[-6:]|reverse %}
+        <div class="p-3 rounded-lg bg-red-50 border border-red-200 text-red-900">
+          <div class="font-bold">{{ response.reference }}</div>
+          <div>{{ response.ambulance_unit }} &middot; ETA {{ response.eta_minutes }} min</div>
+          <div>{{ response.destination.name if response.destination else 'ER destination pending' }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-sm text-gray-600">No emergency responses yet.</p>
+      {% endif %}
+    </section>
+
     <section class="dash-card">
       <h2 class="text-lg font-bold text-gray-800 mb-3">Facility status</h2>
       <table class="w-full text-sm">

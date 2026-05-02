@@ -229,6 +229,74 @@ body {
   border-color: #fecaca;
 }
 
+.emergency-next-steps,
+.emergency-hero {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.85fr) 1.15fr;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  border-radius: 0.9rem;
+  color: #fff;
+  background: linear-gradient(135deg, #7f1d1d, #b91c1c);
+  box-shadow: 0 12px 30px rgba(127, 29, 29, 0.24);
+}
+
+.emergency-options {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.emergency-next-steps .tw-btn-secondary,
+.emergency-hero .tw-btn-secondary {
+  border-color: #fff;
+}
+
+.route-option-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.route-option-card {
+  display: grid;
+  gap: 0.3rem;
+  min-height: 6.5rem;
+  padding: 0.9rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--tw-line);
+  background: #fff;
+  color: var(--tw-ink-2);
+  text-decoration: none;
+}
+
+.route-option-card:hover {
+  border-color: var(--tw-orange);
+  background: #fff7f2;
+}
+
+.tracking-step {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.75rem;
+  align-items: start;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--tw-line);
+  background: #fff;
+}
+
+.tracking-dot {
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 999px;
+  margin-top: 0.25rem;
+  background: #d1d5db;
+}
+
+.tracking-step.complete .tracking-dot { background: #16a34a; }
+.tracking-step.active .tracking-dot { background: #dc2626; }
+.tracking-step.pending .tracking-dot { background: #f59e0b; }
+
 .consult-form {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -390,8 +458,11 @@ main { animation: enter-up 320ms ease-out; }
   .risk-panel,
   .consult-panel,
   .critical-panel,
+  .emergency-next-steps,
+  .emergency-hero,
   .consult-form,
-  .mental-chat-input {
+  .mental-chat-input,
+  .route-option-grid {
     grid-template-columns: 1fr;
   }
 }

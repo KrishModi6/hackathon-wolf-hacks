@@ -41,6 +41,7 @@ STATE = {
     "critical_intake_packets": [],
     "mental_health_chats": [],
     "mental_health_er_tickets": [],
+    "emergency_responses": [],
 }
 
 MENTAL_HEALTH_RESOURCES = {
@@ -75,6 +76,30 @@ MENTAL_HEALTH_PHARMACIES = [
         "address": "164 Sandalwood Pkwy E, Brampton, ON",
         "fsa": "L6Z",
         "phone": "905-846-1400",
+    },
+]
+
+PARTNER_PHARMACIES = [
+    {
+        "name": "Shoppers Drug Mart - Bramalea City Centre",
+        "type": "Partner Pharmacy",
+        "address": "25 Peel Centre Dr, Brampton, ON",
+        "fsa": "L6T",
+        "phone": "905-793-8888",
+    },
+    {
+        "name": "Rexall - Heart Lake",
+        "type": "Partner Pharmacy",
+        "address": "164 Sandalwood Pkwy E, Brampton, ON",
+        "fsa": "L6Z",
+        "phone": "905-846-1400",
+    },
+    {
+        "name": "Pharmasave Brampton",
+        "type": "Partner Pharmacy",
+        "address": "60 Gillingham Dr, Brampton, ON",
+        "fsa": "L6X",
+        "phone": "905-450-7000",
     },
 ]
 
@@ -305,6 +330,70 @@ def mental_health_care_options(profile):
         })
     options.sort(key=lambda item: (item["distance_km"], item["wait_minutes"]))
     return options[:4]
+
+
+def partner_care_options(profile):
+    fsa = (profile or {}).get("fsa", "")
+    options = []
+    for facility in load_facilities():
+        if facility["type"] not in ("Walk-in Clinic", "Telehealth"):
+            continue
+        options.append({
+            "name": facility["name"],
+            "type": facility["type"],
+            "address": facility["address"],
+            "phone": facility.get("phone"),
+            "distance_km": estimate_distance_km(fsa, facility["fsa"]),
+            "wait_minutes": current_wait(facility),
+            "maps_url": f"https://www.google.com/maps/search/?api=1&query={facility['address'].replace(' ', '+')}",
+        })
+    for pharmacy in PARTNER_PHARMACIES:
+        options.append({
+            **pharmacy,
+            "distance_km": estimate_distance_km(fsa, pharmacy["fsa"]),
+            "wait_minutes": 15,
+            "maps_url": f"https://www.google.com/maps/search/?api=1&query={pharmacy['address'].replace(' ', '+')}",
+        })
+    options.sort(key=lambda item: (item["distance_km"], item["wait_minutes"]))
+    return options[:5]
+
+
+def create_emergency_response(profile, triage_payload):
+    reference = f"AMB-{secrets.token_hex(3).upper()}"
+    hospital = next((f for f in load_facilities() if f["type"] == "Hospital ER"), None)
+    eta_minutes = 9 if triage_payload and triage_payload.get("ctas_level", 5) == 1 else 14
+    created = datetime.now(timezone.utc)
+    response = {
+        "reference": reference,
+        "created_at": created.isoformat(),
+        "eta": (created + timedelta(minutes=eta_minutes)).isoformat(),
+        "eta_minutes": eta_minutes,
+        "ambulance_unit": f"Peel EMS-{secrets.randbelow(70) + 20}",
+        "paramedic": {
+            "name": "Primary Care Paramedic on duty",
+            "channel": f"Secure voice channel {secrets.randbelow(80) + 10}",
+            "status": "Connected to triage packet",
+        },
+        "profile": profile,
+        "triage": triage_payload,
+        "destination": hospital,
+        "tracking": [
+            {"label": "911 request received", "status": "complete", "minutes": 0},
+            {"label": "Health dispatcher reviewing symptoms", "status": "complete", "minutes": 1},
+            {"label": "Ambulance assigned", "status": "active", "minutes": 2},
+            {"label": "Paramedic connected to intake packet", "status": "active", "minutes": 3},
+            {"label": "Arriving at your location", "status": "pending", "minutes": eta_minutes},
+        ],
+        "instructions": [
+            "Unlock the door or ask someone nearby to meet paramedics.",
+            "Do not eat or drink unless emergency staff tell you to.",
+            "Keep medications, allergies, health card, and phone nearby.",
+            "If symptoms worsen before arrival, call 911 directly.",
+        ],
+        "prototype_notice": "Prototype only: this does not contact real 911 or dispatch an ambulance.",
+    }
+    STATE["emergency_responses"].append(response)
+    return response
 
 
 def create_mental_health_ticket(profile, payload, analysis):
@@ -567,6 +656,26 @@ def mental_health_emergency():
     )
 
 
+@app.route("/emergency-response", methods=["GET", "POST"])
+def emergency_response():
+    profile = session.get("profile")
+    if not profile:
+        return redirect(url_for("account"))
+
+    if request.method == "POST":
+        token = request.form.get("token") or session.get("last_triage_token")
+        triage_payload = triage_payload_from_token(token)
+        response = create_emergency_response(profile, triage_payload)
+    else:
+        reference = request.args.get("reference")
+        response = next((item for item in STATE["emergency_responses"] if item["reference"] == reference), None)
+        if not response:
+            token = request.args.get("token") or session.get("last_triage_token")
+            response = create_emergency_response(profile, triage_payload_from_token(token))
+
+    return render_template("emergency_response.html", response=response)
+
+
 @app.route("/prototype")
 def prototype_preview():
     return redirect(url_for("index"))
@@ -687,6 +796,7 @@ def triage():
         handoff_url=handoff_url,
         consult_url=url_for("consult", token=token, mode="consult"),
         critical_intake_url=url_for("consult", token=token, mode="critical"),
+        partner_options=partner_care_options(profile),
         offline_mode=bool(scen and scen["routing"].get("offline_mode")),
     )
 
@@ -731,6 +841,7 @@ def dashboard():
         consult_requests=STATE["consult_requests"],
         critical_intake_packets=STATE["critical_intake_packets"],
         mental_health_er_tickets=STATE["mental_health_er_tickets"],
+        emergency_responses=STATE["emergency_responses"],
         severity_data=severity_data,
         triage_log=STATE["triage_log"],
     )
@@ -842,6 +953,7 @@ def api_state():
         "critical_intake_packets": len(STATE["critical_intake_packets"]),
         "mental_health_chats": len(STATE["mental_health_chats"]),
         "mental_health_er_tickets": len(STATE["mental_health_er_tickets"]),
+        "emergency_responses": len(STATE["emergency_responses"]),
         "severity_counts": {str(k): STATE["severity_counts"].get(k, 0) for k in range(1, 6)},
         "facilities": facility_view,
         "predictive_alerts": predictive_alerts(),
@@ -855,6 +967,7 @@ def api_clinical_intake():
         "critical_intake_packets": STATE["critical_intake_packets"],
         "mental_health_chats": STATE["mental_health_chats"],
         "mental_health_er_tickets": STATE["mental_health_er_tickets"],
+        "emergency_responses": STATE["emergency_responses"],
     })
 
 
