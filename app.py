@@ -209,10 +209,6 @@ def predictive_alerts():
 # ---------------------------------------------------------------------------
 
 @app.route("/")
-def home():
-    return redirect(url_for("static", filename="redesign/redesign.html"))
-
-
 @app.route("/app")
 def index():
     scen_key, scen = get_active_scenario(STATE)
@@ -223,6 +219,11 @@ def index():
         scenario=scen,
         predictive=predictive_alerts(),
     )
+
+
+@app.route("/prototype")
+def prototype_preview():
+    return redirect(url_for("static", filename="redesign/redesign.html"))
 
 
 @app.route("/triage", methods=["POST"])

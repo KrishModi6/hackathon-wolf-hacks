@@ -6,7 +6,7 @@
   <title>Your Care Recommendation - TriageWolf</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body class="min-h-screen flex flex-col">
@@ -40,7 +40,7 @@
         {% endif %}
       </div>
 
-      <h1 class="text-3xl font-extrabold tw-text-maroon mb-2">
+      <h1 class="display text-4xl tw-text-maroon mb-2 leading-[0.95]">
         {% if classification.ctas_level <= 2 %}
           Go to a hospital ER now.
         {% elif classification.ctas_level == 3 %}
