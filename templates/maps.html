@@ -248,7 +248,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }).addTo(map);
 
   const facilityList = document.getElementById('facility-list');
-  const markers = {};
+  let markers = {};
   let facilities = [];
 
   async function loadFacilities() {
@@ -291,16 +291,20 @@ document.addEventListener("DOMContentLoaded", () => {
       ">${facility.wait_minutes}</div>
     `;
 
+    const mapsUrl = facility.lat && facility.lng
+      ? `https://www.google.com/maps/dir/?api=1&destination=${facility.lat},${facility.lng}`
+      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(facility.address)}`;
     const popup = `
       <div class="facility-popup">
         <div class="popup-name">${facility.name}</div>
         <div class="popup-info">
           ${facility.type}<br/>
-          📍 ${facility.address}<br/>
-          📞 ${facility.phone}
+          ${facility.address}<br/>
+          ${facility.phone}
         </div>
         <div class="popup-wait">Wait: ${facility.wait_minutes} min</div>
         ${facility.queue_length ? `<div style="color: var(--tw-ink-4); font-size: 11px; margin-top: 6px;">Queue: ${facility.queue_length} patients</div>` : ''}
+        <a href="${mapsUrl}" target="_blank" rel="noopener" style="display:inline-block;margin-top:8px;font-size:12px;color:#6e1622;font-weight:600;text-decoration:underline;">Get directions</a>
       </div>
     `;
 
@@ -318,32 +322,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderFacilities() {
     facilityList.innerHTML = '';
-    
     facilities.forEach(f => {
       const div = document.createElement('div');
       div.className = `facility-item ${f.mobile_clinic ? 'is-mobile' : ''}`;
+      div.dataset.facilityId = f.id;
       div.innerHTML = `
         <div class="facility-name">${f.name}</div>
         <div class="facility-type">${f.type}</div>
         <div class="facility-wait ${f.wait_minutes > 120 ? 'is-long' : f.wait_minutes < 30 ? 'is-short' : ''}">
           ${f.wait_minutes} min wait
         </div>
-        ${f.mobile_clinic ? '<div class="mobile-badge">🚌 Mobile</div>' : ''}
+        ${f.mobile_clinic ? '<div class="mobile-badge">Mobile</div>' : ''}
       `;
       div.addEventListener('click', () => {
         highlightFacility(f.id);
-        if (markers[f.id]) markers[f.id].openPopup();
+        if (markers[f.id]) { map.setView([f.lat, f.lng], 15); markers[f.id].openPopup(); }
       });
       facilityList.appendChild(div);
     });
   }
 
   function updateMarkers() {
-    // Clear existing markers
     Object.values(markers).forEach(m => map.removeLayer(m));
     markers = {};
-
-    // Add new markers
     facilities.forEach(f => {
       const marker = createMarker(f);
       if (marker) markers[f.id] = marker;
@@ -351,31 +352,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function highlightFacility(facilityId) {
-    document.querySelectorAll('.facility-item').forEach(el => {
-      el.style.opacity = '0.4';
-    });
+    document.querySelectorAll('.facility-item').forEach(el => el.style.opacity = '0.4');
     const highlighted = document.querySelector(`[data-facility-id="${facilityId}"]`);
-    if (highlighted) highlighted.style.opacity = '1';
+    if (highlighted) { highlighted.style.opacity = '1'; highlighted.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
   }
 
-  // Add data attribute to facility items
-  function addDataAttributes() {
-    facilities.forEach((f, idx) => {
-      const items = document.querySelectorAll('.facility-item');
-      if (items[idx]) {
-        items[idx].setAttribute('data-facility-id', f.id);
-      }
-    });
-  }
-
-  // Refresh facilities every 30 seconds
   setInterval(loadFacilities, 30000);
-
-  // Initial load
   loadFacilities();
-  
-  // Update data attributes after facilities load
-  setTimeout(addDataAttributes, 100);
 });
 </script>
 </body>

@@ -141,7 +141,7 @@
         </form>
         <a href="{{ critical_intake_url }}" class="tw-btn-secondary w-full">Send more symptom details to ER</a>
         {% if results %}
-        <a href="https://www.google.com/maps/search/?api=1&query={{ results[0].facility.address|urlencode }}" target="_blank" rel="noopener" class="tw-btn-secondary w-full">Open nearest ER in Google Maps</a>
+        <a href="https://www.google.com/maps/dir/?api=1&destination={{ results[0].facility.lat }},{{ results[0].facility.lng }}" target="_blank" rel="noopener" class="tw-btn-secondary w-full">Open nearest ER in Google Maps</a>
         {% endif %}
       </div>
     </section>
@@ -325,7 +325,7 @@
           <button type="button" id="qr-btn" class="btn btn--outline btn--sm">{{ icon('qr', size=14) }} Hand-off QR</button>
           <a href="tel:811" class="btn btn--ghost btn--sm">{{ icon('phone', size=14) }} Call 811</a>
           {% if top %}
-          <a href="https://www.google.com/maps/search/?api=1&query={{ top.facility.address|urlencode }}"
+          <a href="https://www.google.com/maps/dir/?api=1&destination={{ top.facility.lat }},{{ top.facility.lng }}"
              target="_blank" rel="noopener"
              class="btn {{ 'btn--danger' if ctas <= 2 else 'btn--primary' }} btn--sm">
              Open in Maps {{ icon('arrow-right', size=14) }}
@@ -414,7 +414,7 @@
             <a href="tel:{{ f.phone }}" class="btn {{ 'btn--accent' if loop.first else 'btn--outline' }} btn--sm">{{ icon('video', size=14) }} Join virtual queue</a>
             {% else %}
             <a href="tel:{{ f.phone }}" class="btn btn--ghost btn--sm">{{ icon('phone', size=14) }} Call</a>
-            <a href="https://www.google.com/maps/search/?api=1&query={{ f.address|urlencode }}"
+            <a href="https://www.google.com/maps/dir/?api=1&destination={{ f.lat }},{{ f.lng }}"
                target="_blank" rel="noopener"
                class="btn {{ 'btn--accent' if loop.first else 'btn--outline' }} btn--sm">
               Directions {{ icon('arrow-right', size=14) }}
