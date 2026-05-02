@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1440, initial-scale=1" />
+  <title>TriageWolf — Redesigned</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="tokens.css">
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <style>
+    body { margin: 0; background: #ebe5df; }
+    .frame {
+      width: 100%; height: 100%;
+      overflow: hidden; position: relative;
+      background: var(--tw-paper);
+      display: flex; flex-direction: column;
+    }
+    .frame > main { flex: 1; overflow-y: auto; position: relative; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" src="icons.jsx"></script>
+  <script type="text/babel" src="tw-atoms.jsx"></script>
+  <script type="text/babel" src="tw-triage.jsx"></script>
+  <script type="text/babel" src="tw-results.jsx"></script>
+  <script type="text/babel" src="tw-dashboard.jsx"></script>
+  <script type="text/babel" src="design-canvas.jsx"></script>
+
+  <script type="text/babel" data-presets="env,react">
+    const { useState } = React;
+
+    // ----- Static seed data -----
+    window.SYMPTOMS_DATA = {
+      critical: [
+        "Chest pain",
+        "Difficulty breathing",
+        "Severe bleeding",
+        "Stroke signs (face drooping, slurred speech)",
+        "Unconscious or unresponsive",
+      ],
+      urgent: [
+        "High fever (over 39C)",
+        "Suspected broken bone",
+        "Deep cut needing stitches",
+        "Severe abdominal pain",
+        "Persistent vomiting",
+      ],
+      moderate: ["Moderate fever", "Sprain or strain", "Ear infection", "UTI symptoms", "Persistent cough"],
+      mild: ["Cold symptoms", "Mild headache", "Minor cut", "Sore throat", "Rash"],
+      signals: [
+        "Numbness or tingling in left arm",
+        "Profuse sweating",
+        "Sudden severe headache",
+        "Confusion or disorientation",
+        "Jaw or shoulder pain",
+        "Swelling around face or throat",
+      ],
+    };
+
+    window.FACILITIES_DATA = [
+      { id: 1, name: "Brampton Civic Hospital", shortName: "Brampton Civic", type: "Hospital ER", address: "2100 Bovaird Dr E, Brampton, ON", phone: "905-494-2120", wait: 240, queue_length: 38, clinicians: 6, capabilities: { pediatric: true, obstetric: true, trauma: true, stroke_center: true, cardiac: true } },
+      { id: 2, name: "Peel Memorial Centre", shortName: "Peel Memorial", type: "Urgent Care", address: "20 Lynch St, Brampton, ON", phone: "905-494-2120", wait: 95, queue_length: 14, clinicians: 4, capabilities: { pediatric: true, ac_indoor: true, offline_protocol: true } },
+      { id: 3, name: "Bramalea Medical Walk-In", shortName: "Bramalea Walk-In", type: "Walk-in Clinic", address: "Bramalea City Centre, Brampton, ON", phone: "905-458-3700", wait: 48, queue_length: 9, clinicians: 3, capabilities: { pediatric: true, ac_indoor: true } },
+      { id: 4, name: "Heart Lake Family Health", shortName: "Heart Lake Family", type: "Walk-in Clinic", address: "Heart Lake Rd, Brampton, ON", phone: "905-846-1234", wait: 28, queue_length: 5, clinicians: 2, capabilities: { ac_indoor: true } },
+      { id: 5, name: "Brampton Virtual Care", shortName: "Virtual Care", type: "Telehealth", address: "Online", phone: "1-866-797-0000", wait: 14, queue_length: 3, clinicians: 8, capabilities: { pediatric: true, offline_protocol: true } },
+    ];
+
+    // Fake classifier — runs entirely client-side for the prototype
+    function classifyDemo(symptoms, age, conditions) {
+      const has = (s) => symptoms.includes(s);
+      let ctas = 5;
+      let safety_floor_triggered = false;
+      const matches = [];
+      const demo = [];
+      const reasons = [];
+
+      const critical = ["Chest pain", "Difficulty breathing", "Severe bleeding", "Stroke signs (face drooping, slurred speech)", "Unconscious or unresponsive"];
+      const urgent = ["High fever (over 39C)", "Suspected broken bone", "Deep cut needing stitches", "Severe abdominal pain", "Persistent vomiting"];
+      const moderate = ["Moderate fever", "Sprain or strain", "Ear infection", "UTI symptoms", "Persistent cough"];
+
+      if (symptoms.some((s) => critical.includes(s))) { ctas = 1; reasons.push("CTAS rule baseline: critical (level 1)"); }
+      else if (symptoms.some((s) => urgent.includes(s))) { ctas = 3; reasons.push("CTAS rule baseline: urgent (level 3)"); }
+      else if (symptoms.some((s) => moderate.includes(s))) { ctas = 4; reasons.push("CTAS rule baseline: moderate (level 4)"); }
+      else { ctas = 5; reasons.push("CTAS rule baseline: mild (level 5)"); }
+
+      if (symptoms.some((s) => critical.includes(s))) {
+        safety_floor_triggered = true;
+        ctas = Math.min(ctas, 2);
+        reasons.push("Safety floor: critical anchor symptom present, never below CTAS 2.");
+      }
+
+      // Cardiac pattern
+      if (has("Chest pain")) {
+        const sigs = ["Numbness or tingling in left arm", "Profuse sweating", "Jaw or shoulder pain", "Difficulty breathing"].filter(has).length;
+        const p = Math.min(0.99, 0.15 * Math.pow(2.4, sigs));
+        if (p >= 0.3 || sigs >= 1) {
+          matches.push({ key: "cardiac", label: "Possible cardiac event (heart attack)", warning: "Symptoms are consistent with a heart attack. Go to the ER immediately or call 911.", target_ctas: 1, signals_matched: sigs, probability: Math.round(p * 1000) / 1000 });
+          if (1 < ctas) { ctas = 1; reasons.push(`Bayesian: cardiac pattern (P=${p.toFixed(2)}, ${sigs} co-signals) escalated to CTAS 1.`); }
+        }
+      }
+      // Stroke
+      if (has("Stroke signs (face drooping, slurred speech)")) {
+        const sigs = ["Sudden severe headache", "Confusion or disorientation", "Numbness or tingling in left arm"].filter(has).length;
+        const p = Math.min(0.99, 0.20 * Math.pow(2.6, sigs));
+        matches.push({ key: "stroke", label: "Possible stroke", warning: "Symptoms suggest a stroke. Time is brain — call 911 now.", target_ctas: 1, signals_matched: sigs, probability: Math.round(p * 1000) / 1000 });
+        ctas = 1;
+      }
+
+      // Demographic mods
+      const ageInt = parseInt(age) || 25;
+      if (ageInt < 5 && ctas > 1) { ctas -= 1; demo.push("Pediatric (<5y): one-step escalation per CTAS pediatric mod."); }
+      else if (ageInt >= 75 && ctas > 1) { ctas -= 1; demo.push("Geriatric (≥75y): one-step escalation, proximity prioritized."); }
+      if (conditions.includes("pregnant")) demo.push("Pregnancy: obstetric-capable facility required.");
+      if (conditions.includes("heart_disease") && has("Chest pain")) {
+        ctas = 1;
+        demo.push("Pre-existing heart disease + chest pain: escalated to CTAS 1.");
+      }
+
+      matches.sort((a, b) => b.probability - a.probability);
+      return {
+        ctas_level: ctas,
+        tier: ctas <= 2 ? "critical" : ctas === 3 ? "urgent" : ctas === 4 ? "moderate" : "mild",
+        tier_reason: reasons.join(" | "),
+        bayesian_matches: matches,
+        demographic_modifiers: demo,
+        safety_floor_triggered,
+      };
+    }
+
+    function rankFacilities(ctas) {
+      const facs = window.FACILITIES_DATA;
+      const matrix = facs.map((f) => {
+        let sev = 0;
+        if (f.type === "Hospital ER" && ctas <= 2) sev = 1.0;
+        else if (f.type === "Urgent Care" && ctas === 3) sev = 1.0;
+        else if ((f.type === "Walk-in Clinic" || f.type === "Telehealth") && ctas >= 4) sev = 1.0;
+        else sev = 0.5;
+        const waitScore = 1 - f.wait / 240;
+        const distScore = 0.5 + Math.random() * 0.4;
+        const score = sev * 0.5 + waitScore * 0.3 + distScore * 0.2;
+        return { facility: f, wait_minutes: f.wait, distance_km: Math.round((1 + Math.random() * 8) * 10) / 10, score: Math.round(score * 1000) / 1000 };
+      });
+      matrix.sort((a, b) => b.score - a.score);
+      return matrix.slice(0, 3);
+    }
+
+    // ----- App -----
+    function FlowApp({ initialScreen = "triage", forceScenario, presetSymptoms, presetAge }) {
+      const [screen, setScreen] = useState(initialScreen);
+      const [scenario, setScenario] = useState(forceScenario ?? null);
+
+      const [state, setState] = useState({
+        symptoms: presetSymptoms || ["Chest pain", "Numbness or tingling in left arm", "Profuse sweating"],
+        age: presetAge || "62",
+        fsa: "L6S",
+        caregiver: false,
+        conditions: ["heart_disease"],
+        classification: null,
+      });
+
+      const submit = () => {
+        const cls = classifyDemo(state.symptoms, state.age, state.conditions);
+        window.RANKED_RESULTS = rankFacilities(cls.ctas_level);
+        setState((s) => ({ ...s, classification: cls }));
+        setScreen("results");
+      };
+
+      const reset = () => setScreen("triage");
+
+      return (
+        <div className="frame">
+          <TWHeader
+            active={screen}
+            onNav={(id) => {
+              if (id === "results" && !state.classification) submit();
+              else setScreen(id);
+            }}
+            scenario={scenario}
+            dense={screen === "dashboard"}
+          />
+          <main className="scroll-thin">
+            {screen === "triage" && <TriageScreen state={state} setState={setState} onSubmit={submit} />}
+            {screen === "results" && state.classification && <ResultsScreen state={state} onReset={reset} onShowDashboard={() => setScreen("dashboard")} />}
+            {screen === "results" && !state.classification && <TriageScreen state={state} setState={setState} onSubmit={submit} />}
+            {screen === "dashboard" && <DashboardScreen scenario={scenario} setScenario={setScenario} />}
+            {screen === "impact" && (
+              <div style={{ padding: 60, textAlign: "center", color: "var(--tw-ink-3)" }}>
+                <div style={{ fontSize: 13, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 8 }}>Impact</div>
+                <div className="display" style={{ fontSize: 32 }}>Coming up next.</div>
+              </div>
+            )}
+          </main>
+        </div>
+      );
+    }
+
+    window.FlowApp = FlowApp;
+
+    // ----- Canvas root -----
+    function App() {
+      return (
+        <DesignCanvas title="TriageWolf · Frontend Redesign" subtitle="Calm clinical precision · CTAS-aligned · Brampton 2040">
+          <DCSection id="flow" title="The Patient Flow" subtitle="Live, click-through prototype — try the AI assistant, edit symptoms, submit, or jump between screens">
+            <DCArtboard id="triage" label="01 · Triage entry (hero)" width={1280} height={1100}>
+              <FlowApp initialScreen="triage" />
+            </DCArtboard>
+            <DCArtboard id="results" label="02 · Care plan / Results" width={1280} height={1100}>
+              <FlowApp initialScreen="results" />
+            </DCArtboard>
+            <DCArtboard id="dashboard" label="03 · Operations console" width={1400} height={1100}>
+              <FlowApp initialScreen="dashboard" />
+            </DCArtboard>
+          </DCSection>
+
+          <DCSection id="surge" title="Surge scenarios" subtitle="Same screens under disruption — banners, routing, and KPI mood shift in real time">
+            <DCArtboard id="condx" label="Condition X · ER capacity exceeded" width={1400} height={1100}>
+              <FlowApp initialScreen="dashboard" forceScenario="condition_x" />
+            </DCArtboard>
+            <DCArtboard id="heat" label="Heatwave · prefer AC-equipped" width={1280} height={900}>
+              <FlowApp initialScreen="triage" forceScenario="heatwave" presetSymptoms={["High fever (over 39C)", "Confusion or disorientation"]} presetAge="78" />
+            </DCArtboard>
+            <DCArtboard id="cyber" label="Cyber incident · offline protocol" width={1280} height={900}>
+              <FlowApp initialScreen="triage" forceScenario="cyberattack" presetSymptoms={["Sprain or strain"]} presetAge="34" />
+            </DCArtboard>
+          </DCSection>
+
+          <DCSection id="cases" title="Case studies" subtitle="Two real patient flows showing how the engine reasons differently for each">
+            <DCArtboard id="cardiac" label="Case A · 62-yr cardiac event → CTAS 1" width={1280} height={1100}>
+              <FlowApp initialScreen="results" presetSymptoms={["Chest pain", "Numbness or tingling in left arm", "Profuse sweating", "Jaw or shoulder pain"]} presetAge="62" />
+            </DCArtboard>
+            <DCArtboard id="mild" label="Case B · adult cold → CTAS 5 → Telehealth" width={1280} height={1100}>
+              <FlowApp initialScreen="results" presetSymptoms={["Cold symptoms", "Sore throat"]} presetAge="32" />
+            </DCArtboard>
+          </DCSection>
+        </DesignCanvas>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
