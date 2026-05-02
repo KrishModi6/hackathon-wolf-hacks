@@ -11,10 +11,10 @@ deactivates the others.
 
 SCENARIOS = {
     "condition_x": {
-        "label": "Outbreak Alert",
+        "label": "Condition X — Outbreak Alert",
         "icon": "🦠",
-        "banner": "OUTBREAK ALERT: Brampton hospitals at capacity. Non-emergency patients are being routed to virtual triage.",
-        "description": "Novel infectious disease outbreak. ER capacity tripled, virtual care promoted for non-critical cases.",
+        "banner": "CONDITION X ALERT: Rapidly spreading artificial plague detected. Brampton hospitals at capacity — non-emergency patients rerouted to virtual triage.",
+        "description": "Condition X: a rapidly spreading artificial plague, not fully understood. Exposes weaknesses in healthcare infrastructure, data sharing, and emergency response. ER capacity tripled; virtual care promoted for non-critical cases. System must remain reliable under extreme pressure.",
         "wait_multipliers": {
             "Hospital ER": {"queue_mult": 3.0, "service_mult": 1.0},
             "Urgent Care": {"queue_mult": 1.5, "service_mult": 1.0},
