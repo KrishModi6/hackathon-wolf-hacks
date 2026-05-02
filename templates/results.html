@@ -24,7 +24,10 @@
           <div class="text-xs text-orange-200">Brampton's Smart Healthcare Navigator</div>
         </div>
       </a>
-      <a href="{{ url_for('dashboard') }}" class="text-sm text-orange-200 hover:text-white">Dashboard</a>
+      <nav class="flex items-center gap-4 text-sm">
+        <a href="{{ url_for('consult', token=handoff_token, mode='critical' if risk.level == 'HIGH' else 'consult') }}" class="text-orange-200 hover:text-white">Consult a Doctor</a>
+        <a href="{{ url_for('dashboard') }}" class="text-orange-200 hover:text-white">Dashboard</a>
+      </nav>
     </div>
   </header>
 
@@ -94,6 +97,77 @@
         </div>
       </div>
     </section>
+
+    {% if risk.level in ['LOW', 'MEDIUM'] %}
+    <section class="mb-6 consult-panel">
+      <div>
+        <div class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Online care option</div>
+        <h2 class="text-2xl font-bold tw-text-maroon">Book an online doctor consultation</h2>
+        <p class="mt-1 text-sm text-gray-600">
+          Because this is {{ risk.level|lower }} risk, you can request a virtual doctor visit. Your profile, symptoms, and triage score are attached so the doctor can review them first.
+        </p>
+      </div>
+      <form action="{{ url_for('consult') }}" method="POST" class="consult-form">
+        <input type="hidden" name="mode" value="consult">
+        <input type="hidden" name="token" value="{{ handoff_token }}">
+        <select name="preferred_time" class="consult-input" required>
+          <option value="">Choose a time</option>
+          <option value="First available">First available</option>
+          <option value="Morning">Morning</option>
+          <option value="Afternoon">Afternoon</option>
+          <option value="Evening">Evening</option>
+        </select>
+        <input name="phone" class="consult-input" placeholder="Phone number">
+        <textarea name="visit_reason" rows="3" class="consult-input sm:col-span-2" placeholder="What should the doctor know before the call?">{{ symptoms | join(', ') }}</textarea>
+        <label class="flex items-center gap-2 text-sm text-gray-700 sm:col-span-2">
+          <input type="checkbox" name="video_ok" value="1" class="w-4 h-4 accent-maroon" checked>
+          Video consultation is okay
+        </label>
+        <button type="submit" class="tw-btn-primary sm:col-span-2">Request Online Consultation</button>
+      </form>
+    </section>
+    {% else %}
+    <section class="mb-6 critical-panel">
+      <div>
+        <div class="text-xs uppercase tracking-wide font-semibold opacity-80">Critical intake</div>
+        <h2 class="text-2xl font-bold">Send detailed symptoms before arrival</h2>
+        <p class="mt-1 text-sm opacity-90">
+          This sends a structured packet to the backend intake queue so the care team can prepare before you arrive. If this is an emergency, call 911 now.
+        </p>
+      </div>
+      <form action="{{ url_for('consult') }}" method="POST" class="consult-form">
+        <input type="hidden" name="mode" value="critical">
+        <input type="hidden" name="token" value="{{ handoff_token }}">
+        <select name="arrival_method" class="consult-input" required>
+          <option value="">How are you arriving?</option>
+          <option value="Calling 911">Calling 911</option>
+          <option value="Someone is driving me">Someone is driving me</option>
+          <option value="Taxi or rideshare">Taxi or rideshare</option>
+          <option value="Already at facility">Already at facility</option>
+        </select>
+        <input name="started_at" class="consult-input" placeholder="When did symptoms start?">
+        <select name="pain_scale" class="consult-input">
+          <option value="">Pain level</option>
+          <option value="0-3">0-3 mild</option>
+          <option value="4-6">4-6 moderate</option>
+          <option value="7-10">7-10 severe</option>
+        </select>
+        <select name="breathing_status" class="consult-input">
+          <option value="">Breathing status</option>
+          <option value="Normal">Normal</option>
+          <option value="Shortness of breath">Shortness of breath</option>
+          <option value="Severe trouble breathing">Severe trouble breathing</option>
+        </select>
+        <textarea name="symptom_story" rows="4" class="consult-input sm:col-span-2" required placeholder="Describe symptoms in detail: what changed, what makes it worse, and any warning signs.">{{ symptoms | join(', ') }}</textarea>
+        <textarea name="notes_for_team" rows="3" class="consult-input sm:col-span-2" placeholder="Anything else the care team should know?"></textarea>
+        <label class="flex items-center gap-2 text-sm sm:col-span-2">
+          <input type="checkbox" name="getting_worse" value="1" class="w-4 h-4 accent-maroon">
+          Symptoms are getting worse
+        </label>
+        <button type="submit" class="tw-btn-primary sm:col-span-2">Send Critical Intake Packet</button>
+      </form>
+    </section>
+    {% endif %}
 
     <section class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
       <div class="bg-white rounded-xl border border-gray-100 p-4 lg:col-span-2">

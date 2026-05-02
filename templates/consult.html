@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Consult a Doctor - TriageWolf</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="min-h-screen flex flex-col">
+  <header class="tw-bg-maroon text-white">
+    <div class="max-w-5xl mx-auto px-6 py-5 flex flex-wrap items-center justify-between gap-3">
+      <a href="{{ url_for('index') }}" class="flex items-center gap-3">
+        <span class="text-3xl">TW</span>
+        <div>
+          <div class="text-xl font-bold tracking-tight">TriageWolf</div>
+          <div class="text-xs text-orange-200">Brampton's Smart Healthcare Navigator</div>
+        </div>
+      </a>
+      <nav class="flex items-center gap-4 text-sm">
+        <a href="{{ url_for('index') }}" class="text-orange-200 hover:text-white">Symptoms</a>
+        <a href="{{ url_for('dashboard') }}" class="text-orange-200 hover:text-white">Dashboard</a>
+        <a href="{{ url_for('account') }}" class="text-orange-200 hover:text-white">Profile</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-5xl w-full mx-auto px-6 py-10">
+    <section class="mb-6">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f7eaec] text-xs font-semibold tracking-[0.08em] uppercase tw-text-maroon mb-4">
+        Consult a Doctor
+      </div>
+      <h1 class="display text-5xl md:text-6xl tw-text-maroon leading-[0.95]">
+        Send the right details before care starts.
+      </h1>
+      <p class="mt-4 text-gray-700 max-w-2xl">
+        Book a virtual doctor for low or medium risk symptoms, or send a critical intake packet when the case needs emergency care.
+      </p>
+    </section>
+
+    {% if confirmation %}
+    <section class="mb-6 bg-green-50 border border-green-200 rounded-xl p-5 text-green-900">
+      <div class="text-xs uppercase tracking-wide font-semibold">Reference {{ confirmation.reference }}</div>
+      <h2 class="text-2xl font-bold">{{ confirmation.title }}</h2>
+      <p class="mt-1 text-sm">{{ confirmation.message }}</p>
+    </section>
+    {% endif %}
+
+    <div class="consult-tabs mb-6">
+      <a href="{{ url_for('consult', token=token, mode='consult') }}" class="{{ 'active' if mode != 'critical' else '' }}">Online Consultation</a>
+      <a href="{{ url_for('consult', token=token, mode='critical') }}" class="{{ 'active' if mode == 'critical' else '' }}">Critical Intake</a>
+    </div>
+
+    {% if triage %}
+    <section class="mb-6 bg-white rounded-xl border border-gray-100 p-4">
+      <div class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Attached triage packet</div>
+      <div class="mt-2 grid grid-cols-1 md:grid-cols-4 gap-3 text-sm">
+        <div class="p-3 rounded-lg bg-gray-50 border border-gray-200"><span class="font-semibold">Patient:</span><br>{{ triage.patient_name or triage.profile_name or profile.name }}</div>
+        <div class="p-3 rounded-lg bg-gray-50 border border-gray-200"><span class="font-semibold">CTAS:</span><br>{{ triage.ctas_level }}</div>
+        <div class="p-3 rounded-lg bg-gray-50 border border-gray-200"><span class="font-semibold">FSA:</span><br>{{ triage.fsa or profile.fsa }}</div>
+        <div class="p-3 rounded-lg bg-gray-50 border border-gray-200"><span class="font-semibold">Facility:</span><br>{{ triage.recommended_facility or 'Not assigned' }}</div>
+      </div>
+    </section>
+    {% endif %}
+
+    {% if mode == 'critical' %}
+    <section class="critical-panel">
+      <div>
+        <div class="text-xs uppercase tracking-wide font-semibold opacity-80">Emergency care handoff</div>
+        <h2 class="text-2xl font-bold">Send detailed symptoms to intake</h2>
+        <p class="mt-1 text-sm opacity-90">The backend stores this packet for clinical staff to review before treatment. Call 911 immediately for life-threatening symptoms.</p>
+      </div>
+      <form action="{{ url_for('consult') }}" method="POST" class="consult-form">
+        <input type="hidden" name="mode" value="critical">
+        <input type="hidden" name="token" value="{{ token or '' }}">
+        <select name="arrival_method" class="consult-input" required>
+          <option value="">How are you arriving?</option>
+          <option value="Calling 911">Calling 911</option>
+          <option value="Someone is driving me">Someone is driving me</option>
+          <option value="Taxi or rideshare">Taxi or rideshare</option>
+          <option value="Already at facility">Already at facility</option>
+        </select>
+        <input name="started_at" class="consult-input" placeholder="When did symptoms start?">
+        <select name="pain_scale" class="consult-input">
+          <option value="">Pain level</option>
+          <option value="0-3">0-3 mild</option>
+          <option value="4-6">4-6 moderate</option>
+          <option value="7-10">7-10 severe</option>
+        </select>
+        <select name="breathing_status" class="consult-input">
+          <option value="">Breathing status</option>
+          <option value="Normal">Normal</option>
+          <option value="Shortness of breath">Shortness of breath</option>
+          <option value="Severe trouble breathing">Severe trouble breathing</option>
+        </select>
+        <textarea name="symptom_story" rows="4" class="consult-input sm:col-span-2" required placeholder="Describe symptoms in detail: what changed, what makes it worse, and any warning signs.">{{ triage.symptoms | join(', ') if triage else '' }}</textarea>
+        <textarea name="notes_for_team" rows="3" class="consult-input sm:col-span-2" placeholder="Anything else the care team should know?"></textarea>
+        <label class="flex items-center gap-2 text-sm sm:col-span-2">
+          <input type="checkbox" name="getting_worse" value="1" class="w-4 h-4 accent-maroon">
+          Symptoms are getting worse
+        </label>
+        <button type="submit" class="tw-btn-primary sm:col-span-2">Send Critical Intake Packet</button>
+      </form>
+    </section>
+    {% else %}
+    <section class="consult-panel">
+      <div>
+        <div class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Virtual care</div>
+        <h2 class="text-2xl font-bold tw-text-maroon">Book an online consultation</h2>
+        <p class="mt-1 text-sm text-gray-600">Your saved profile and triage details are attached to the request so the doctor can prepare before joining.</p>
+      </div>
+      <form action="{{ url_for('consult') }}" method="POST" class="consult-form">
+        <input type="hidden" name="mode" value="consult">
+        <input type="hidden" name="token" value="{{ token or '' }}">
+        <select name="preferred_time" class="consult-input" required>
+          <option value="">Choose a time</option>
+          <option value="First available">First available</option>
+          <option value="Morning">Morning</option>
+          <option value="Afternoon">Afternoon</option>
+          <option value="Evening">Evening</option>
+        </select>
+        <input name="phone" class="consult-input" placeholder="Phone number">
+        <input name="pharmacy" class="consult-input sm:col-span-2" placeholder="Preferred pharmacy, if a prescription is needed">
+        <textarea name="visit_reason" rows="4" class="consult-input sm:col-span-2" required placeholder="What should the doctor know before the call?">{{ triage.symptoms | join(', ') if triage else '' }}</textarea>
+        <label class="flex items-center gap-2 text-sm text-gray-700 sm:col-span-2">
+          <input type="checkbox" name="video_ok" value="1" class="w-4 h-4 accent-maroon" checked>
+          Video consultation is okay
+        </label>
+        <button type="submit" class="tw-btn-primary sm:col-span-2">Request Online Consultation</button>
+      </form>
+    </section>
+    {% endif %}
+  </main>
+</body>
+</html>

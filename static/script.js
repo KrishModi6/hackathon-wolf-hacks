@@ -337,6 +337,8 @@ function initDashboard() {
       if (triagedEl) triagedEl.textContent = data.patients_triaged_today;
       const redirectEl = document.getElementById("stat-redirected");
       if (redirectEl) redirectEl.textContent = data.patients_redirected;
+      const intakeEl = document.getElementById("stat-intake");
+      if (intakeEl) intakeEl.textContent = (data.consult_requests || 0) + (data.critical_intake_packets || 0);
     } catch (err) {
       // Network blip, ignore.
     }

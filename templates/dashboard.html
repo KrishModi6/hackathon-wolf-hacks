@@ -36,7 +36,7 @@
 
   <main class="flex-1 max-w-6xl w-full mx-auto px-6 py-8">
 
-    <section class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+    <section class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8">
       <div class="dash-card">
         <div id="stat-triaged" class="stat-number">{{ triaged_today }}</div>
         <div class="stat-label">Patients triaged today</div>
@@ -44,6 +44,10 @@
       <div class="dash-card">
         <div id="stat-redirected" class="stat-number">{{ redirected }}</div>
         <div class="stat-label">Redirected to virtual care</div>
+      </div>
+      <div class="dash-card">
+        <div id="stat-intake" class="stat-number">{{ consult_requests|length + critical_intake_packets|length }}</div>
+        <div class="stat-label">Doctor intake packets</div>
       </div>
       <div class="dash-card">
         <div class="flex items-start justify-between gap-4">
@@ -92,6 +96,44 @@
         <h2 class="text-lg font-bold text-gray-800 mb-1">Triage volume trend</h2>
         <p class="text-sm text-gray-500 mb-4">Cumulative patients routed through TriageWolf this session.</p>
         <div class="h-64"><canvas id="trendChart"></canvas></div>
+      </div>
+    </section>
+
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div class="dash-card">
+        <h2 class="text-lg font-bold text-gray-800 mb-1">Online consultation queue</h2>
+        <p class="text-sm text-gray-500 mb-4">LOW and MEDIUM risk patients waiting for a virtual doctor.</p>
+        {% if consult_requests %}
+        <div class="space-y-3">
+          {% for item in consult_requests[-5:]|reverse %}
+          <div class="p-3 rounded-lg bg-gray-50 border border-gray-200 text-sm">
+            <div class="font-bold tw-text-maroon">Reference {{ item.reference }}</div>
+            <div class="text-gray-700">{{ item.profile.name or 'Patient' }} &middot; {{ item.preferred_time or 'No time selected' }}</div>
+            <div class="text-gray-600">{{ item.visit_reason or 'No reason entered' }}</div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-sm text-gray-600">No online consultation requests yet.</p>
+        {% endif %}
+      </div>
+
+      <div class="dash-card">
+        <h2 class="text-lg font-bold text-gray-800 mb-1">Critical intake queue</h2>
+        <p class="text-sm text-gray-500 mb-4">HIGH risk packets sent ahead for emergency preparation.</p>
+        {% if critical_intake_packets %}
+        <div class="space-y-3">
+          {% for item in critical_intake_packets[-5:]|reverse %}
+          <div class="p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-900">
+            <div class="font-bold">Reference {{ item.reference }}</div>
+            <div>{{ item.profile.name or 'Patient' }} &middot; {{ item.arrival_method or 'Arrival not listed' }}</div>
+            <div>{{ item.symptom_story or 'No symptom story entered' }}</div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-sm text-gray-600">No critical intake packets yet.</p>
+        {% endif %}
       </div>
     </section>
 

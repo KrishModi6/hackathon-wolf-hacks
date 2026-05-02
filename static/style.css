@@ -181,6 +181,75 @@ body {
   border-color: #fecaca;
 }
 
+.consult-tabs {
+  display: inline-flex;
+  gap: 0.35rem;
+  padding: 0.28rem;
+  border: 1px solid var(--tw-line);
+  border-radius: 0.75rem;
+  background: #fff;
+}
+
+.consult-tabs a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.35rem;
+  padding: 0 0.95rem;
+  border-radius: 0.55rem;
+  color: var(--tw-ink-3);
+  font-weight: 700;
+  font-size: 0.88rem;
+  text-decoration: none;
+}
+
+.consult-tabs a.active {
+  background: var(--tw-maroon);
+  color: #fff;
+}
+
+.consult-panel,
+.critical-panel {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.7fr) 1.3fr;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  border-radius: 0.9rem;
+  border: 1px solid var(--tw-line);
+  box-shadow: 0 3px 12px rgba(20, 14, 10, 0.05);
+}
+
+.consult-panel {
+  background: #fff;
+}
+
+.critical-panel {
+  color: #7f1d1d;
+  background: #fff7f7;
+  border-color: #fecaca;
+}
+
+.consult-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.consult-input {
+  width: 100%;
+  padding: 0.78rem 0.9rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.58rem;
+  background: #fff;
+  color: var(--tw-ink);
+}
+
+.consult-input:focus {
+  outline: none;
+  border-color: var(--tw-orange);
+  box-shadow: 0 0 0 3px rgba(200, 74, 37, 0.16);
+}
+
 .surge-banner {
   background: linear-gradient(90deg, #8b1018, #c83a2c);
   color: #fff;
@@ -247,7 +316,10 @@ main { animation: enter-up 320ms ease-out; }
 @media (max-width: 640px) {
   .stat-number { font-size: 1.92rem; }
   .profile-summary,
-  .risk-panel {
+  .risk-panel,
+  .consult-panel,
+  .critical-panel,
+  .consult-form {
     grid-template-columns: 1fr;
   }
 }

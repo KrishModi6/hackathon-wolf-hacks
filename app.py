@@ -37,6 +37,8 @@ STATE = {
     "severity_counts": defaultdict(int),
     "triage_log": [],
     "handoff_tokens": {},  # token -> handoff payload (in-memory, expires on restart)
+    "consult_requests": [],
+    "critical_intake_packets": [],
 }
 
 
@@ -137,6 +139,26 @@ def risk_recommendation(ctas_level):
         "action": "Stay home and monitor",
         "description": "Self-care, monitoring, or non-urgent clinic support is likely appropriate unless symptoms worsen.",
         "class": "risk-low",
+    }
+
+
+def triage_payload_from_token(token):
+    if not token:
+        return None
+    return STATE["handoff_tokens"].get(token)
+
+
+def consult_confirmation(kind, payload):
+    if kind == "critical":
+        return {
+            "title": "Emergency intake packet sent",
+            "message": "Your detailed symptoms were sent to the clinical intake queue so the care team can review them before you arrive.",
+            "reference": payload["reference"],
+        }
+    return {
+        "title": "Online consultation requested",
+        "message": "Your booking request was sent to the virtual care queue. A doctor can review your symptoms and profile before the consultation.",
+        "reference": payload["reference"],
     }
 
 
@@ -280,6 +302,68 @@ def logout():
     return redirect(url_for("account"))
 
 
+@app.route("/consult", methods=["GET", "POST"])
+def consult():
+    profile = session.get("profile")
+    if not profile:
+        return redirect(url_for("account"))
+
+    token = request.values.get("token") or session.get("last_triage_token")
+    triage_payload = triage_payload_from_token(token)
+    mode = request.values.get("mode") or ("critical" if triage_payload and triage_payload.get("ctas_level", 5) <= 2 else "consult")
+    confirmation = None
+
+    if request.method == "POST":
+        submitted_mode = request.form.get("mode") or mode
+        reference = secrets.token_hex(4).upper()
+        base_packet = {
+            "reference": reference,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "triage_token": token,
+            "profile": profile,
+            "triage": triage_payload,
+        }
+
+        if submitted_mode == "critical":
+            packet = {
+                **base_packet,
+                "arrival_method": request.form.get("arrival_method", "").strip(),
+                "symptom_story": request.form.get("symptom_story", "").strip(),
+                "started_at": request.form.get("started_at", "").strip(),
+                "getting_worse": bool(request.form.get("getting_worse")),
+                "pain_scale": request.form.get("pain_scale", "").strip(),
+                "breathing_status": request.form.get("breathing_status", "").strip(),
+                "notes_for_team": request.form.get("notes_for_team", "").strip(),
+                "destination": request.form.get("destination", "").strip(),
+            }
+            STATE["critical_intake_packets"].append(packet)
+            confirmation = consult_confirmation("critical", packet)
+            mode = "critical"
+        else:
+            packet = {
+                **base_packet,
+                "preferred_time": request.form.get("preferred_time", "").strip(),
+                "visit_reason": request.form.get("visit_reason", "").strip(),
+                "phone": request.form.get("phone", "").strip(),
+                "video_ok": bool(request.form.get("video_ok")),
+                "pharmacy": request.form.get("pharmacy", "").strip(),
+            }
+            STATE["consult_requests"].append(packet)
+            confirmation = consult_confirmation("consult", packet)
+            mode = "consult"
+
+    return render_template(
+        "consult.html",
+        profile=profile,
+        mode=mode,
+        token=token,
+        triage=triage_payload,
+        confirmation=confirmation,
+        consult_count=len(STATE["consult_requests"]),
+        critical_count=len(STATE["critical_intake_packets"]),
+    )
+
+
 @app.route("/prototype")
 def prototype_preview():
     return redirect(url_for("index"))
@@ -379,6 +463,7 @@ def triage():
     })
 
     handoff_url = url_for("handoff", token=token, _external=True)
+    session["last_triage_token"] = token
 
     return render_template(
         "results.html",
@@ -397,6 +482,8 @@ def triage():
         redirected=redirected,
         handoff_token=token,
         handoff_url=handoff_url,
+        consult_url=url_for("consult", token=token, mode="consult"),
+        critical_intake_url=url_for("consult", token=token, mode="critical"),
         offline_mode=bool(scen and scen["routing"].get("offline_mode")),
     )
 
@@ -438,6 +525,8 @@ def dashboard():
         scenarios=SCENARIOS,
         triaged_today=STATE["patients_triaged_today"],
         redirected=STATE["patients_redirected_to_virtual"],
+        consult_requests=STATE["consult_requests"],
+        critical_intake_packets=STATE["critical_intake_packets"],
         severity_data=severity_data,
         triage_log=STATE["triage_log"],
     )
@@ -528,9 +617,19 @@ def api_state():
         "condition_x_active": STATE["active_scenario"] == "condition_x",
         "patients_triaged_today": STATE["patients_triaged_today"],
         "patients_redirected": STATE["patients_redirected_to_virtual"],
+        "consult_requests": len(STATE["consult_requests"]),
+        "critical_intake_packets": len(STATE["critical_intake_packets"]),
         "severity_counts": {str(k): STATE["severity_counts"].get(k, 0) for k in range(1, 6)},
         "facilities": facility_view,
         "predictive_alerts": predictive_alerts(),
+    })
+
+
+@app.route("/api/clinical-intake")
+def api_clinical_intake():
+    return jsonify({
+        "consult_requests": STATE["consult_requests"],
+        "critical_intake_packets": STATE["critical_intake_packets"],
     })
 
 
