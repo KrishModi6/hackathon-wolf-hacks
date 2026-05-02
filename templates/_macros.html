@@ -136,7 +136,6 @@ width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24" fill="none" stroke="c
       {% if profile %}
       <a href="{{ url_for('account') }}" class="tw-pill-action">{{ icon('user', size=13) }}{{ profile.name|default('Profile') }}</a>
       {% endif %}
-      <button id="a11y-toggle" type="button" class="tw-pill-action" title="Toggle accessibility mode (dyslexia-friendly font, larger text, higher contrast)">{{ icon('info', size=13) }}<span class="a11y-label">Accessibility</span></button>
     </div>
   </div>
 </header>
