@@ -29,6 +29,7 @@
       </a>
       <div class="flex items-center gap-4 text-sm">
         <a href="{{ url_for('constraints') }}" class="text-orange-200 hover:text-white">Deployment Constraints</a>
+        <a href="{{ url_for('mental_health') }}" class="text-orange-200 hover:text-white">Mental Health</a>
         <a href="{{ url_for('index') }}" class="text-orange-200 hover:text-white">&larr; Patient view</a>
       </div>
     </div>
@@ -135,6 +136,24 @@
         <p class="text-sm text-gray-600">No critical intake packets yet.</p>
         {% endif %}
       </div>
+    </section>
+
+    <section class="dash-card mb-8">
+      <h2 class="text-lg font-bold text-gray-800 mb-1">Mental-health ER tickets</h2>
+      <p class="text-sm text-gray-500 mb-4">Mental-health pre-arrival packets sent to the emergency system.</p>
+      {% if mental_health_er_tickets %}
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+        {% for ticket in mental_health_er_tickets[-6:]|reverse %}
+        <div class="p-3 rounded-lg bg-red-50 border border-red-200 text-red-900">
+          <div class="font-bold">{{ ticket.reference }}</div>
+          <div>{{ ticket.profile.name or 'Patient' }} &middot; ETA {{ ticket.eta_minutes }} min</div>
+          <div>{{ ticket.symptom_story or 'No detail entered' }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-sm text-gray-600">No mental-health ER tickets yet.</p>
+      {% endif %}
     </section>
 
     <section class="dash-card">

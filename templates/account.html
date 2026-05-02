@@ -19,7 +19,10 @@
           <div class="text-xs text-orange-200">Brampton's Smart Healthcare Navigator</div>
         </div>
       </a>
-      <a href="{{ url_for('consult') }}" class="text-sm text-orange-200 hover:text-white">Consult a Doctor</a>
+      <nav class="flex items-center gap-4 text-sm">
+        <a href="{{ url_for('mental_health') }}" class="text-orange-200 hover:text-white">Mental Health</a>
+        <a href="{{ url_for('consult') }}" class="text-orange-200 hover:text-white">Consult a Doctor</a>
+      </nav>
       {% if profile %}
       <a href="{{ url_for('index') }}" class="text-sm text-orange-200 hover:text-white">Back to triage</a>
       {% endif %}

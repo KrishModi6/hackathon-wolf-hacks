@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mental Health Support - TriageWolf</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="min-h-screen flex flex-col">
+  <header class="tw-bg-maroon text-white">
+    <div class="max-w-6xl mx-auto px-6 py-5 flex flex-wrap items-center justify-between gap-3">
+      <a href="{{ url_for('index') }}" class="flex items-center gap-3">
+        <span class="text-3xl">TW</span>
+        <div>
+          <div class="text-xl font-bold tracking-tight">TriageWolf</div>
+          <div class="text-xs text-orange-200">Mental health support</div>
+        </div>
+      </a>
+      <nav class="flex items-center gap-4 text-sm">
+        <a href="{{ url_for('index') }}" class="text-orange-200 hover:text-white">Symptoms</a>
+        <a href="{{ url_for('consult') }}" class="text-orange-200 hover:text-white">Consult a Doctor</a>
+        <a href="{{ url_for('dashboard') }}" class="text-orange-200 hover:text-white">Dashboard</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-6xl w-full mx-auto px-6 py-10">
+    <section class="mb-8">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f7eaec] text-xs font-semibold tracking-[0.08em] uppercase tw-text-maroon mb-4">
+        DSM-5-informed support
+      </div>
+      <h1 class="display text-5xl md:text-6xl tw-text-maroon leading-[0.95]">
+        Talk through what you are feeling.
+      </h1>
+      <p class="mt-4 text-gray-700 max-w-3xl">
+        The chat screens for mental-health symptom domains, suggests safe at-home coping steps when appropriate, and routes you to live support or emergency intake when needed. It does not diagnose.
+      </p>
+    </section>
+
+    {% if emergency_ticket %}
+    <section class="mb-6 bg-red-50 border border-red-200 rounded-xl p-5 text-red-900">
+      <div class="text-xs uppercase tracking-wide font-semibold">Ticket {{ emergency_ticket.reference }}</div>
+      <h2 class="text-2xl font-bold">Emergency visit packet sent</h2>
+      <p class="mt-1 text-sm">
+        ETA {{ emergency_ticket.eta_minutes }} minutes. We stored your symptoms, safety concern, profile, and arrival method for the ER intake queue.
+        Confirmation would be sent to {{ emergency_ticket.email or 'your email' }} in a production system.
+      </p>
+    </section>
+    {% endif %}
+
+    <section class="grid grid-cols-1 lg:grid-cols-[1.25fr_0.75fr] gap-6 mb-8">
+      <div class="mental-chat-shell">
+        <div class="mental-chat-header">
+          <div>
+            <div class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Mental health chat</div>
+            <h2 class="text-2xl font-bold tw-text-maroon">How are you feeling?</h2>
+          </div>
+          <span class="severity-badge bg-green-600">Private demo</span>
+        </div>
+
+        <div id="mh-chat-log" class="mental-chat-log">
+          <div class="mh-message bot">
+            Tell me what has been happening: mood, anxiety, sleep, appetite, panic, thoughts of harm, substances, or anything that feels unsafe.
+          </div>
+        </div>
+
+        <div class="mental-chat-input">
+          <textarea id="mh-input" rows="3" class="consult-input" placeholder="Example: I feel anxious, can't sleep, and my chest feels tight when I panic."></textarea>
+          <button id="mh-send" type="button" class="tw-btn-primary">Send</button>
+        </div>
+
+        <div id="mh-result" class="mt-4"></div>
+      </div>
+
+      <aside class="space-y-4">
+        <div class="dash-card">
+          <h2 class="text-lg font-bold text-gray-800 mb-2">Talk to a person now</h2>
+          <div class="space-y-3 text-sm">
+            <a class="resource-link" href="{{ resources.crisis.url }}" target="_blank" rel="noopener">
+              <span class="font-bold">{{ resources.crisis.name }}</span>
+              <span>{{ resources.crisis.action }}</span>
+            </a>
+            <a class="resource-link" href="{{ resources.youth.url }}" target="_blank" rel="noopener">
+              <span class="font-bold">{{ resources.youth.name }}</span>
+              <span>{{ resources.youth.action }}</span>
+            </a>
+            <a class="resource-link" href="{{ resources.virtual.url }}" target="_blank" rel="noopener">
+              <span class="font-bold">{{ resources.virtual.name }}</span>
+              <span>{{ resources.virtual.action }}</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="dash-card">
+          <h2 class="text-lg font-bold text-gray-800 mb-2">Nearby low-acuity options</h2>
+          <div class="space-y-3 text-sm">
+            {% for option in care_options %}
+            <div class="p-3 rounded-lg bg-gray-50 border border-gray-200">
+              <div class="font-bold tw-text-maroon">{{ option.name }}</div>
+              <div class="text-gray-600">{{ option.type }} &middot; ~{{ option.distance_km }} km &middot; {{ option.wait_minutes }} min</div>
+              {% if option.type != 'Telehealth' %}
+              <a href="{{ option.maps_url }}" target="_blank" rel="noopener" class="text-xs underline tw-text-maroon">Open in Google Maps</a>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="critical-panel mb-8" id="mh-emergency-form">
+      <div>
+        <div class="text-xs uppercase tracking-wide font-semibold opacity-80">Emergency mental-health visit</div>
+        <h2 class="text-2xl font-bold">Book ER pre-arrival intake</h2>
+        <p class="mt-1 text-sm opacity-90">
+          Use this if you feel unsafe, symptoms are severe, or you want the ER system to receive details before you arrive.
+        </p>
+      </div>
+      <form action="{{ url_for('mental_health_emergency') }}" method="POST" class="consult-form">
+        <input name="email" type="email" class="consult-input" value="{{ profile.email or '' }}" placeholder="Email for ticket">
+        <select name="arrival_method" class="consult-input" required>
+          <option value="">How will you arrive?</option>
+          <option value="Calling 911">Calling 911</option>
+          <option value="Someone is driving me">Someone is driving me</option>
+          <option value="Taxi or rideshare">Taxi or rideshare</option>
+          <option value="Already at hospital">Already at hospital</option>
+        </select>
+        <input name="safety_concern" class="consult-input sm:col-span-2" placeholder="Safety concern: self-harm thoughts, panic, hallucinations, severe distress...">
+        <textarea name="symptom_story" rows="4" class="consult-input sm:col-span-2" required placeholder="Answer in detail: what are you feeling, when did it start, what changed, and what support do you need?"></textarea>
+        <button type="submit" class="tw-btn-primary sm:col-span-2">Create ER Ticket and Send to Hospital</button>
+      </form>
+    </section>
+
+    {% if tickets %}
+    <section class="dash-card">
+      <h2 class="text-lg font-bold text-gray-800 mb-3">Recent mental-health ER tickets</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+        {% for ticket in tickets|reverse %}
+        <div class="p-3 rounded-lg bg-red-50 border border-red-200 text-red-900">
+          <div class="font-bold">{{ ticket.reference }}</div>
+          <div>ETA {{ ticket.eta_minutes }} min</div>
+          <div>{{ ticket.symptom_story }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+  </main>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

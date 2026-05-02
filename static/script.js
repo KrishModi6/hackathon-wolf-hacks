@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initAssistant();
   initCaregiverMode();
   initAccessibilityMode();
+  initMentalHealthChat();
 });
 
 function initCaregiverMode() {
@@ -235,6 +236,78 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
   }[c]));
+}
+
+function initMentalHealthChat() {
+  const send = document.getElementById("mh-send");
+  if (!send) return;
+  const input = document.getElementById("mh-input");
+  const log = document.getElementById("mh-chat-log");
+  const result = document.getElementById("mh-result");
+
+  const addMessage = (role, text) => {
+    const el = document.createElement("div");
+    el.className = `mh-message ${role}`;
+    el.textContent = text;
+    log.appendChild(el);
+    log.scrollTop = log.scrollHeight;
+  };
+
+  const submit = async () => {
+    const message = input.value.trim();
+    if (!message) return;
+    addMessage("user", message);
+    input.value = "";
+    send.disabled = true;
+    send.textContent = "Checking...";
+    try {
+      const res = await fetch("/api/mental-health/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message }),
+      });
+      const data = await res.json();
+      if (data.error) {
+        addMessage("bot", data.error);
+        return;
+      }
+      addMessage("bot", `${data.summary} ${data.action}`);
+      renderMentalHealthResult(data);
+    } catch (err) {
+      addMessage("bot", "I could not reach the mental-health support service. If this is urgent, call or text 9-8-8 now.");
+    } finally {
+      send.disabled = false;
+      send.textContent = "Send";
+    }
+  };
+
+  send.addEventListener("click", submit);
+  input.addEventListener("keydown", (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key === "Enter") submit();
+  });
+
+  function renderMentalHealthResult(data) {
+    const colors = {
+      CRISIS: "bg-red-50 border-red-300 text-red-900",
+      URGENT: "bg-orange-50 border-orange-300 text-orange-900",
+      SUPPORT: "bg-blue-50 border-blue-300 text-blue-900",
+      MINOR: "bg-green-50 border-green-300 text-green-900",
+    };
+    const cls = colors[data.level] || colors.SUPPORT;
+    const steps = (data.steps || []).map(step => `<li>${escapeHtml(step)}</li>`).join("");
+    result.innerHTML = `
+      <div class="p-4 rounded-xl border ${cls}">
+        <div class="text-xs uppercase tracking-wide font-semibold">Mental health level: ${escapeHtml(data.level)}</div>
+        <div class="mt-1 text-xl font-bold">${escapeHtml(data.action)}</div>
+        <p class="mt-2 text-sm">${escapeHtml(data.dsm_note || "")}</p>
+        <ul class="mt-3 list-disc list-inside text-sm space-y-1">${steps}</ul>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <a class="tw-btn-secondary text-sm" href="${escapeHtml(data.resources.crisis.url)}" target="_blank" rel="noopener">Call/Text 9-8-8</a>
+          <a class="tw-btn-secondary text-sm" href="${escapeHtml(data.resources.youth.url)}" target="_blank" rel="noopener">Kids Help Phone</a>
+          <a class="tw-btn-secondary text-sm" href="#mh-emergency-form">Create ER Ticket</a>
+        </div>
+      </div>`;
+  }
 }
 
 function initSymptomCounter() {

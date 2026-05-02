@@ -12,7 +12,7 @@ import json
 import os
 import secrets
 from collections import defaultdict
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from flask import Flask, render_template, request, jsonify, redirect, url_for, abort, session
 
 from ai_assistant import analyze_symptoms
@@ -39,7 +39,44 @@ STATE = {
     "handoff_tokens": {},  # token -> handoff payload (in-memory, expires on restart)
     "consult_requests": [],
     "critical_intake_packets": [],
+    "mental_health_chats": [],
+    "mental_health_er_tickets": [],
 }
+
+MENTAL_HEALTH_RESOURCES = {
+    "crisis": {
+        "name": "9-8-8 Suicide Crisis Helpline",
+        "action": "Call or text 9-8-8 in Canada, 24/7.",
+        "url": "https://988.ca/",
+    },
+    "youth": {
+        "name": "Kids Help Phone",
+        "action": "Call, text, or chat for youth mental-health support across Canada.",
+        "url": "https://kidshelpphone.ca/",
+    },
+    "virtual": {
+        "name": "TELUS Health MyCare",
+        "action": "Book virtual care with a Canadian clinician where available.",
+        "url": "https://www.telus.com/en/health/my-care/doctors",
+    },
+}
+
+MENTAL_HEALTH_PHARMACIES = [
+    {
+        "name": "Shoppers Drug Mart - Bramalea City Centre",
+        "type": "Pharmacy",
+        "address": "25 Peel Centre Dr, Brampton, ON",
+        "fsa": "L6T",
+        "phone": "905-793-8888",
+    },
+    {
+        "name": "Rexall - Heart Lake",
+        "type": "Pharmacy",
+        "address": "164 Sandalwood Pkwy E, Brampton, ON",
+        "fsa": "L6Z",
+        "phone": "905-846-1400",
+    },
+]
 
 
 # ---------------------------------------------------------------------------
@@ -160,6 +197,140 @@ def consult_confirmation(kind, payload):
         "message": "Your booking request was sent to the virtual care queue. A doctor can review your symptoms and profile before the consultation.",
         "reference": payload["reference"],
     }
+
+
+def analyze_mental_health_message(text, profile=None):
+    """
+    DSM-5-informed screening, not diagnosis. This keeps the prototype on
+    symptom domains and care navigation instead of clinical labeling.
+    """
+    raw = (text or "").strip()
+    lower = raw.lower()
+    crisis_terms = [
+        "suicide", "kill myself", "end my life", "self harm", "self-harm",
+        "hurt myself", "hurt someone", "harm someone", "overdose", "no reason to live",
+    ]
+    urgent_terms = [
+        "hearing voices", "seeing things", "paranoid", "manic", "mania",
+        "haven't slept", "cannot sleep for days", "panic attack", "can't breathe",
+        "not eating", "can't function", "unsafe", "abuse",
+    ]
+    anxiety_terms = ["anxious", "anxiety", "panic", "worry", "overthinking", "racing thoughts"]
+    mood_terms = ["depressed", "sad", "hopeless", "empty", "worthless", "crying", "no motivation"]
+    trauma_terms = ["trauma", "flashback", "nightmare", "ptsd", "triggered"]
+    substance_terms = ["alcohol", "weed", "cocaine", "opioid", "drugs", "withdrawal"]
+
+    domains = []
+    if any(t in lower for t in anxiety_terms):
+        domains.append("anxiety and stress symptoms")
+    if any(t in lower for t in mood_terms):
+        domains.append("low mood symptoms")
+    if any(t in lower for t in trauma_terms):
+        domains.append("trauma-related symptoms")
+    if any(t in lower for t in substance_terms):
+        domains.append("substance-use concerns")
+    if not domains:
+        domains.append("general emotional distress")
+
+    if any(t in lower for t in crisis_terms):
+        level = "CRISIS"
+        action = "Call or text 9-8-8 now, or call 911 if there is immediate danger."
+        eta_minutes = 12
+        steps = [
+            "Move away from anything you could use to harm yourself or someone else.",
+            "Stay with another person or ask someone trusted to stay with you.",
+            "Call or text 9-8-8 now for live crisis support in Canada.",
+        ]
+    elif any(t in lower for t in urgent_terms):
+        level = "URGENT"
+        action = "Talk to a live mental-health professional today."
+        eta_minutes = 25
+        steps = [
+            "Use slow breathing: inhale for 4, hold for 2, exhale for 6, repeat five times.",
+            "Ground with five things you can see, four you can feel, three you can hear.",
+            "Use the emergency intake form if symptoms feel unsafe or are getting worse.",
+        ]
+    elif any(t in lower for t in anxiety_terms + mood_terms + trauma_terms + substance_terms):
+        level = "SUPPORT"
+        action = "Use at-home coping steps and consider chat or virtual care."
+        eta_minutes = 45
+        steps = [
+            "Name the feeling, rate it from 1 to 10, and write down what triggered it.",
+            "Drink water, eat something simple, and step outside or near a window for a few minutes.",
+            "Message a trusted person with one concrete ask, like staying on the phone for 10 minutes.",
+        ]
+    else:
+        level = "MINOR"
+        action = "Monitor, use self-care, and connect with primary care if it keeps happening."
+        eta_minutes = 60
+        steps = [
+            "Try a 10-minute reset: breathe slowly, stretch, and reduce noise or screen overload.",
+            "Track sleep, food, caffeine, substances, and stress for the next 24 hours.",
+            "Use a walk-in, family doctor, pharmacy, or virtual care if symptoms persist.",
+        ]
+
+    return {
+        "level": level,
+        "action": action,
+        "domains": domains,
+        "summary": f"This sounds most consistent with {', '.join(domains)}. This is not a diagnosis.",
+        "steps": steps,
+        "eta_minutes": eta_minutes,
+        "resources": MENTAL_HEALTH_RESOURCES,
+        "dsm_note": "DSM-5-informed screening reference only; a licensed clinician must diagnose.",
+    }
+
+
+def mental_health_care_options(profile):
+    fsa = (profile or {}).get("fsa", "")
+    facilities = load_facilities()
+    local = [f for f in facilities if f["type"] in ("Walk-in Clinic", "Telehealth")]
+    options = []
+    for facility in local:
+        options.append({
+            "name": facility["name"],
+            "type": facility["type"],
+            "address": facility["address"],
+            "phone": facility.get("phone"),
+            "distance_km": estimate_distance_km(fsa, facility["fsa"]),
+            "wait_minutes": current_wait(facility),
+            "maps_url": f"https://www.google.com/maps/search/?api=1&query={facility['address'].replace(' ', '+')}",
+        })
+    for pharmacy in MENTAL_HEALTH_PHARMACIES:
+        options.append({
+            **pharmacy,
+            "distance_km": estimate_distance_km(fsa, pharmacy["fsa"]),
+            "wait_minutes": 20,
+            "maps_url": f"https://www.google.com/maps/search/?api=1&query={pharmacy['address'].replace(' ', '+')}",
+        })
+    options.sort(key=lambda item: (item["distance_km"], item["wait_minutes"]))
+    return options[:4]
+
+
+def create_mental_health_ticket(profile, payload, analysis):
+    reference = f"MH-{secrets.token_hex(3).upper()}"
+    facility = next((f for f in load_facilities() if f["type"] == "Hospital ER"), None)
+    eta = datetime.now(timezone.utc) + timedelta(minutes=analysis.get("eta_minutes", 30))
+    ticket = {
+        "reference": reference,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "eta": eta.isoformat(),
+        "eta_minutes": analysis.get("eta_minutes", 30),
+        "profile": profile,
+        "analysis": analysis,
+        "symptom_story": payload.get("symptom_story", "").strip(),
+        "safety_concern": payload.get("safety_concern", "").strip(),
+        "arrival_method": payload.get("arrival_method", "").strip(),
+        "email": payload.get("email", "").strip() or (profile or {}).get("email", ""),
+        "facility": facility,
+        "instructions": [
+            "Bring ID, medication list, and allergy information.",
+            "Do not drive yourself if you feel unsafe, dissociated, severely panicked, or at risk of self-harm.",
+            "Call 911 immediately if danger becomes immediate before arrival.",
+        ],
+    }
+    STATE["mental_health_er_tickets"].append(ticket)
+    return ticket
 
 
 def current_wait(facility):
@@ -364,6 +535,38 @@ def consult():
     )
 
 
+@app.route("/mental-health")
+def mental_health():
+    profile = session.get("profile")
+    if not profile:
+        return redirect(url_for("account"))
+    return render_template(
+        "mental_health.html",
+        profile=profile,
+        resources=MENTAL_HEALTH_RESOURCES,
+        care_options=mental_health_care_options(profile),
+        tickets=STATE["mental_health_er_tickets"][-3:],
+    )
+
+
+@app.route("/mental-health/emergency", methods=["POST"])
+def mental_health_emergency():
+    profile = session.get("profile")
+    if not profile:
+        return redirect(url_for("account"))
+    story = request.form.get("symptom_story", "")
+    analysis = analyze_mental_health_message(story, profile)
+    ticket = create_mental_health_ticket(profile, request.form, analysis)
+    return render_template(
+        "mental_health.html",
+        profile=profile,
+        resources=MENTAL_HEALTH_RESOURCES,
+        care_options=mental_health_care_options(profile),
+        emergency_ticket=ticket,
+        tickets=STATE["mental_health_er_tickets"][-3:],
+    )
+
+
 @app.route("/prototype")
 def prototype_preview():
     return redirect(url_for("index"))
@@ -527,6 +730,7 @@ def dashboard():
         redirected=STATE["patients_redirected_to_virtual"],
         consult_requests=STATE["consult_requests"],
         critical_intake_packets=STATE["critical_intake_packets"],
+        mental_health_er_tickets=STATE["mental_health_er_tickets"],
         severity_data=severity_data,
         triage_log=STATE["triage_log"],
     )
@@ -605,6 +809,23 @@ def api_assistant():
     return jsonify(result)
 
 
+@app.route("/api/mental-health/chat", methods=["POST"])
+def api_mental_health_chat():
+    profile = session.get("profile", {})
+    payload = request.get_json(silent=True) or {}
+    text = (payload.get("message") or "").strip()
+    if not text:
+        return jsonify({"error": "Please write what you are feeling first."}), 400
+    analysis = analyze_mental_health_message(text, profile)
+    STATE["mental_health_chats"].append({
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "profile": profile,
+        "message": text,
+        "analysis": analysis,
+    })
+    return jsonify(analysis)
+
+
 @app.route("/api/state")
 def api_state():
     facilities = load_facilities()
@@ -619,6 +840,8 @@ def api_state():
         "patients_redirected": STATE["patients_redirected_to_virtual"],
         "consult_requests": len(STATE["consult_requests"]),
         "critical_intake_packets": len(STATE["critical_intake_packets"]),
+        "mental_health_chats": len(STATE["mental_health_chats"]),
+        "mental_health_er_tickets": len(STATE["mental_health_er_tickets"]),
         "severity_counts": {str(k): STATE["severity_counts"].get(k, 0) for k in range(1, 6)},
         "facilities": facility_view,
         "predictive_alerts": predictive_alerts(),
@@ -630,6 +853,8 @@ def api_clinical_intake():
     return jsonify({
         "consult_requests": STATE["consult_requests"],
         "critical_intake_packets": STATE["critical_intake_packets"],
+        "mental_health_chats": STATE["mental_health_chats"],
+        "mental_health_er_tickets": STATE["mental_health_er_tickets"],
     })
 
 

@@ -25,6 +25,7 @@
         </div>
       </a>
       <nav class="flex items-center gap-4 text-sm">
+        <a href="{{ url_for('mental_health') }}" class="text-orange-200 hover:text-white">Mental Health</a>
         <a href="{{ url_for('consult', token=handoff_token, mode='critical' if risk.level == 'HIGH' else 'consult') }}" class="text-orange-200 hover:text-white">Consult a Doctor</a>
         <a href="{{ url_for('dashboard') }}" class="text-orange-200 hover:text-white">Dashboard</a>
       </nav>
