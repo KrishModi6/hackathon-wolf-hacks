@@ -9,25 +9,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body class="min-h-screen flex flex-col">
-  <header class="tw-bg-maroon text-white">
-    <div class="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between">
-      <a href="{{ url_for('index') }}" class="flex items-center gap-3">
-        <span class="text-3xl">TW</span>
-        <div>
-          <div class="text-xl font-bold tracking-tight">SwiftCare Brampton</div>
-          <div class="text-xs text-orange-200">Brampton's Smart Healthcare Navigator</div>
-        </div>
-      </a>
-      <nav class="flex items-center gap-4 text-sm">
-        <a href="{{ url_for('mental_health') }}" class="text-orange-200 hover:text-white">Mental Health</a>
-        <a href="{{ url_for('consult') }}" class="text-orange-200 hover:text-white">Consult a Doctor</a>
-      </nav>
-      {% if profile %}
-      <a href="{{ url_for('index') }}" class="text-sm text-orange-200 hover:text-white">Back to triage</a>
-      {% endif %}
-    </div>
-  </header>
+<body>
+{% from '_macros.html' import tw_header, tw_footer %}
+
+{{ tw_header(active='account') }}
 
   <main class="flex-1 max-w-5xl w-full mx-auto px-6 py-10">
     <section class="mb-8">

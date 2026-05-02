@@ -9,13 +9,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body class="min-h-screen flex flex-col">
-  <header class="tw-bg-maroon text-white">
-    <div class="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
-      <a href="{{ url_for('index') }}" class="text-xl font-bold">SwiftCare Brampton</a>
-      <a href="{{ url_for('pitch') }}" class="text-orange-200 hover:text-white text-sm">Pitch</a>
-    </div>
-  </header>
+<body>
+{% from '_macros.html' import tw_header %}
+
+{{ tw_header(active='impact') }}
 
   <main class="flex-1 max-w-6xl mx-auto w-full px-6 py-10">
     <h1 class="text-4xl font-extrabold tw-text-maroon">Why Brampton Needs This</h1>

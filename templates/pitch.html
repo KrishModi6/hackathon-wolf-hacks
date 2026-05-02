@@ -16,18 +16,9 @@
     .timer { font-family: monospace; font-size: 0.75rem; color: #999; }
   </style>
 </head>
-<body class="min-h-screen flex flex-col">
-  <header class="tw-bg-maroon text-white sticky top-0 z-30">
-    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-      <a href="{{ url_for('index') }}" class="text-xl font-bold">🦠 SwiftCare Brampton</a>
-      <nav class="flex gap-4 text-sm flex-wrap">
-        <a href="{{ url_for('impact') }}" class="text-orange-200 hover:text-white">Why Brampton</a>
-        <a href="{{ url_for('constraints') }}" class="text-orange-200 hover:text-white">Constraints</a>
-        <a href="{{ url_for('dashboard') }}" class="text-orange-200 hover:text-white">Dashboard</a>
-        <a href="#qa" class="text-orange-200 hover:text-white">Q&amp;A Prep</a>
-      </nav>
-    </div>
-  </header>
+<body>
+  {% from '_macros.html' import tw_header %}
+  {{ tw_header(active='pitch') }}
 
   <main class="flex-1 max-w-5xl mx-auto w-full px-6 py-10">
     <div class="text-center mb-10">

@@ -7,13 +7,10 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body class="min-h-screen flex flex-col">
-  <header class="tw-bg-maroon text-white">
-    <div class="max-w-4xl mx-auto px-6 py-5 flex items-center justify-between">
-      <a href="{{ url_for('index') }}" class="text-xl font-bold">SwiftCare Brampton SMS</a>
-      <a href="{{ url_for('index') }}" class="text-orange-200 text-sm">Back</a>
-    </div>
-  </header>
+<body>
+{% from '_macros.html' import tw_header %}
+
+{{ tw_header(active='sms') }}
   <main class="flex-1 max-w-4xl mx-auto w-full px-6 py-10">
     <h1 class="text-3xl font-extrabold tw-text-maroon">No Smartphone? Use SMS Triage</h1>
     <p class="text-gray-600 mt-2">This mockup demonstrates equity-first access for residents without data plans or smartphones.</p>
