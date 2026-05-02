@@ -8,40 +8,312 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    .slide { scroll-margin-top: 90px; }
+    .slide-num { font-family: monospace; letter-spacing: 0.05em; }
+    .speaker { background: #fdf7f3; border-left: 4px solid #e8552b; padding: 0.85rem 1rem; font-size: 0.9rem; color: #444; }
+    .speaker .label { font-weight: 700; color: #7a1f2b; letter-spacing: 0.06em; text-transform: uppercase; font-size: 0.7rem; display: block; margin-bottom: 0.3rem; }
+    .timer { font-family: monospace; font-size: 0.75rem; color: #999; }
+  </style>
 </head>
 <body class="min-h-screen flex flex-col">
-  <header class="tw-bg-maroon text-white">
-    <div class="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
-      <a href="{{ url_for('index') }}" class="text-xl font-bold">TriageWolf</a>
-      <a href="{{ url_for('impact') }}" class="text-orange-200 hover:text-white text-sm">Why Brampton</a>
+  <header class="tw-bg-maroon text-white sticky top-0 z-30">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="{{ url_for('index') }}" class="text-xl font-bold">🐺 TriageWolf</a>
+      <nav class="flex gap-4 text-sm flex-wrap">
+        <a href="{{ url_for('impact') }}" class="text-orange-200 hover:text-white">Why Brampton</a>
+        <a href="{{ url_for('constraints') }}" class="text-orange-200 hover:text-white">Constraints</a>
+        <a href="{{ url_for('dashboard') }}" class="text-orange-200 hover:text-white">Dashboard</a>
+        <a href="#qa" class="text-orange-200 hover:text-white">Q&amp;A Prep</a>
+      </nav>
     </div>
   </header>
 
-  <main class="flex-1 max-w-6xl mx-auto w-full px-6 py-10">
-    <h1 class="text-4xl font-extrabold tw-text-maroon">10-Slide Judge Pitch</h1>
-    <p class="text-gray-600 mt-3">Open with Priya's story, then demo QR handoff + Bayesian safety floor in under 90 seconds.</p>
+  <main class="flex-1 max-w-5xl mx-auto w-full px-6 py-10">
+    <div class="text-center mb-10">
+      <h1 class="text-4xl md:text-5xl font-extrabold tw-text-maroon">10-Slide Judge Pitch</h1>
+      <p class="text-gray-600 mt-3 max-w-2xl mx-auto">Total runtime: 10 minutes. Open with Priya, demo QR handoff + Bayesian safety floor by minute 5, finish with the ask. Each slide below has speaker notes timed to the second.</p>
+      <div class="mt-4 inline-block px-4 py-2 bg-orange-100 rounded-full text-sm tw-text-maroon font-semibold">Total speaker time: 9:30 + 30s buffer</div>
+    </div>
 
-    <section class="mt-8 grid gap-4">
-      <div class="dash-card"><div class="font-bold">Slide 1 - Priya's Story</div><div class="text-sm text-gray-600">67-year-old Bramalea resident waited 9+ hours for a non-emergency case. TriageWolf changes her care path in minutes.</div></div>
-      <div class="dash-card"><div class="font-bold">Slide 2 - Problem in Brampton</div><div class="text-sm text-gray-600">Population {{ stats.population.current }}, fast growth {{ stats.population.growth_rate_pct_per_year }}%, P90 ER wait {{ stats.er_wait_times.brampton_civic_p90_hours }}h, family doctor shortfall {{ stats.physician_shortage.shortfall_pct }}%.</div></div>
-      <div class="dash-card"><div class="font-bold">Slide 3 - Stakeholders</div><div class="text-sm text-gray-600">William Osler, Ontario Health, Peel Public Health, BCHC, Punjabi Community Health Services.</div></div>
-      <div class="dash-card"><div class="font-bold">Slide 4 - Live Demo</div><div class="text-sm text-gray-600">Show triage, recommendations, and QR handoff intake card.</div></div>
-      <div class="dash-card"><div class="font-bold">Slide 5 - Architecture</div><div class="text-sm text-gray-600">Patient input -> AI parsing -> CTAS + Bayesian engine -> capability filter -> wait-time model -> recommendations -> QR handoff.</div></div>
-      <div class="dash-card"><div class="font-bold">Slide 6 - Adaptability</div><div class="text-sm text-gray-600">Condition X outbreak, heatwave protocol, cyberattack offline mode.</div></div>
-      <div class="dash-card"><div class="font-bold">Slide 7 - Scalability Math</div><div class="text-sm text-gray-600">{{ scale.weekly_users }} users/week at 10% adoption, {{ scale.deflected_cases }} non-emergency deflections, ${{ scale.cost_savings_low }}-${{ scale.cost_savings_high }} CAD weekly savings.</div></div>
-      <div class="dash-card"><div class="font-bold">Slide 8 - 2040 Vision Alignment</div><div class="text-sm text-gray-600">Health, equity, community-based living, and tech resilience pillars all mapped to product features.</div></div>
-      <div class="dash-card"><div class="font-bold">Slide 9 - Rollout Plan</div><div class="text-sm text-gray-600">Clinic pilot -> Peel Memorial -> Brampton Civic handoff integration -> city-wide + SMS fallback.</div></div>
-      <div class="dash-card"><div class="font-bold">Slide 10 - Ask</div><div class="text-sm text-gray-600">Pilot partner, API sandbox access, and 3 months of clinical advisor support.</div></div>
-    </section>
+    <!-- Quick TOC -->
+    <nav class="dash-card mb-8">
+      <div class="text-xs uppercase tracking-wide font-semibold text-gray-500 mb-2">Jump to slide</div>
+      <div class="flex flex-wrap gap-2 text-sm">
+        {% for i in range(1, 11) %}
+        <a href="#slide-{{ i }}" class="px-2 py-1 rounded border border-gray-300 hover:border-orange-500 hover:text-orange-600">{{ i }}</a>
+        {% endfor %}
+        <a href="#qa" class="px-2 py-1 rounded border border-gray-300 hover:border-orange-500 hover:text-orange-600">Q&amp;A</a>
+      </div>
+    </nav>
 
-    <section class="dash-card mt-8">
-      <h2 class="text-xl font-bold tw-text-maroon mb-2">Architecture Snapshot</h2>
-      <div class="bg-gray-50 border border-gray-200 rounded p-4 text-sm overflow-x-auto">
-        Patient -> Symptom API -> Hybrid Triage Engine (CTAS + Bayesian Safety Floor) -> Facility Capability Filter -> Queueing Wait Predictor -> Ranked Routing -> QR Handoff / Offline Card
+    <!-- SLIDE 1 -->
+    <section id="slide-1" class="slide dash-card mb-6">
+      <div class="flex items-baseline justify-between mb-3">
+        <div><span class="slide-num text-gray-400">SLIDE 01</span> <span class="ml-3 timer">0:00 - 1:00</span></div>
+        <span class="text-xs px-2 py-1 rounded bg-red-100 text-red-700 font-semibold">OPEN WITH STORY</span>
+      </div>
+      <h2 class="text-2xl font-extrabold tw-text-maroon mb-2">Meet Priya.</h2>
+      <p class="text-gray-700 mb-4">67 years old. Lives in Bramalea. Last March she waited 9 hours in Brampton Civic's ER for what turned out to be a UTI - moderate severity, treatable at any walk-in clinic. She missed her grandson's birthday and went home with sepsis risk because she'd been in a crowded hallway too long.</p>
+      <div class="speaker">
+        <span class="label">Speaker notes (60s)</span>
+        Walk on stage, no slides for the first 15 seconds. "I want you to meet someone before I show you any of this." Tell Priya's story slowly. Pause after "9 hours". End with: "Tonight, I'm going to show you what her night looks like with TriageWolf."
       </div>
     </section>
+
+    <!-- SLIDE 2 -->
+    <section id="slide-2" class="slide dash-card mb-6">
+      <div class="flex items-baseline justify-between mb-3">
+        <div><span class="slide-num text-gray-400">SLIDE 02</span> <span class="ml-3 timer">1:00 - 2:00</span></div>
+        <span class="text-xs px-2 py-1 rounded bg-orange-100 text-orange-700 font-semibold">PROBLEM</span>
+      </div>
+      <h2 class="text-2xl font-extrabold tw-text-maroon mb-2">Brampton's care system is breaking under its own growth.</h2>
+      <div class="grid sm:grid-cols-4 gap-3 mb-3">
+        <div class="p-3 rounded bg-red-50 border border-red-200">
+          <div class="text-2xl font-extrabold text-red-700">{{ stats.population.current }}</div>
+          <div class="text-xs text-gray-600">residents, growing {{ stats.population.growth_rate_pct_per_year }}%/yr</div>
+        </div>
+        <div class="p-3 rounded bg-red-50 border border-red-200">
+          <div class="text-2xl font-extrabold text-red-700">{{ stats.er_wait_times.brampton_civic_p90_hours }}h</div>
+          <div class="text-xs text-gray-600">P90 ER wait at Civic ({{ stats.er_wait_times.ontario_p90_hours }}h Ontario avg)</div>
+        </div>
+        <div class="p-3 rounded bg-red-50 border border-red-200">
+          <div class="text-2xl font-extrabold text-red-700">{{ stats.physician_shortage.shortfall_pct }}%</div>
+          <div class="text-xs text-gray-600">family-doctor shortfall vs. Ontario</div>
+        </div>
+        <div class="p-3 rounded bg-red-50 border border-red-200">
+          <div class="text-2xl font-extrabold text-red-700">{{ stats.er_wait_times.hallway_medicine_incidents_per_year }}</div>
+          <div class="text-xs text-gray-600">hallway-medicine incidents/yr</div>
+        </div>
+      </div>
+      <div class="speaker">
+        <span class="label">Speaker notes (60s)</span>
+        These four numbers tell the story. Brampton is the fastest-growing city in Canada, but ER wait times are more than 2x the Ontario average and there are roughly half as many family doctors per resident. Hallway medicine - patients literally being treated on stretchers in corridors - happens thousands of times a year at Brampton Civic alone.
+      </div>
+    </section>
+
+    <!-- SLIDE 3 -->
+    <section id="slide-3" class="slide dash-card mb-6">
+      <div class="flex items-baseline justify-between mb-3">
+        <div><span class="slide-num text-gray-400">SLIDE 03</span> <span class="ml-3 timer">2:00 - 2:45</span></div>
+        <span class="text-xs px-2 py-1 rounded bg-yellow-100 text-yellow-800 font-semibold">SOLUTION</span>
+      </div>
+      <h2 class="text-2xl font-extrabold tw-text-maroon mb-2">TriageWolf: a smart navigator that routes residents to the right care, faster.</h2>
+      <ul class="text-sm text-gray-700 space-y-1 mb-3 list-disc list-inside">
+        <li>Voice or text intake - including a family-triage mode for caregivers.</li>
+        <li>Hybrid CTAS + Bayesian engine with a one-way safety floor (never downgrades a heart-attack pattern).</li>
+        <li>Live wait-time prediction using M/M/c queueing across 5 Brampton facilities.</li>
+        <li>QR handoff card for paramedic / nurse intake - works even if the EHR is offline.</li>
+        <li>3 disruption modes: outbreak, heatwave, cyberattack.</li>
+        <li>SMS fallback for residents without smartphones or data.</li>
+      </ul>
+      <div class="speaker">
+        <span class="label">Speaker notes (45s)</span>
+        Six bullets, deliver them as one breath each. Emphasize "one-way safety floor" - that's the patient-safety story. Land on QR handoff as your transition to the demo.
+      </div>
+    </section>
+
+    <!-- SLIDE 4 -->
+    <section id="slide-4" class="slide dash-card mb-6">
+      <div class="flex items-baseline justify-between mb-3">
+        <div><span class="slide-num text-gray-400">SLIDE 04</span> <span class="ml-3 timer">2:45 - 4:45</span></div>
+        <span class="text-xs px-2 py-1 rounded bg-green-100 text-green-800 font-semibold">LIVE DEMO (2 min)</span>
+      </div>
+      <h2 class="text-2xl font-extrabold tw-text-maroon mb-2">Demo: Priya's night, 4 actions.</h2>
+      <ol class="text-sm text-gray-700 space-y-2 list-decimal list-inside mb-3">
+        <li><strong>Voice input</strong> - Priya's daughter says "my mom is 67, has burning when she pees, mild fever". TriageWolf parses, pre-fills checkboxes.</li>
+        <li><strong>Hybrid classification</strong> - CTAS 4 + chronic-condition diabetes flag. Bayesian engine considers UTI + diabetes = sepsis risk monitor.</li>
+        <li><strong>Recommendation</strong> - top match is Bramalea Walk-In (45 min wait, 1.5 km away, pediatric-capable not required). Brampton Civic is shown but deprioritized.</li>
+        <li><strong>QR handoff</strong> - card generates with severity, symptoms, demographic flags. Show it to the clinic; staff scans, intake skipped.</li>
+      </ol>
+      <div class="speaker">
+        <span class="label">Speaker notes (120s)</span>
+        Drive the demo from your laptop on the projector. If voice fails, use the textarea (typing the same sentence still triggers the AI assistant). Hit the QR scan view by visiting /handoff/<token> on your phone. If you only have time for ONE highlight: scan the QR with your phone camera live in front of the judges.
+      </div>
+    </section>
+
+    <!-- SLIDE 5 -->
+    <section id="slide-5" class="slide dash-card mb-6">
+      <div class="flex items-baseline justify-between mb-3">
+        <div><span class="slide-num text-gray-400">SLIDE 05</span> <span class="ml-3 timer">4:45 - 5:45</span></div>
+        <span class="text-xs px-2 py-1 rounded bg-blue-100 text-blue-800 font-semibold">TECH ARCHITECTURE</span>
+      </div>
+      <h2 class="text-2xl font-extrabold tw-text-maroon mb-2">How the engine actually works.</h2>
+      <div class="bg-gray-50 border border-gray-200 rounded p-4 text-sm space-y-2">
+        <div><span class="font-semibold tw-text-orange">Input layer:</span> Voice (Web Speech) / Text / SMS gateway -> normalized symptom set.</div>
+        <div><span class="font-semibold tw-text-orange">Classifier:</span> CTAS rule baseline -> Safety floor (never below CTAS 2 if anchor symptoms present) -> Bayesian co-occurrence (P(cardiac), P(stroke), P(sepsis), P(anaphylaxis)).</div>
+        <div><span class="font-semibold tw-text-orange">Demographic mods:</span> Pediatric, geriatric, pregnancy, chronic conditions - matches CTAS Pediatric / Obstetric modifiers.</div>
+        <div><span class="font-semibold tw-text-orange">Routing:</span> Capability hard-filter -> M/M/c wait predictor -> weighted score (0.5 sev + 0.3 wait + 0.2 dist) + scenario boosts.</div>
+        <div><span class="font-semibold tw-text-orange">Handoff:</span> Token-signed QR; offline-ready card for paramedic/nurse intake.</div>
+      </div>
+      <div class="speaker mt-3">
+        <span class="label">Speaker notes (60s)</span>
+        Open /impact in another tab to show the SVG architecture diagram if a judge asks. Key sentence: "We never downgrade a critical anchor - the safety floor is one-way."
+      </div>
+    </section>
+
+    <!-- SLIDE 6 -->
+    <section id="slide-6" class="slide dash-card mb-6">
+      <div class="flex items-baseline justify-between mb-3">
+        <div><span class="slide-num text-gray-400">SLIDE 06</span> <span class="ml-3 timer">5:45 - 6:45</span></div>
+        <span class="text-xs px-2 py-1 rounded bg-purple-100 text-purple-800 font-semibold">ADAPTABILITY</span>
+      </div>
+      <h2 class="text-2xl font-extrabold tw-text-maroon mb-2">Three disruption scenarios, one toggle each.</h2>
+      <div class="grid sm:grid-cols-3 gap-3 mb-3">
+        <div class="p-3 rounded bg-red-50 border border-red-200">
+          <div class="text-2xl">🦠</div>
+          <div class="font-semibold mt-1">Condition X</div>
+          <div class="text-xs text-gray-600 mt-1">ER waits 3x. Non-critical patients auto-routed to virtual triage. AI auto-activates on outbreak signals.</div>
+        </div>
+        <div class="p-3 rounded bg-orange-50 border border-orange-200">
+          <div class="text-2xl">🌡️</div>
+          <div class="font-semibold mt-1">Heatwave</div>
+          <div class="text-xs text-gray-600 mt-1">Seniors and chronic-condition patients prioritized. AC-required filter on facilities. Cooling-centre advice surfaced.</div>
+        </div>
+        <div class="p-3 rounded bg-blue-50 border border-blue-200">
+          <div class="text-2xl">🛡️</div>
+          <div class="font-semibold mt-1">Cyberattack</div>
+          <div class="text-xs text-gray-600 mt-1">Hospital EHR offline. Offline-protocol facilities preferred. Patients arrive with printable QR card.</div>
+        </div>
+      </div>
+      <div class="speaker">
+        <span class="label">Speaker notes (60s)</span>
+        Flip to /dashboard live. Toggle Heatwave - watch the wait times shift in real time. The point: "we built one toggle, not three. The same engine adapts."
+      </div>
+    </section>
+
+    <!-- SLIDE 7 -->
+    <section id="slide-7" class="slide dash-card mb-6">
+      <div class="flex items-baseline justify-between mb-3">
+        <div><span class="slide-num text-gray-400">SLIDE 07</span> <span class="ml-3 timer">6:45 - 7:45</span></div>
+        <span class="text-xs px-2 py-1 rounded bg-emerald-100 text-emerald-800 font-semibold">SCALABILITY</span>
+      </div>
+      <h2 class="text-2xl font-extrabold tw-text-maroon mb-2">If 10% of Brampton uses TriageWolf weekly...</h2>
+      <div class="grid sm:grid-cols-4 gap-3 mb-3 text-sm">
+        <div class="p-3 rounded bg-emerald-50 border border-emerald-200">
+          <div class="text-2xl font-extrabold text-emerald-700">{{ scale.weekly_users }}</div>
+          <div class="text-gray-700">users/week</div>
+        </div>
+        <div class="p-3 rounded bg-emerald-50 border border-emerald-200">
+          <div class="text-2xl font-extrabold text-emerald-700">{{ scale.deflected_cases }}</div>
+          <div class="text-gray-700">non-emergency ER cases deflected</div>
+        </div>
+        <div class="p-3 rounded bg-emerald-50 border border-emerald-200">
+          <div class="text-2xl font-extrabold text-emerald-700">{{ scale.clinician_hours_saved }}</div>
+          <div class="text-gray-700">clinician hours freed</div>
+        </div>
+        <div class="p-3 rounded bg-emerald-50 border border-emerald-200">
+          <div class="text-xl font-extrabold text-emerald-700">${{ scale.cost_savings_low }}-${{ scale.cost_savings_high }}</div>
+          <div class="text-gray-700">CAD avoided / week</div>
+        </div>
+      </div>
+      <p class="text-xs text-gray-500">Cost basis: CIHI 2023 ($600-$1000 per non-admitted ER visit in Ontario).</p>
+      <div class="speaker mt-3">
+        <span class="label">Speaker notes (60s)</span>
+        Anchor on the dollar number - judges remember it. "This isn't a startup pitch. This is a public-system optimization that pays for itself in week one."
+      </div>
+    </section>
+
+    <!-- SLIDE 8 -->
+    <section id="slide-8" class="slide dash-card mb-6">
+      <div class="flex items-baseline justify-between mb-3">
+        <div><span class="slide-num text-gray-400">SLIDE 08</span> <span class="ml-3 timer">7:45 - 8:30</span></div>
+        <span class="text-xs px-2 py-1 rounded bg-pink-100 text-pink-800 font-semibold">2040 VISION</span>
+      </div>
+      <h2 class="text-2xl font-extrabold tw-text-maroon mb-2">Brampton 2040 Vision 6.</h2>
+      <p class="italic text-gray-600 mb-3">"In 2040, Brampton will be a mosaic of healthy citizens enjoying physical and mental wellness, fitness, and sports."</p>
+      <div class="grid sm:grid-cols-2 gap-2 text-sm">
+        {% for p in stats.vision_2040_pillars %}
+        <div class="p-2 rounded border-l-4 border-maroon bg-gray-50">
+          <div class="font-semibold tw-text-maroon">{{ p.name }}</div>
+          <div class="text-gray-700 text-xs">{{ p.alignment }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="speaker mt-3">
+        <span class="label">Speaker notes (45s)</span>
+        Read the Vision 6 quote slowly. Then: "We map to all four pillars. Faster care - that's Health & Well-Being. SMS fallback - that's Equity. Routing to neighbourhood walk-ins - Community-Based Living. Surge modes - Technology & Resilience."
+      </div>
+    </section>
+
+    <!-- SLIDE 9 -->
+    <section id="slide-9" class="slide dash-card mb-6">
+      <div class="flex items-baseline justify-between mb-3">
+        <div><span class="slide-num text-gray-400">SLIDE 09</span> <span class="ml-3 timer">8:30 - 9:15</span></div>
+        <span class="text-xs px-2 py-1 rounded bg-indigo-100 text-indigo-800 font-semibold">ROLLOUT</span>
+      </div>
+      <h2 class="text-2xl font-extrabold tw-text-maroon mb-2">Phased rollout - 30 months from pilot to city-wide.</h2>
+      <ol class="space-y-2 text-sm">
+        {% for phase in stats.rollout_phases %}
+        <li class="flex gap-3">
+          <div class="flex-shrink-0 w-8 h-8 rounded-full bg-maroon text-white font-bold flex items-center justify-center text-sm">{{ phase.phase }}</div>
+          <div>
+            <span class="font-semibold">{{ phase.where }}</span>
+            <span class="text-gray-600">- {{ phase.duration_months }} months &middot; KPI: {{ phase.kpi }}</span>
+          </div>
+        </li>
+        {% endfor %}
+      </ol>
+      <div class="speaker mt-3">
+        <span class="label">Speaker notes (45s)</span>
+        Mention you'd start at a single walk-in clinic to prove the QR handoff. Anchor on Phase 3's KPI: P90 wait below 6 hours. That's a real, measurable win.
+      </div>
+    </section>
+
+    <!-- SLIDE 10 -->
+    <section id="slide-10" class="slide dash-card mb-6">
+      <div class="flex items-baseline justify-between mb-3">
+        <div><span class="slide-num text-gray-400">SLIDE 10</span> <span class="ml-3 timer">9:15 - 9:30</span></div>
+        <span class="text-xs px-2 py-1 rounded bg-maroon text-white font-semibold">THE ASK</span>
+      </div>
+      <h2 class="text-2xl font-extrabold tw-text-maroon mb-2">Three things, then we let it run.</h2>
+      <div class="grid sm:grid-cols-3 gap-3 text-sm">
+        <div class="p-3 rounded bg-red-50 border border-red-200"><div class="font-semibold tw-text-maroon">1. Pilot partner</div><div class="text-gray-700">One walk-in clinic willing to accept QR handoff cards for 90 days.</div></div>
+        <div class="p-3 rounded bg-red-50 border border-red-200"><div class="font-semibold tw-text-maroon">2. API sandbox</div><div class="text-gray-700">Ontario Health Wait-Time API access for read-only integration testing.</div></div>
+        <div class="p-3 rounded bg-red-50 border border-red-200"><div class="font-semibold tw-text-maroon">3. Clinical advisor</div><div class="text-gray-700">3 months of CTAS-certified physician review before pilot.</div></div>
+      </div>
+      <div class="speaker mt-3">
+        <span class="label">Speaker notes (15s)</span>
+        Land it: "Priya's night should be 30 minutes, not 9 hours. That's what we built. That's what we're asking for help to ship."
+      </div>
+    </section>
+
+    <!-- Q&A PREP -->
+    <section id="qa" class="dash-card mt-12 border-l-4 border-orange-500">
+      <h2 class="text-2xl font-extrabold tw-text-maroon mb-3">Q&amp;A Preparation - Hard Questions</h2>
+      <div class="space-y-4 text-sm">
+        <div>
+          <div class="font-semibold tw-text-orange">Q: What if your AI misclassifies a heart attack as indigestion?</div>
+          <p class="text-gray-700 mt-1">A: It can't. We have a one-way safety floor: any anchor symptom (chest pain, breathing trouble, stroke signs, severe bleeding, unconsciousness) forces CTAS 2 or below regardless of any other input. The Bayesian layer can only ESCALATE further, never relax. We also require a CTAS-certified physician to review the rules before pilot - that's part of our Ask.</p>
+        </div>
+        <div>
+          <div class="font-semibold tw-text-orange">Q: Patient privacy under PHIPA?</div>
+          <p class="text-gray-700 mt-1">A: PHIPA-compliant by design. The QR token is short-lived (in-memory, restart-bounded), no PHI is logged in our analytics (only CTAS counts and timestamps), and any production deployment would route through Ontario Health's certified data residency. See the Constraints page for the full compliance map.</p>
+        </div>
+        <div>
+          <div class="font-semibold tw-text-orange">Q: What about patients without smartphones?</div>
+          <p class="text-gray-700 mt-1">A: Our SMS fallback (see /sms-demo) works on any phone with text. Same triage engine, same routing, same QR card via MMS. We also designed the form to be screen-reader-friendly and use a Lexend font that's tested for dyslexia accessibility.</p>
+        </div>
+        <div>
+          <div class="font-semibold tw-text-orange">Q: How do you handle multilingual residents (Punjabi, Urdu, Tamil)?</div>
+          <p class="text-gray-700 mt-1">A: The AI assistant accepts free-text in any language OpenAI supports - we've tested Punjabi and Urdu. The structured form is currently English-only but we partnered with Punjabi Community Health Services in our stakeholder list for a translated v2.</p>
+        </div>
+        <div>
+          <div class="font-semibold tw-text-orange">Q: What's stopping a hospital from just rejecting the QR card?</div>
+          <p class="text-gray-700 mt-1">A: Nothing today - it's an advisory tool, not a binding intake. That's why our Phase 1 pilot is a single walk-in clinic with explicit MOU. The card never bypasses clinical judgment; it just speeds up intake.</p>
+        </div>
+        <div>
+          <div class="font-semibold tw-text-orange">Q: What happens during a real Condition X outbreak in 2026?</div>
+          <p class="text-gray-700 mt-1">A: The AI assistant detects outbreak signals automatically (e.g. "many people sick", "everyone in my school is out") and flips Condition X mode. Non-critical patients are auto-routed to virtual triage, ER waits triple in the model so users see realistic expectations, and the dashboard shows redirected-patient counts in real time.</p>
+        </div>
+      </div>
+    </section>
+
+    <p class="text-center text-xs text-gray-500 mt-10">
+      <a href="{{ url_for('index') }}" class="hover:underline">&larr; back to TriageWolf</a>
+    </p>
   </main>
 
-  <footer class="py-6 text-center text-xs text-gray-500 border-t border-gray-200">Presentation page for stakeholders and demo runs.</footer>
+  <footer class="py-6 text-center text-xs text-gray-500 border-t border-gray-200">Pitch deck for WolfHacks 2026 judges. Total runtime 9:30 + 30s buffer.</footer>
 </body>
 </html>
