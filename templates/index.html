@@ -23,61 +23,8 @@
         <div class="eyebrow" style="margin-bottom: 14px;">
           {{ icon('shield', size=12) }} CTAS-aligned · Brampton 2040
         </div>
-<<<<<<< Updated upstream
-      </a>
-      <nav class="flex flex-wrap items-center gap-4 text-sm">
-        <a href="{{ url_for('impact') }}" class="text-orange-200 hover:text-white">Impact</a>
-        <a href="{{ url_for('sms_demo') }}" class="text-orange-200 hover:text-white">SMS Demo</a>
-        <a href="{{ url_for('pitch') }}" class="text-orange-200 hover:text-white">Pitch</a>
-        <a href="{{ url_for('constraints') }}" class="text-orange-200 hover:text-white">Constraints</a>
-        <a href="{{ url_for('dashboard') }}" class="text-orange-200 hover:text-white">Dashboard</a>
-        <a href="{{ url_for('mental_health') }}" class="text-orange-200 hover:text-white">Mental Health</a>
-        <a href="{{ url_for('consult') }}" class="text-orange-200 hover:text-white">Consult a Doctor</a>
-        <a href="{{ url_for('account') }}" class="text-orange-200 hover:text-white">Profile</a>
-        <button id="a11y-toggle" type="button"
-                class="text-xs px-2 py-1 rounded border border-orange-300 hover:bg-white hover:text-maroon">
-          A11y
-        </button>
-      </nav>
-    </div>
-  </header>
-
-  <main class="flex-1 max-w-4xl w-full mx-auto px-6 py-10">
-    <section class="mb-8 text-center">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f7eaec] text-xs font-semibold tracking-[0.08em] uppercase tw-text-maroon mb-4">
-        Brampton care navigation
-      </div>
-      <h1 class="display text-5xl md:text-6xl tw-text-maroon leading-[0.95]">
-        Find the fastest care, right now.
-      </h1>
-      <p class="mt-4 text-gray-700 max-w-2xl mx-auto">
-        Built for Brampton's documented care-access gap. We'll match you to the right facility using the
-        <span class="font-semibold tw-text-orange">Canadian Triage and Acuity Scale</span> + ML-powered early-detection,
-        live wait times, and your demographics.
-      </p>
-      <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
-        <div class="dash-card">
-          <div class="mono text-2xl font-semibold tw-text-maroon">{{ facility_count }}</div>
-          <div class="stat-label">Facilities tracked</div>
-        </div>
-        <div class="dash-card">
-          <div class="mono text-2xl font-semibold tw-text-maroon">{{ warning_count }}</div>
-          <div class="stat-label">Live capacity alerts</div>
-        </div>
-        <div class="dash-card">
-          <div class="mono text-2xl font-semibold tw-text-maroon">QR</div>
-          <div class="stat-label">Handoff ready</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- AI assistant panel -->
-    <section id="ai-panel" class="mb-8 bg-gradient-to-br from-white to-orange-50 rounded-2xl shadow-md border border-orange-100 p-6 md:p-7">
-      <div class="flex items-start justify-between gap-3 mb-3">
-        <div>
-          <div class="flex items-center gap-2">
-            <h2 class="text-xl font-bold tw-text-maroon">Talk to the SwiftCare Assistant</h2>
-          </div>
+        <h1 class="display" style="font-size: 2.5rem; margin-bottom: 8px;">Rapid triage</h1>
+        <p class="sub">Tell us what's up, get matched to the fastest care available in Brampton</p>
           <p class="text-sm text-gray-600 mt-1">
             Describe how you feel in plain words, or tap the mic to speak. The assistant detects cardiac, stroke and outbreak patterns early and pre-fills the form.
           </p>

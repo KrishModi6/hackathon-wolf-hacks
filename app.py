@@ -916,6 +916,14 @@ def wellness_rewards():
     return render_template("wellness_rewards.html", stats=stats)
 
 
+@app.route("/keep-active")
+def keep_active():
+    """Active living page for patients waiting in hospital queues."""
+    stats = load_stats()
+    wait_minutes = request.args.get('wait', 45, type=int)
+    return render_template("keep_active.html", stats=stats, wait_minutes=wait_minutes)
+
+
 @app.route("/maps")
 def maps():
     facilities = load_facilities()
